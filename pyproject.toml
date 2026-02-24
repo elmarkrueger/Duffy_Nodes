@@ -1,0 +1,17 @@
+[project]
+name = "comfyui-duffy-nodes"
+description = "A custom node pack for ComfyUI built on the V3 Schema."
+version = "0.1.0"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.1.0",
+    "numpy>=1.26.0",
+]
+
+[project.urls]
+Repository = ""
+
+[tool.comfy]
+PublisherId = "duffy"
+DisplayName = "Duffy Nodes"
