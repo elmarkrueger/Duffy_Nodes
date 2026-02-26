@@ -45,6 +45,92 @@ Routes one of three inputs to a single output using a mutually exclusive slider.
 - Build conditional workflow branches controlled by a single slider.
 - Route any data type — images, latents, conditioning vectors, strings, custom objects — through the same switch.
 
+### LoRa Prompt Combiner
+
+**Category:** `Duffy / Text`
+
+Combines a LoRa trigger and a main prompt using a customizable separator.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `LoRa Trigger` (`lora_trigger`) | String (multiline) | `""` | The trigger words for the LoRa model. |
+| `Separator` (`separator`) | String | `,` | The separator to use between the LoRa trigger and the main prompt. |
+| `Prompt` (`prompt`) | String (multiline) | `""` | The main prompt text. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Combined Prompt` | String | The combined prompt text. |
+
+### Five Float Sliders
+
+**Category:** `Duffy / Math`
+
+Provides five float sliders (0.0 to 1.0) with customizable labels. The output descriptions and slider labels dynamically update to match the user-defined labels.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Label 1-5` (`label_1` to `label_5`) | String | `Value 1-5` | Custom labels for each slider. |
+| `Value 1-5` (`value_1` to `value_5`) | Float (slider 0.0 – 1.0) | `0.5` | Float values for each slider. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Value 1-5` (`out_1` to `out_5`) | Float | The float values from the sliders. |
+
+### Five Int Sliders
+
+**Category:** `Duffy / Math`
+
+Provides five integer sliders (1 to 100) with customizable labels. The output descriptions and slider labels dynamically update to match the user-defined labels.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Label 1-5` (`label_1` to `label_5`) | String | `Value 1-5` | Custom labels for each slider. |
+| `Value 1-5` (`value_1` to `value_5`) | Int (slider 1 – 100) | `50` | Integer values for each slider. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Value 1-5` (`out_1` to `out_5`) | Int | The integer values from the sliders. |
+
+### Multi-Pass Sampling
+
+**Category:** `Duffy / Sampling`
+
+Configures filename, filepath, denoise values, and step counts for multi-pass sampling workflows. All parameters are exposed as individual outputs so they can be wired directly into downstream sampler nodes.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Filename` (`filename`) | String | `Sampling_Output` | Output filename for the sampling result. |
+| `Filepath` (`filepath`) | String | `./ComfyUI/output` | Output directory path. |
+| `Denoise Value 1` (`denoise_1`) | Float (slider 0.0 – 1.0) | `1.00` | Denoise strength for pass 1. |
+| `Denoise Value 2` (`denoise_2`) | Float (slider 0.0 – 1.0) | `0.75` | Denoise strength for pass 2. |
+| `Denoise Value 3` (`denoise_3`) | Float (slider 0.0 – 1.0) | `0.50` | Denoise strength for pass 3. |
+| `Steps Sampler 1` (`steps_1`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 1. |
+| `Steps Sampler 2` (`steps_2`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 2. |
+| `Steps Sampler 3` (`steps_3`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 3. |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Filename` | String | The configured filename. |
+| `Filepath` | String | The configured filepath. |
+| `Denoise Value 1-3` | Float | Denoise strength for each pass. |
+| `Steps Sampler 1-3` | Int | Step count for each pass. |
+
 ---
 
 ## Installation

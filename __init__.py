@@ -1,6 +1,11 @@
 import logging
+import os
+import shutil
 
 from comfy_api.latest import ComfyExtension, io
+
+# Instructs ComfyUI to serve the './web' directory to the frontend
+WEB_DIRECTORY = "./web"
 
 # Import V3 Schema node classes from the nodes subpackage
 # Example: from .nodes.my_node import MyNode
@@ -25,3 +30,5 @@ async def comfy_entrypoint() -> DuffyNodesExtension:
     """
     logging.info("Initializing Duffy_Nodes extension (V3 Schema).")
     return DuffyNodesExtension()
+
+__all__ = ["comfy_entrypoint", "WEB_DIRECTORY"]
