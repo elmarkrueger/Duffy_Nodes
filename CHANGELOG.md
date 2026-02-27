@@ -6,6 +6,31 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.6.0] — 2026-02-27
+
+### Added
+
+- **Integer Math** node (`Duffy_IntegerMath`, category `Duffy/Math`).
+  - Two integer inputs (`A`, `B`) and a combo dropdown to select Add, Subtract, Multiply, or Divide.
+  - Outputs the integer result. Division uses floor division; dividing by zero returns `0`.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+- **Float Math** node (`Duffy_FloatMath`, category `Duffy/Math`).
+  - Two float inputs (`A`, `B`) and a combo dropdown to select Add, Subtract, Multiply, or Divide.
+  - Outputs the float result. Dividing by zero returns `0.0`.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
+## [0.5.0] — 2026-02-26
+
+### Added
+
+- **Toggle Switch** node (`Duffy_ToggleSwitch`, category `Duffy/Routing`).
+  - Five-channel signal router accepting any data type on each input port via a wildcard `io.Custom("*")` type.
+  - Integer slider (1–5) selects which channel is routed to the single `Selected Signal` output.
+  - Per-channel customizable text labels that dynamically update input port names.
+  - V3 lazy evaluation via `check_lazy_status` — only the active upstream branch is computed; idle branches are pruned from the execution graph.
+  - Vue-compatible JavaScript extension (`toggle_switch.js`) for dynamic label sync and custom node theming.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
 ## [0.4.0] — 2026-02-26
 
 ### Added

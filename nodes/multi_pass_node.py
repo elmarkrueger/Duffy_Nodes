@@ -21,12 +21,14 @@ class DuffyMultiPassSampling(io.ComfyNode):
                     "filename",
                     display_name="Filename",
                     default="Sampling_Output",
+                    multiline=False,
                     tooltip="Output filename for the sampling result",
                 ),
                 io.String.Input(
                     "filepath",
                     display_name="Filepath",
                     default="./ComfyUI/output",
+                    multiline=False,
                     tooltip="Output directory path",
                 ),
                 # Denoise value sliders (0.0 – 1.0)

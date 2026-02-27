@@ -103,6 +103,66 @@ Provides five integer sliders (1 to 100) with customizable labels. The output de
 |------|------|-------------|
 | `Value 1-5` (`out_1` to `out_5`) | Int | The integer values from the sliders. |
 
+### Integer Math
+
+**Category:** `Duffy / Math`
+
+Performs basic arithmetic on two integers. Choose from Add, Subtract, Multiply, or Divide via a dropdown. Division uses integer (floor) division; dividing by zero returns `0`.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `A` (`a`) | Int | `0` | First operand. |
+| `Operation` (`operation`) | Combo (`Add`, `Subtract`, `Multiply`, `Divide`) | `Add` | Arithmetic operation to perform. |
+| `B` (`b`) | Int | `0` | Second operand. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Result` (`result`) | Int | Result of the arithmetic operation. |
+
+### Float Math
+
+**Category:** `Duffy / Math`
+
+Performs basic arithmetic on two floats. Choose from Add, Subtract, Multiply, or Divide via a dropdown. Dividing by zero returns `0.0`.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `A` (`a`) | Float | `0.0` | First operand. |
+| `Operation` (`operation`) | Combo (`Add`, `Subtract`, `Multiply`, `Divide`) | `Add` | Arithmetic operation to perform. |
+| `B` (`b`) | Float | `0.0` | Second operand. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Result` (`result`) | Float | Result of the arithmetic operation. |
+
+### Toggle Switch
+
+**Category:** `Duffy / Routing`
+
+A 5-channel signal router with customizable labels and a single selector slider (1–5). Each channel accepts any data type. The slider determines which channel is routed to the output. Thanks to **V3 lazy evaluation**, only the active channel's upstream graph is computed — the four idle branches are skipped entirely.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Active Channel` (`active_input`) | Int (slider 1 – 5) | `1` | Selects which input channel is routed to the output. |
+| `Label 1-5` (`label_1` to `label_5`) | String | `Input 1-5` | Custom display label for each channel. |
+| `Input 1-5` (`input_1` to `input_5`) | Any (optional, lazy) | — | Data connected to each channel. Only the active channel is evaluated. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Selected Signal` | Any | The data from the selected channel. |
+
 ### Multi-Pass Sampling
 
 **Category:** `Duffy / Sampling`
