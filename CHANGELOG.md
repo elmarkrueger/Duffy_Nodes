@@ -6,6 +6,57 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.8.0] — 2026-02-27
+
+### Added
+
+- **Empty Qwen-2512 Latent Image** node (`Duffy_EmptyQwenLatent`, category `Duffy/Latent`).
+  - Creates an empty 16-channel latent tensor for the Qwen-Image-2512 model.
+  - Dropdown of seven optimised resolution presets (1:1, 16:9, 9:16, 4:3, 3:4, 3:2, 2:3).
+  - Size multiplier slider (1.0–2.0) with automatic snapping to 16 px alignment.
+  - Outputs the latent plus computed width and height as integers.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+- **Latent Noise Blender** node (`Duffy_LatentNoiseBlender`, category `Duffy/Latent`).
+  - Blends a base latent with a noise latent using a percentage slider (0–100).
+  - Automatically resizes noise via bicubic interpolation when spatial dimensions differ.
+  - Handles cross-device tensor mismatches transparently.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+- **Generate Noise (Flux 2 Klein)** node (`Duffy_Flux2KleinNoise`, category `Duffy/Latent`).
+  - Generates parameterised noise for injection or as empty latents.
+  - Supports Flux 2 Klein (128-channel, f16), SD3 (16-channel, f8), and SD1.5/SDXL (4-channel, f8).
+  - Three tensor layouts: BCHW (images), BCTHW and BTCHW (video).
+  - Deterministic seed, intensity multiplier, variance normalisation, and optional sigma-based scaling.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+
+## [0.7.0] — 2026-02-27
+
+### Added
+
+- **RGBA to RGB (Lossless)** node (`Duffy_RGBAtoRGB`, category `Duffy/Image`).
+  - Converts RGBA images to RGB by discarding the alpha channel via zero-copy tensor slicing.
+  - Passes through 3-channel RGB images unchanged; expands single-channel grayscale to pseudo-RGB.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+- **Megapixel Resize** node (`Duffy_MegapixelResize`, category `Duffy/Image`).
+  - Resizes images to a target megapixel count (0.1–4.0 MP) while preserving aspect ratio.
+  - Output dimensions snapped to multiples of 8 for VAE compatibility.
+  - Supports five resampling methods: lanczos, bicubic, bilinear, nearest-exact, area.
+  - Outputs the resized image plus its width and height as integers.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+- **Save Image with Sidecar TXT** node (`Duffy_SaveImageWithSidecar`, category `Duffy/IO`).
+  - Saves images in PNG/JPG/WEBP format with a companion `.txt` file containing model details, prompts, and multi-pass sampling metadata.
+  - Supports optional custom output directory, three sampling passes with sampler/scheduler/steps/seed fields.
+  - Marked as `is_output_node=True` for partial graph execution.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+- **Directory Image Iterator** node (`Duffy_DirectoryImageIterator`, category `Duffy/Image`).
+  - Loads a sorted slice of images from a directory and emits them as a list for downstream iteration.
+  - Supports start index and image limit controls, mixed resolutions.
+  - Uses `fingerprint_inputs` for smart cache invalidation based on file modification timestamps.
+  - Migrated from legacy V1 class (`IS_CHANGED`, `OUTPUT_IS_LIST`) to V3 Schema with `fingerprint_inputs` and `is_output_list`.
+- **Iterator Current Filename** node (`Duffy_IteratorCurrentFilename`, category `Duffy/Image`).
+  - Helper node that strips file extensions from filename lists emitted by Directory Image Iterator.
+  - Uses `is_input_list` and `is_output_list` for list-mode pass-through.
+  - Migrated from legacy V1 class to full V3 Schema implementation.
+
 ## [0.6.0] — 2026-02-27
 
 ### Added

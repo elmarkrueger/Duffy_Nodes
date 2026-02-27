@@ -191,6 +191,180 @@ Configures filename, filepath, denoise values, and step counts for multi-pass sa
 | `Denoise Value 1-3` | Float | Denoise strength for each pass. |
 | `Steps Sampler 1-3` | Int | Step count for each pass. |
 
+### RGBA to RGB (Lossless)
+
+**Category:** `Duffy / Image`
+
+Lossless conversion of RGBA image tensors to RGB by discarding the alpha channel via tensor slicing. Passes through RGB images unchanged and expands single-channel grayscale inputs to 3-channel RGB.
+
+#### Inputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Image` (`image`) | Image | Input image tensor (RGBA, RGB, or grayscale). |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `RGB Image` (`rgb_image`) | Image | The resulting 3-channel RGB image. |
+
+### Megapixel Resize
+
+**Category:** `Duffy / Image`
+
+Resizes images to a target megapixel count while preserving aspect ratio. Output dimensions are rounded to the nearest multiple of 8 for VAE compatibility.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Image` (`image`) | Image | — | The input image batch. |
+| `Target Megapixels` (`target_megapixels`) | Float | `1.0` | Target size in megapixels (e.g. 1.0 ≈ 1024×1024). |
+| `Resample Method` (`method`) | Combo (`lanczos`, `bicubic`, `bilinear`, `nearest-exact`, `area`) | `lanczos` | Interpolation algorithm. |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Image` (`image`) | Image | The resized image. |
+| `Width` (`width`) | Int | Width of the resized image in pixels. |
+| `Height` (`height`) | Int | Height of the resized image in pixels. |
+
+### Save Image with Sidecar TXT
+
+**Category:** `Duffy / IO`
+
+Saves images in PNG, JPG, or WEBP format and writes a companion `.txt` file alongside each image containing model details, prompts, and multi-pass sampling metadata.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Images` (`images`) | Image | — | Image batch to save. |
+| `Filename Prefix` (`filename_prefix`) | String | `ComfyUI` | Base name for saved files. |
+| `File Format` (`file_format`) | Combo (`PNG`, `JPG`, `JPEG`, `WEBP`) | `PNG` | Output image format. |
+| `Output Path` (`output_path`) | String (optional) | `""` | Custom output directory. |
+| `Positive Prompt` (`positive_prompt`) | String (optional, multiline) | `""` | Positive prompt text. |
+| `Negative Prompt` (`negative_prompt`) | String (optional, multiline) | `""` | Negative prompt text. |
+| `Model Name` (`model_name`) | String (optional) | `Unknown Model` | Diffusion model name. |
+| `CLIP Name` (`clip_name`) | String (optional) | `Unknown CLIP` | CLIP model name. |
+| `VAE Name` (`vae_name`) | String (optional) | `Unknown VAE` | VAE model name. |
+| Pass 1–3 Sampler/Scheduler/Steps/Seed | String / Int (optional) | — | Per-pass sampling metadata. |
+
+#### Output
+
+This is an **output node** — it saves files to disk and displays a thumbnail preview. No output ports.
+
+### Directory Image Iterator
+
+**Category:** `Duffy / Image`
+
+Loads a sorted slice of images from a directory and emits them as a list for downstream iteration. Supports mixed resolutions, start index / limit controls, and smart cache invalidation that re-executes only when the actual file slice changes.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Folder Path` (`folder_path`) | String | `""` | Absolute path to the image directory. |
+| `Start Index` (`start_index`) | Int | `0` | Zero-based index of the first image. |
+| `Image Limit` (`image_limit`) | Int | `0` | Max images to load (0 = all). |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Image` (`image`) | Image (list) | One image tensor per file. |
+| `Filename` (`filename`) | String (list) | Original filename of each image. |
+
+### Iterator Current Filename
+
+**Category:** `Duffy / Image`
+
+Helper node for Directory Image Iterator. Strips file extensions from a list of filenames, producing clean filename prefixes suitable for wiring into SaveImage.
+
+#### Inputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Filename` (`filename`) | String (list) | Filename list from Directory Image Iterator. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Filename Prefix` (`filename_prefix`) | String (list) | Filename with extension stripped. |
+
+### Empty Qwen-2512 Latent Image
+
+**Category:** `Duffy / Latent`
+
+Creates an empty 16-channel latent tensor for the Qwen-Image-2512 model. Select a base resolution from a dropdown of optimised aspect ratios and optionally scale it with a multiplier. Dimensions are automatically snapped to multiples of 16 for clean patch alignment.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Resolution` (`resolution`) | Combo | `16:9 (1664x928)` | Base resolution preset for the Qwen-Image-2512 architecture. |
+| `Size Multiplier` (`size_multiplier`) | Float (slider 1.0 – 2.0) | `1.0` | Scales the base resolution. |
+| `Batch Size` (`batch_size`) | Int | `1` | Number of latent images in the batch. |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Latent` (`latent`) | Latent | Empty 16-channel latent tensor. |
+| `Width` (`width`) | Int | Pixel width after scaling and alignment. |
+| `Height` (`height`) | Int | Pixel height after scaling and alignment. |
+
+### Latent Noise Blender
+
+**Category:** `Duffy / Latent`
+
+Blends a base latent with a noise latent using a percentage slider. Automatically resizes noise to match the image dimensions and handles device mismatches.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Latent Image` (`latent_image`) | Latent | — | The base latent structure. |
+| `Latent Noise` (`latent_noise`) | Latent | — | The noise latent to blend in. |
+| `Blend %` (`blend_percentage`) | Int (slider 0 – 100) | `50` | 0 = pure image, 100 = pure noise. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Blended Latent` (`blended_latent`) | Latent | Result of blending the image and noise latents. |
+
+### Generate Noise (Flux 2 Klein)
+
+**Category:** `Duffy / Latent`
+
+Generates highly parameterised noise for injection or use as empty latents. Supports Flux 2 Klein architectures (128 channels, f16 spatial downsampling) alongside SD1.5/SDXL/SD3 workflows (4/16 channels, f8). Offers seed control, variance normalisation, sigma-based scaling, and three tensor layouts for image or video synthesis.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Width` (`width`) | Int | `1024` | Pixel width (step of 16 for f16 alignment). |
+| `Height` (`height`) | Int | `1024` | Pixel height (step of 16 for f16 alignment). |
+| `Batch Size` (`batch_size`) | Int | `1` | Number of noise samples to generate. |
+| `Seed` (`seed`) | Int | `123` | Random seed for deterministic generation. |
+| `Multiplier` (`multiplier`) | Float | `1.0` | Intensity multiplier applied to the noise. |
+| `Constant Batch Noise` (`constant_batch_noise`) | Boolean | `False` | All batch items share identical noise. |
+| `Normalize` (`normalize`) | Boolean | `False` | Normalize noise to unit variance. |
+| `Model` (`model`) | Model (optional) | — | Model used for sigma-based variance scaling. |
+| `Sigmas` (`sigmas`) | Sigmas (optional) | — | Sigma schedule for variance scaling. |
+| `Latent Channels` (`latent_channels`) | Combo (`4`, `16`, `128`) | `4` | Channel count: 4 = SD1.5/SDXL, 16 = SD3, 128 = Flux 2. |
+| `Shape` (`shape`) | Combo (`BCHW`, `BCTHW`, `BTCHW`) | `BCHW` | Tensor layout: BCHW for images, BCTHW/BTCHW for video. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Latent` (`latent`) | Latent | Generated noise tensor wrapped in a latent dictionary. |
+
 ---
 
 ## Installation
