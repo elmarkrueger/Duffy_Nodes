@@ -25,7 +25,6 @@ class DuffyIteratorCurrentFilename(io.ComfyNode):
                 "Directory Image Iterator, producing clean filename prefixes."
             ),
             is_input_list=True,
-            is_output_list=(True,),
             inputs=[
                 io.String.Input(
                     "filename",
@@ -38,6 +37,7 @@ class DuffyIteratorCurrentFilename(io.ComfyNode):
                     "filename_prefix",
                     display_name="Filename Prefix",
                     tooltip="Filename with extension stripped, ready for SaveImage",
+                    is_output_list=True,
                 ),
             ],
         )

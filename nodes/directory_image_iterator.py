@@ -29,7 +29,6 @@ class DuffyDirectoryImageIterator(io.ComfyNode):
                 "Supports start index and limit controls. Cache is invalidated only when "
                 "the file slice actually changes."
             ),
-            is_output_list=(True, True),
             inputs=[
                 io.String.Input(
                     "folder_path",
@@ -62,11 +61,13 @@ class DuffyDirectoryImageIterator(io.ComfyNode):
                     "image",
                     display_name="Image",
                     tooltip="Loaded image tensors (one per file)",
+                    is_output_list=True,
                 ),
                 io.String.Output(
                     "filename",
                     display_name="Filename",
                     tooltip="Original filename of each loaded image",
+                    is_output_list=True,
                 ),
             ],
         )
