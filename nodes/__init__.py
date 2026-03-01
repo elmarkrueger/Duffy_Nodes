@@ -15,6 +15,11 @@ from .load_image_resize import DuffyLoadImageResize
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
 from .megapixel_resize import DuffyMegapixelResize
 from .multi_pass_node import DuffyMultiPassSampling
+# Primitive nodes
+from .primitive_float import DuffyPrimitiveFloat
+from .primitive_integer import DuffyPrimitiveInteger
+from .primitive_string import DuffyPrimitiveString
+from .primitive_string_multiline import DuffyPrimitiveStringMultiline
 # Image processing nodes (migrated from legacy V1)
 from .rgba_to_rgb import DuffyRGBAtoRGB
 from .save_image_sidecar import DuffySaveImageWithSidecar
@@ -41,4 +46,9 @@ NODE_LIST = [
     DuffyEmptyQwenLatent,
     DuffyLatentNoiseBlender,
     DuffyFlux2KleinNoise,
+    # Primitive nodes
+    DuffyPrimitiveInteger,
+    DuffyPrimitiveFloat,
+    DuffyPrimitiveString,
+    DuffyPrimitiveStringMultiline,
 ]

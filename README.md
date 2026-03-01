@@ -407,6 +407,78 @@ Generates highly parameterised noise for injection or use as empty latents. Supp
 |------|------|-------------|
 | `Latent` (`latent`) | Latent | Generated noise tensor wrapped in a latent dictionary. |
 
+### Primitive Integer
+
+**Category:** `Duffy / Primitives`
+
+A simple pass-through node that takes a single integer value and outputs it unchanged. Useful for injecting constant integer values into a workflow.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Value` (`value`) | Int | `0` | Integer value to pass through. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Value` (`value`) | Int | The integer value. |
+
+### Primitive Float
+
+**Category:** `Duffy / Primitives`
+
+A simple pass-through node that takes a single float value and outputs it unchanged. Useful for injecting constant float values into a workflow.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Value` (`value`) | Float | `0.0` | Float value to pass through. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Value` (`value`) | Float | The float value. |
+
+### Primitive String
+
+**Category:** `Duffy / Primitives`
+
+A simple pass-through node that takes a single-line string value and outputs it unchanged. Useful for injecting constant text values into a workflow.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Value` (`value`) | String | `""` | Single-line string value to pass through. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Value` (`value`) | String | The string value. |
+
+### Primitive String (Multiline)
+
+**Category:** `Duffy / Primitives`
+
+A simple pass-through node that takes a multiline string value and outputs it unchanged. Useful for injecting multi-line text blocks such as prompts into a workflow.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Value` (`value`) | String (multiline) | `""` | Multiline string value to pass through. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Value` (`value`) | String | The multiline string value. |
+
 ---
 
 ## Installation

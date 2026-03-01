@@ -6,6 +6,23 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.10.0] — 2026-03-01
+
+### Added
+
+- **Primitive Integer** node (`Duffy_PrimitiveInteger`, category `Duffy/Primitives`).
+  - Simple pass-through node that takes a single integer value and outputs it unchanged.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+- **Primitive Float** node (`Duffy_PrimitiveFloat`, category `Duffy/Primitives`).
+  - Simple pass-through node that takes a single float value and outputs it unchanged.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+- **Primitive String** node (`Duffy_PrimitiveString`, category `Duffy/Primitives`).
+  - Simple pass-through node that takes a single-line string value and outputs it unchanged.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+- **Primitive String (Multiline)** node (`Duffy_PrimitiveStringMultiline`, category `Duffy/Primitives`).
+  - Simple pass-through node that takes a multiline string value and outputs it unchanged.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
 ## [0.9.0] — 2026-03-01
 
 ### Added
