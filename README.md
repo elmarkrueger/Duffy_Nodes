@@ -209,6 +209,48 @@ Lossless conversion of RGBA image tensors to RGB by discarding the alpha channel
 |------|------|-------------|
 | `RGB Image` (`rgb_image`) | Image | The resulting 3-channel RGB image. |
 
+### Load Image & Resize
+
+**Category:** `Duffy / Image`
+
+Combines image loading and megapixel resizing into a single node. Loads an image via the ComfyUI upload dialog, displays its metadata (filename, original dimensions, aspect ratio, megapixels), and resizes it to a target megapixel count. Optionally overrides the aspect ratio with a preset — non-original ratios center-crop the source image first. All output dimensions are snapped to multiples of 8 for VAE compatibility. The node also outputs the alpha channel as an inverted mask.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Image` (`image`) | Combo (image upload) | — | Select or upload an image from the input directory. |
+| `Target Megapixels` (`target_megapixels`) | Float | `1.0` | Target size in megapixels (0.01–16.0). |
+| `Aspect Ratio` (`aspect_ratio`) | Combo | `original` | Keep original or pick a preset (`1:1`, `4:3`, `3:2`, `16:9`, `21:9`, `3:4`, `2:3`, `9:16`, `9:21`). Non-original ratios center-crop the source first. |
+| `Resample Method` (`method`) | Combo (`lanczos`, `bicubic`, `bilinear`, `nearest-exact`, `area`) | `lanczos` | Interpolation algorithm. |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Image` (`image`) | Image | The resized image. |
+| `Mask` (`mask`) | Mask | Alpha-channel mask (inverted — black = opaque). |
+| `Width` (`width`) | Int | Width of the resized image. |
+| `Height` (`height`) | Int | Height of the resized image. |
+| `Orig Width` (`original_width`) | Int | Original image width before resize. |
+| `Orig Height` (`original_height`) | Int | Original image height before resize. |
+| `Filename` (`filename`) | String | Source image filename. |
+| `Megapixels` (`megapixels`) | Float | Megapixel count of the resized image. |
+| `Aspect Ratio` (`aspect_ratio_str`) | String | Aspect ratio of the resized image (e.g. `16:9`). |
+
+#### How it works
+
+1. Select or upload an image using the built-in image picker.
+2. Set the desired **Target Megapixels** — the image is scaled so its total pixel count matches this target.
+3. Optionally choose an **Aspect Ratio** preset. When a non-original ratio is selected, the source image is center-cropped to that ratio before resizing.
+4. After execution, the on-node info panel shows the filename, source dimensions, output dimensions, aspect ratio, and megapixel count.
+
+#### Use cases
+
+- Replace a separate Load Image → Resize chain with a single node.
+- Quickly resize to a consistent megapixel budget while controlling aspect ratio for different model architectures.
+- Feed the metadata outputs (width, height, filename, megapixels) into downstream nodes for conditional logic or file naming.
+
 ### Megapixel Resize
 
 **Category:** `Duffy / Image`

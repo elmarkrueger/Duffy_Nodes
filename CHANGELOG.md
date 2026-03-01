@@ -6,6 +6,24 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.9.0] — 2026-03-01
+
+### Added
+
+- **Load Image & Resize** node (`Duffy_LoadImageResize`, category `Duffy/Image`).
+  - Combines ComfyUI's Load Image functionality with megapixel resizing in a single node.
+  - V3 image upload via `io.Combo.Input` with `upload=io.UploadType.image`.
+  - Target megapixel slider (0.01–16.0 MP) with dimensions snapped to multiples of 8.
+  - Aspect ratio selector with 10 presets: original, 1:1, 4:3, 3:2, 16:9, 21:9, 3:4, 2:3, 9:16, 9:21.
+  - Non-original aspect ratios center-crop the source image before resizing.
+  - Five resampling methods: lanczos, bicubic, bilinear, nearest-exact, area.
+  - Nine outputs: image, mask, width, height, original width, original height, filename, megapixels, aspect ratio string.
+  - Alpha-channel extraction with inverted mask output (black = opaque).
+  - V3 `fingerprint_inputs` (SHA-256 hash) for proper cache invalidation.
+  - `validate_inputs` for file existence checking.
+  - Vue-compatible JavaScript extension (`load_image_resize.js`) with on-node info panel displaying filename, source/output dimensions, aspect ratio, and megapixel count after execution.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
 ## [0.8.0] — 2026-02-27
 
 ### Added

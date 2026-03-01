@@ -11,6 +11,7 @@ from .flux2_klein_noise import DuffyFlux2KleinNoise
 from .integer_math import DuffyIntegerMath
 from .iterator_current_filename import DuffyIteratorCurrentFilename
 from .latent_noise_blender import DuffyLatentNoiseBlender
+from .load_image_resize import DuffyLoadImageResize
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
 from .megapixel_resize import DuffyMegapixelResize
 from .multi_pass_node import DuffyMultiPassSampling
@@ -32,6 +33,7 @@ NODE_LIST = [
     # Image processing
     DuffyRGBAtoRGB,
     DuffyMegapixelResize,
+    DuffyLoadImageResize,
     DuffySaveImageWithSidecar,
     DuffyDirectoryImageIterator,
     DuffyIteratorCurrentFilename,
