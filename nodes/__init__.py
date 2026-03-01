@@ -8,6 +8,7 @@ from .five_float_sliders import DuffyFiveFloatSliders
 from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
 from .flux2_klein_noise import DuffyFlux2KleinNoise
+from .image_adjuster import DuffyImageAdjuster
 from .integer_math import DuffyIntegerMath
 from .iterator_current_filename import DuffyIteratorCurrentFilename
 from .latent_noise_blender import DuffyLatentNoiseBlender
@@ -36,6 +37,7 @@ NODE_LIST = [
     DuffyMultiPassSampling,
     DuffyToggleSwitch,
     # Image processing
+    DuffyImageAdjuster,
     DuffyRGBAtoRGB,
     DuffyMegapixelResize,
     DuffyLoadImageResize,

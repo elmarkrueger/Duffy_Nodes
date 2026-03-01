@@ -209,6 +209,41 @@ Lossless conversion of RGBA image tensors to RGB by discarding the alpha channel
 |------|------|-------------|
 | `RGB Image` (`rgb_image`) | Image | The resulting 3-channel RGB image. |
 
+### Image Adjuster
+
+**Category:** `Duffy / Image`
+
+Post-processing node for adjusting brightness, contrast, saturation, and hue of an image batch. Place between VAE Decode and Save Image to fine-tune generated images before saving. All sliders default to neutral values so the image passes through unchanged until adjusted. Uses `torchvision.transforms.functional` for GPU-accelerated transforms and clamps the output to `[0.0, 1.0]` to prevent downstream artifacts.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Image` (`image`) | Image | — | The input image batch. |
+| `Brightness` (`brightness`) | Float (slider 0.0 – 3.0) | `1.0` | Scale global intensity. 1.0 is unchanged. |
+| `Contrast` (`contrast`) | Float (slider 0.0 – 3.0) | `1.0` | Scale dynamic range. 1.0 is unchanged. |
+| `Saturation` (`saturation`) | Float (slider 0.0 – 3.0) | `1.0` | Scale color vibrancy. 1.0 is unchanged, 0.0 is grayscale. |
+| `Hue` (`hue`) | Float (slider −0.5 – 0.5) | `0.0` | Cyclic shift of color hues. 0.0 is unchanged. |
+
+#### Output
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Image` (`image`) | Image | The adjusted image batch. |
+
+#### How it works
+
+1. Wire the output of **VAE Decode** (or any image-producing node) into the **Image** input.
+2. Adjust the **Brightness**, **Contrast**, **Saturation**, and **Hue** sliders to taste.
+3. Connect the output to **Save Image** or any downstream node.
+4. Transforms that remain at their default values are skipped entirely for efficiency.
+
+#### Use cases
+
+- Fine-tune generated images before saving — boost contrast, warm up colors, or shift hues without leaving ComfyUI.
+- Desaturate an image to grayscale by setting Saturation to 0.
+- Build post-processing chains by stacking multiple adjustment nodes.
+
 ### Load Image & Resize
 
 **Category:** `Duffy / Image`

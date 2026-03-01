@@ -6,6 +6,19 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.11.0] — 2026-03-01
+
+### Added
+
+- **Image Adjuster** node (`Duffy_ImageAdjuster`, category `Duffy/Image`).
+  - Post-processing node for adjusting brightness, contrast, saturation, and hue of an image batch.
+  - Brightness, contrast, and saturation sliders (0.0–3.0, default 1.0); hue slider (−0.5–0.5, default 0.0).
+  - Uses `torchvision.transforms.functional` for GPU-accelerated photometric transforms.
+  - Permutes tensors between `[B, H, W, C]` (ComfyUI) and `[B, C, H, W]` (torchvision) automatically.
+  - Skips transforms left at their default values for zero-cost pass-through.
+  - Clamps output to `[0.0, 1.0]` to prevent downstream artifacts.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
 ## [0.10.0] — 2026-03-01
 
 ### Added
