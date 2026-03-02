@@ -157,6 +157,29 @@ class DuffySaveImageWithSidecar(io.ComfyNode):
         if extension == "jpeg":
             extension = "jpg"
 
+        # BUGFIX: Scan directory manually to find the correct counter
+        # folder_paths.get_save_image_path has issues detecting existing files with extensions
+        try:
+            existing_files = [
+                f for f in os.listdir(full_output_folder)
+                if f.startswith(f"{filename}_") and os.path.isfile(os.path.join(full_output_folder, f))
+            ]
+            if existing_files:
+                existing_counters = []
+                for f in existing_files:
+                    try:
+                        # Extract counter from filename like "prefix_00123.ext"
+                        parts = os.path.splitext(f)[0].split('_')
+                        if len(parts) >= 2:
+                            counter_str = parts[-1]
+                            existing_counters.append(int(counter_str))
+                    except (ValueError, IndexError):
+                        continue
+                if existing_counters:
+                    counter = max(existing_counters) + 1
+        except FileNotFoundError:
+            pass
+
         # Build sampler detail lines
         sampler_lines = []
         if p1_sampler or p1_steps:
@@ -193,7 +216,7 @@ class DuffySaveImageWithSidecar(io.ComfyNode):
             if file_format == "PNG":
                 metadata = PngInfo()
 
-            file_base = f"{filename}_{counter:05}_"
+            file_base = f"{filename}_{counter:05}"
             file_img = f"{file_base}.{extension}"
             file_txt = f"{file_base}.txt"
 
@@ -243,3 +266,4 @@ SAMPLING PROCESS (Seeds & Steps)
             counter += 1
 
         return io.NodeOutput(ui={"images": results})
+
