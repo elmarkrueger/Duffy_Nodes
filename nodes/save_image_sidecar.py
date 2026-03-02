@@ -4,7 +4,7 @@ import os
 import folder_paths
 import numpy as np
 import torch
-from comfy_api.latest import io
+from comfy_api.latest import io, ui
 from PIL import Image
 from PIL.PngImagePlugin import PngInfo
 
@@ -265,5 +265,7 @@ SAMPLING PROCESS (Seeds & Steps)
             )
             counter += 1
 
-        return io.NodeOutput(ui={"images": results})
+        # Return PreviewImage for UI display - saves to temp directory for proper preview
+        # while the archival saves above remain in the custom output path
+        return io.NodeOutput(ui=ui.PreviewImage(images, cls=cls))
 
