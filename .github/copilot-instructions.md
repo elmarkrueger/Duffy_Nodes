@@ -2,6 +2,17 @@
 
 You are an expert developer specializing in the modern ComfyUI Nodes 2.0 architecture and the Schema V3 (`comfy_api.latest`) Python backend. When generating, reviewing, or refactoring code for this project, you must strictly adhere to the following declarative, stateless, and Vue-compatible guidelines. Do not generate legacy V1 immediate-mode Canvas code or stateful Python classes.
 
+## 0. Development Environment Context
+
+**IMPORTANT:** This repository is NOT part of an active ComfyUI installation. It is a standalone development workspace exclusively for creating and testing new custom nodes for the Custom Node Pack.
+
+### Reference ComfyUI Installation
+A complete ComfyUI installation is available at `D:\comfy_for_agent` for research and reference purposes. When developing custom nodes or researching the V3 Schema API:
+
+* **Primary API Reference:** `D:\comfy_for_agent\ComfyUI\comfy_api\latest\_io.py` contains the authoritative Schema V3 type definitions, input/output specifications, and the complete `io` module interface for Node 2.0 development.
+* Use this reference installation to verify API signatures, explore available input types, and understand the complete V3 architecture.
+* All nodes developed in this workspace should conform to the patterns and types defined in the reference installation's `comfy_api.latest` module.
+
 ## 1. Python Backend Rules (Schema V3)
 * Inherit all custom nodes strictly from the `io.ComfyNode` base class.
 * Ensure all nodes are completely stateless; do not utilize `__init__` methods to store instance variables or configurations.

@@ -167,7 +167,7 @@ A 5-channel signal router with customizable labels and a single selector slider 
 
 **Category:** `Duffy / Sampling`
 
-Configures filename, filepath, denoise values, and step counts for multi-pass sampling workflows. All parameters are exposed as individual outputs so they can be wired directly into downstream sampler nodes.
+Configures filename, filepath, denoise values, step counts, and CFG values for multi-pass sampling workflows. All parameters are exposed as individual outputs so they can be wired directly into downstream sampler nodes.
 
 #### Inputs
 
@@ -181,6 +181,9 @@ Configures filename, filepath, denoise values, and step counts for multi-pass sa
 | `Steps Sampler 1` (`steps_1`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 1. |
 | `Steps Sampler 2` (`steps_2`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 2. |
 | `Steps Sampler 3` (`steps_3`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 3. |
+| `CFG Slider 1` (`cfg_1`) | Float (slider 0.0 – 20.0) | `7.0` | CFG (Classifier Free Guidance) value for pass 1. |
+| `CFG Slider 2` (`cfg_2`) | Float (slider 0.0 – 20.0) | `7.0` | CFG (Classifier Free Guidance) value for pass 2. |
+| `CFG Slider 3` (`cfg_3`) | Float (slider 0.0 – 20.0) | `7.0` | CFG (Classifier Free Guidance) value for pass 3. |
 
 #### Outputs
 
@@ -190,6 +193,7 @@ Configures filename, filepath, denoise values, and step counts for multi-pass sa
 | `Filepath` | String | The configured filepath. |
 | `Denoise Value 1-3` | Float | Denoise strength for each pass. |
 | `Steps Sampler 1-3` | Int | Step count for each pass. |
+| `CFG Slider 1-3` | Float | CFG value for each pass. |
 
 ### RGBA to RGB (Lossless)
 
@@ -513,6 +517,99 @@ A simple pass-through node that takes a multiline string value and outputs it un
 | Name | Type | Description |
 |------|------|-------------|
 | `Value` (`value`) | String | The multiline string value. |
+
+### Model Selector
+
+**Category:** `Duffy / Selectors`
+
+Three-slot model path selector using **DynamicCombo**. The default ComfyUI models directory is always scanned automatically; additional directories can be added via the **Extra Model Directories** multiline text field directly on the node — no source-code editing required. Each slot pairs a **folder** dropdown (listing immediate subfolders) with a nested **model** dropdown (listing `.safetensors`, `.ckpt`, `.pt`, `.bin`, `.pth`, `.gguf` files found recursively inside the chosen subfolder). Each slot also has a customizable **label** that is reflected on the corresponding output port via a companion JavaScript extension. Outputs the selected filenames as plain strings — no models are loaded into memory. It is the user's responsibility to assign the correct model type to each slot.
+
+#### Inputs
+
+| Name | Type | Default | Description |
+|------|------|---------|-------------|
+| `Extra Model Directories` (`model_directories`) | String (multiline) | `""` | Additional model directory paths, one per line. The default ComfyUI models directory is always included automatically. After changing paths, run the workflow once to save, then restart ComfyUI to rescan. |
+| `Label 1–3` (`label_1` to `label_3`) | String | `Model 1–3` | Custom label for each slot (shown on the output port). |
+| `Folder 1–3` (`folder_1` to `folder_3`) | DynamicCombo | `(empty)` | Subfolder to browse for models in each slot. Options are populated from the configured directories at startup. |
+| `Model 1–3` (`model_1` to `model_3`) | Combo (nested) | — | Model file dropdown for the selected subfolder in each slot. |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Model 1` (`model_string_1`) | String | Filename of the model selected in slot 1. |
+| `Model 2` (`model_string_2`) | String | Filename of the model selected in slot 2. |
+| `Model 3` (`model_string_3`) | String | Filename of the model selected in slot 3. |
+
+#### How it works
+
+1. Add the **Model Selector** node to your workflow.
+2. Enter any extra model directory paths (one per line) into the **Extra Model Directories** text field. The default ComfyUI models directory is always included — you never need to enter it.
+3. Queue/run the workflow once. This saves your paths to a `model_dirs_config.json` file alongside the node.
+4. Restart ComfyUI. The **folder** dropdowns will now list all subfolders found across your configured directories.
+5. For each slot, select a subfolder from the **Folder** dropdown. The paired **Model** dropdown is populated with model files inside that subfolder (searched recursively).
+6. Optionally rename each slot using the **Label** fields — the labels are synced to the output port names on the canvas.
+7. Connect the string outputs to loader nodes, display nodes, or sidecar metadata nodes.
+
+#### Use cases
+
+- Decouple model selection from model loading so you can conditionally load only the models needed by an active workflow branch.
+- Feed model filenames into a **Save Image with Sidecar TXT** node for automatic metadata logging.
+- Build A/B comparison workflows that switch between models without loading all of them into VRAM simultaneously.
+- Works with any folder structure — add as many root directories as you need and their subfolders appear as selectable options.
+
+### Triple Sampler & Scheduler Selector
+
+**Category:** `Duffy / Sampling`
+
+A centralized routing node for advanced workflow generation and comparative analysis. Enables the simultaneous selection of three independent sampler + scheduler pairs, outputting each selection as a plain text string. Designed specifically for parallelized permutation testing, side-by-side sampler comparisons, and downstream metadata integration with nodes like SaveImageWithMetadata. The dropdown menus are dynamically populated from the ComfyUI sampler registry, automatically inheriting any custom samplers or schedulers added by third-party extensions.
+
+![Triple Sampler Scheduler node](images/triple_sampler_scheduler.jpg)
+
+#### Inputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Sampler 1` (`sampler_1`) | Combo | First sampler algorithm selection. |
+| `Scheduler 1` (`scheduler_1`) | Combo | First noise scheduler selection. |
+| `Sampler 2` (`sampler_2`) | Combo | Second sampler algorithm selection. |
+| `Scheduler 2` (`scheduler_2`) | Combo | Second noise scheduler selection. |
+| `Sampler 3` (`sampler_3`) | Combo | Third sampler algorithm selection. |
+| `Scheduler 3` (`scheduler_3`) | Combo | Third noise scheduler selection. |
+
+#### Outputs
+
+| Name | Type | Description |
+|------|------|-------------|
+| `Sampler 1` | String | Selected sampler 1 as plain text string. |
+| `Scheduler 1` | String | Selected scheduler 1 as plain text string. |
+| `Sampler 2` | String | Selected sampler 2 as plain text string. |
+| `Scheduler 2` | String | Selected scheduler 2 as plain text string. |
+| `Sampler 3` | String | Selected sampler 3 as plain text string. |
+| `Scheduler 3` | String | Selected scheduler 3 as plain text string. |
+
+#### How it works
+
+1. Add the **Triple Sampler & Scheduler Selector** node to your workflow.
+2. Use the six dropdown menus to configure three distinct sampler/scheduler combinations.
+3. Fan out the six text string outputs to three parallel KSampler nodes (or any other sampling architecture).
+4. Optionally route the text outputs into metadata injection nodes to ensure the exact sampling parameters are embedded in your final images.
+
+The node acts as a pure pass-through data orchestrator — selected values are immediately returned as strings without any processing. Dropdown options are populated directly from `comfy.samplers.KSampler.SAMPLERS` and `comfy.samplers.KSampler.SCHEDULERS`, ensuring compatibility with any custom samplers registered by other extensions.
+
+#### Use cases
+
+- **Parallelized permutation testing**: Route three different sampler/scheduler configurations to three independent KSampler nodes and compare the results side-by-side in a single workflow execution.
+- **Metadata preservation**: Feed the plain text outputs directly into SaveImageWithMetadata nodes to embed the exact sampling parameters in PNG/WEBP/JPEG metadata headers.
+- **Workflow organization**: Establish a single source of truth for experimental parameters at the origin of complex multi-branch workflows, preventing "interface spaghetti" and reducing user error.
+- **Grid testing**: Combine with iterative looping nodes to systematically test hundreds of sampler/scheduler/CFG combinations without manual intervention.
+- **Civitai compatibility**: Plain text outputs ensure seamless parsing by universal metadata scanners, generating Civitai-compatible image metadata that functions as executable code recipes.
+
+#### Technical details
+
+- **Dynamic registry integration**: Dropdown options are fetched at schema definition time from the core ComfyUI sampler registry. Any new samplers added by third-party extensions appear automatically without code updates.
+- **Stateless execution**: The node performs zero mathematical operations — it simply routes UI selections to downstream nodes. Graph caching is enabled (`not_idempotent = False`) for optimal performance during iterative workflows.
+- **String primitive outputs**: By outputting via `io.String.Output` rather than proprietary Python objects, the node guarantees total compatibility with text-based metadata extraction engines and avoids serialization failures with custom sampler types.
 
 ---
 

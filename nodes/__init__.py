@@ -15,6 +15,7 @@ from .latent_noise_blender import DuffyLatentNoiseBlender
 from .load_image_resize import DuffyLoadImageResize
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
 from .megapixel_resize import DuffyMegapixelResize
+from .model_selector import DuffyModelSelector
 from .multi_pass_node import DuffyMultiPassSampling
 # Primitive nodes
 from .primitive_float import DuffyPrimitiveFloat
@@ -26,6 +27,7 @@ from .rgba_to_rgb import DuffyRGBAtoRGB
 from .save_image_sidecar import DuffySaveImageWithSidecar
 from .signal_selector import DuffySignalSelector
 from .toggle_switch import DuffyToggleSwitch
+from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
 
 NODE_LIST = [
     DuffySignalSelector,
@@ -53,4 +55,8 @@ NODE_LIST = [
     DuffyPrimitiveFloat,
     DuffyPrimitiveString,
     DuffyPrimitiveStringMultiline,
+    # Selector nodes
+    DuffyModelSelector,
+    # Sampling nodes
+    DuffyTripleSamplerScheduler,
 ]

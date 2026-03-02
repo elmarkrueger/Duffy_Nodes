@@ -93,6 +93,37 @@ class DuffyMultiPassSampling(io.ComfyNode):
                     display_mode=io.NumberDisplay.slider,
                     tooltip="Sampling steps for pass 3",
                 ),
+                # CFG value sliders (0.0 – 20.0)
+                io.Float.Input(
+                    "cfg_1",
+                    display_name="CFG Slider 1",
+                    default=7.0,
+                    min=0.0,
+                    max=20.0,
+                    step=0.1,
+                    display_mode=io.NumberDisplay.slider,
+                    tooltip="CFG (Classifier Free Guidance) value for pass 1",
+                ),
+                io.Float.Input(
+                    "cfg_2",
+                    display_name="CFG Slider 2",
+                    default=7.0,
+                    min=0.0,
+                    max=20.0,
+                    step=0.1,
+                    display_mode=io.NumberDisplay.slider,
+                    tooltip="CFG (Classifier Free Guidance) value for pass 2",
+                ),
+                io.Float.Input(
+                    "cfg_3",
+                    display_name="CFG Slider 3",
+                    default=7.0,
+                    min=0.0,
+                    max=20.0,
+                    step=0.1,
+                    display_mode=io.NumberDisplay.slider,
+                    tooltip="CFG (Classifier Free Guidance) value for pass 3",
+                ),
             ],
             outputs=[
                 io.String.Output("filename", display_name="Filename"),
@@ -103,6 +134,9 @@ class DuffyMultiPassSampling(io.ComfyNode):
                 io.Int.Output("steps_1", display_name="Steps Sampler 1"),
                 io.Int.Output("steps_2", display_name="Steps Sampler 2"),
                 io.Int.Output("steps_3", display_name="Steps Sampler 3"),
+                io.Float.Output("cfg_1", display_name="CFG Slider 1"),
+                io.Float.Output("cfg_2", display_name="CFG Slider 2"),
+                io.Float.Output("cfg_3", display_name="CFG Slider 3"),
             ],
         )
 
@@ -117,9 +151,13 @@ class DuffyMultiPassSampling(io.ComfyNode):
         steps_1: int,
         steps_2: int,
         steps_3: int,
+        cfg_1: float,
+        cfg_2: float,
+        cfg_3: float,
     ) -> io.NodeOutput:
         return io.NodeOutput(
             filename, filepath,
             denoise_1, denoise_2, denoise_3,
             steps_1, steps_2, steps_3,
+            cfg_1, cfg_2, cfg_3,
         )

@@ -6,6 +6,34 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.13.0] — 2026-03-02
+
+### Added
+
+- **Triple Sampler & Scheduler Selector** node (`Duffy_TripleSamplerScheduler`, category `Duffy/Sampling`).
+  - Centralized routing node for advanced workflow generation and comparative sampler analysis.
+  - Enables simultaneous selection of three independent sampler + scheduler algorithmic pairs.
+  - Six plain-text string outputs (`Sampler 1`, `Scheduler 1`, `Sampler 2`, `Scheduler 2`, `Sampler 3`, `Scheduler 3`) optimized for downstream metadata integration.
+  - Dropdown menus dynamically populated from `comfy.samplers.KSampler.SAMPLERS` and `comfy.samplers.KSampler.SCHEDULERS` registries.
+  - Automatically inherits any custom samplers or schedulers added by third-party extensions without code updates.
+  - Stateless pass-through architecture with aggressive caching enabled for optimal performance during iterative workflows.
+  - Designed for parallelized permutation testing, side-by-side sampler comparisons, grid testing loops, and Civitai-compatible metadata embedding.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
+## [0.12.0] — 2026-03-01
+
+### Added
+
+- **Model Selector** node (`Duffy_ModelSelector`, category `Duffy/Selectors`).
+  - User-provided **Models Path** string input — point it at any directory on your filesystem.
+  - Three paired folder / model dropdowns for Diffusion, CLIP, and VAE.
+  - Folder and model options are populated dynamically via two backend API routes (`/duffy/model_selector/folders`, `/duffy/model_selector/models`) called from the companion JavaScript extension (`model_selector.js`).
+  - Models endpoint walks the selected subfolder recursively and filters by extension (`.safetensors`, `.ckpt`, `.pt`, `.bin`, `.pth`, `.gguf`).
+  - Path-traversal protection on the models endpoint ensures requests stay within the user-specified base directory.
+  - `validate_inputs` override accepts any dynamically populated combo value.
+  - Outputs the selected model filenames as plain strings — no models are loaded into memory.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
 ## [0.11.0] — 2026-03-01
 
 ### Added
