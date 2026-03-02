@@ -1,659 +1,445 @@
-# Duffy Nodes
+# 🎨 Duffy Nodes - ComfyUI Custom Node Pack
 
-A custom node pack for [ComfyUI](https://github.com/comfyanonymous/ComfyUI) built on the modern **V3 Schema** (`comfy_api.latest`). Every node in this pack is stateless, strictly typed, and fully compatible with the Nodes 2.0 Vue-based frontend — no legacy JavaScript extensions required.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![ComfyUI](https://img.shields.io/badge/ComfyUI-Nodes%202.0-blue)](https://github.com/comfyanonymous/ComfyUI)
+[![Schema V3](https://img.shields.io/badge/Schema-V3-green)](https://github.com/comfyanonymous/ComfyUI)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
+
+A comprehensive collection of custom nodes for ComfyUI, built with the modern **Nodes 2.0 V3 Schema** architecture. This pack provides essential utilities, advanced image processing, flexible primitives, and powerful workflow helpers designed for professional AI art generation pipelines.
 
 ---
 
-## Nodes
-
-### Signal Selector
-
-**Category:** `Duffy / Routing`
-
-Routes one of three inputs to a single output using a mutually exclusive slider. Each channel carries a customizable text label so you can name your signals meaningfully inside the workflow. Thanks to **V3 lazy evaluation**, only the active channel's upstream graph is computed — the two idle branches are skipped entirely, saving processing time and VRAM.
-
-![Signal Selector node](images/signal_selector.jpg)
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `active_input` | Int (slider 1 – 3) | `1` | Selects which input channel is routed to the output. |
-| `Input 1` (`label_1`) | String | `Signal A` | Custom display label for channel 1. |
-| `input_1` | Any (optional, lazy) | — | Data connected to channel 1. Evaluated only when `active_input = 1`. |
-| `Input 2` (`label_2`) | String | `Signal B` | Custom display label for channel 2. |
-| `input_2` | Any (optional, lazy) | — | Data connected to channel 2. Evaluated only when `active_input = 2`. |
-| `Input 3` (`label_3`) | String | `Signal C` | Custom display label for channel 3. |
-| `input_3` | Any (optional, lazy) | — | Data connected to channel 3. Evaluated only when `active_input = 3`. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Selected Signal` | Any | The data from the currently active channel. |
-
-#### How it works
-
-1. Set `active_input` to `1`, `2`, or `3` using the slider on the node.
-2. Give each channel a meaningful name via the **Input 1 / Input 2 / Input 3** text fields.
-3. Connect your upstream nodes to the corresponding `input_1`, `input_2`, `input_3` ports.
-4. Only the branch matching `active_input` is executed; the others are pruned from the evaluation graph by `check_lazy_status`.
-
-#### Use cases
-
-- Quickly A/B/C-test different model samplers, prompts, or image pre-processors without rewiring the graph.
-- Build conditional workflow branches controlled by a single slider.
-- Route any data type — images, latents, conditioning vectors, strings, custom objects — through the same switch.
-
-### LoRa Prompt Combiner
-
-**Category:** `Duffy / Text`
-
-Combines a LoRa trigger and a main prompt using a customizable separator.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `LoRa Trigger` (`lora_trigger`) | String (multiline) | `""` | The trigger words for the LoRa model. |
-| `Separator` (`separator`) | String | `,` | The separator to use between the LoRa trigger and the main prompt. |
-| `Prompt` (`prompt`) | String (multiline) | `""` | The main prompt text. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Combined Prompt` | String | The combined prompt text. |
-
-### Five Float Sliders
-
-**Category:** `Duffy / Math`
-
-Provides five float sliders (0.0 to 1.0) with customizable labels. The output descriptions and slider labels dynamically update to match the user-defined labels.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Label 1-5` (`label_1` to `label_5`) | String | `Value 1-5` | Custom labels for each slider. |
-| `Value 1-5` (`value_1` to `value_5`) | Float (slider 0.0 – 1.0) | `0.5` | Float values for each slider. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Value 1-5` (`out_1` to `out_5`) | Float | The float values from the sliders. |
-
-### Five Int Sliders
-
-**Category:** `Duffy / Math`
-
-Provides five integer sliders (1 to 100) with customizable labels. The output descriptions and slider labels dynamically update to match the user-defined labels.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Label 1-5` (`label_1` to `label_5`) | String | `Value 1-5` | Custom labels for each slider. |
-| `Value 1-5` (`value_1` to `value_5`) | Int (slider 1 – 100) | `50` | Integer values for each slider. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Value 1-5` (`out_1` to `out_5`) | Int | The integer values from the sliders. |
-
-### Integer Math
-
-**Category:** `Duffy / Math`
-
-Performs basic arithmetic on two integers. Choose from Add, Subtract, Multiply, or Divide via a dropdown. Division uses integer (floor) division; dividing by zero returns `0`.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `A` (`a`) | Int | `0` | First operand. |
-| `Operation` (`operation`) | Combo (`Add`, `Subtract`, `Multiply`, `Divide`) | `Add` | Arithmetic operation to perform. |
-| `B` (`b`) | Int | `0` | Second operand. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Result` (`result`) | Int | Result of the arithmetic operation. |
-
-### Float Math
-
-**Category:** `Duffy / Math`
-
-Performs basic arithmetic on two floats. Choose from Add, Subtract, Multiply, or Divide via a dropdown. Dividing by zero returns `0.0`.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `A` (`a`) | Float | `0.0` | First operand. |
-| `Operation` (`operation`) | Combo (`Add`, `Subtract`, `Multiply`, `Divide`) | `Add` | Arithmetic operation to perform. |
-| `B` (`b`) | Float | `0.0` | Second operand. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Result` (`result`) | Float | Result of the arithmetic operation. |
-
-### Toggle Switch
-
-**Category:** `Duffy / Routing`
-
-A 5-channel signal router with customizable labels and a single selector slider (1–5). Each channel accepts any data type. The slider determines which channel is routed to the output. Thanks to **V3 lazy evaluation**, only the active channel's upstream graph is computed — the four idle branches are skipped entirely.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Active Channel` (`active_input`) | Int (slider 1 – 5) | `1` | Selects which input channel is routed to the output. |
-| `Label 1-5` (`label_1` to `label_5`) | String | `Input 1-5` | Custom display label for each channel. |
-| `Input 1-5` (`input_1` to `input_5`) | Any (optional, lazy) | — | Data connected to each channel. Only the active channel is evaluated. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Selected Signal` | Any | The data from the selected channel. |
-
-### Multi-Pass Sampling
-
-**Category:** `Duffy / Sampling`
-
-Configures filename, filepath, denoise values, step counts, and CFG values for multi-pass sampling workflows. All parameters are exposed as individual outputs so they can be wired directly into downstream sampler nodes.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Filename` (`filename`) | String | `Sampling_Output` | Output filename for the sampling result. |
-| `Filepath` (`filepath`) | String | `./ComfyUI/output` | Output directory path. |
-| `Denoise Value 1` (`denoise_1`) | Float (slider 0.0 – 1.0) | `1.00` | Denoise strength for pass 1. |
-| `Denoise Value 2` (`denoise_2`) | Float (slider 0.0 – 1.0) | `0.75` | Denoise strength for pass 2. |
-| `Denoise Value 3` (`denoise_3`) | Float (slider 0.0 – 1.0) | `0.50` | Denoise strength for pass 3. |
-| `Steps Sampler 1` (`steps_1`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 1. |
-| `Steps Sampler 2` (`steps_2`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 2. |
-| `Steps Sampler 3` (`steps_3`) | Int (slider 1 – 100) | `20` | Sampling steps for pass 3. |
-| `CFG Slider 1` (`cfg_1`) | Float (slider 0.0 – 20.0) | `7.0` | CFG (Classifier Free Guidance) value for pass 1. |
-| `CFG Slider 2` (`cfg_2`) | Float (slider 0.0 – 20.0) | `7.0` | CFG (Classifier Free Guidance) value for pass 2. |
-| `CFG Slider 3` (`cfg_3`) | Float (slider 0.0 – 20.0) | `7.0` | CFG (Classifier Free Guidance) value for pass 3. |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Filename` | String | The configured filename. |
-| `Filepath` | String | The configured filepath. |
-| `Denoise Value 1-3` | Float | Denoise strength for each pass. |
-| `Steps Sampler 1-3` | Int | Step count for each pass. |
-| `CFG Slider 1-3` | Float | CFG value for each pass. |
-
-### RGBA to RGB (Lossless)
-
-**Category:** `Duffy / Image`
-
-Lossless conversion of RGBA image tensors to RGB by discarding the alpha channel via tensor slicing. Passes through RGB images unchanged and expands single-channel grayscale inputs to 3-channel RGB.
-
-#### Inputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Image` (`image`) | Image | Input image tensor (RGBA, RGB, or grayscale). |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `RGB Image` (`rgb_image`) | Image | The resulting 3-channel RGB image. |
-
-### Image Adjuster
-
-**Category:** `Duffy / Image`
-
-Post-processing node for adjusting brightness, contrast, saturation, and hue of an image batch. Place between VAE Decode and Save Image to fine-tune generated images before saving. All sliders default to neutral values so the image passes through unchanged until adjusted. Uses `torchvision.transforms.functional` for GPU-accelerated transforms and clamps the output to `[0.0, 1.0]` to prevent downstream artifacts.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Image` (`image`) | Image | — | The input image batch. |
-| `Brightness` (`brightness`) | Float (slider 0.0 – 3.0) | `1.0` | Scale global intensity. 1.0 is unchanged. |
-| `Contrast` (`contrast`) | Float (slider 0.0 – 3.0) | `1.0` | Scale dynamic range. 1.0 is unchanged. |
-| `Saturation` (`saturation`) | Float (slider 0.0 – 3.0) | `1.0` | Scale color vibrancy. 1.0 is unchanged, 0.0 is grayscale. |
-| `Hue` (`hue`) | Float (slider −0.5 – 0.5) | `0.0` | Cyclic shift of color hues. 0.0 is unchanged. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Image` (`image`) | Image | The adjusted image batch. |
-
-#### How it works
-
-1. Wire the output of **VAE Decode** (or any image-producing node) into the **Image** input.
-2. Adjust the **Brightness**, **Contrast**, **Saturation**, and **Hue** sliders to taste.
-3. Connect the output to **Save Image** or any downstream node.
-4. Transforms that remain at their default values are skipped entirely for efficiency.
-
-#### Use cases
-
-- Fine-tune generated images before saving — boost contrast, warm up colors, or shift hues without leaving ComfyUI.
-- Desaturate an image to grayscale by setting Saturation to 0.
-- Build post-processing chains by stacking multiple adjustment nodes.
-
-### Load Image & Resize
-
-**Category:** `Duffy / Image`
-
-Combines image loading and megapixel resizing into a single node. Loads an image via the ComfyUI upload dialog, displays its metadata (filename, original dimensions, aspect ratio, megapixels), and resizes it to a target megapixel count. Optionally overrides the aspect ratio with a preset — non-original ratios center-crop the source image first. All output dimensions are snapped to multiples of 8 for VAE compatibility. The node also outputs the alpha channel as an inverted mask.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Image` (`image`) | Combo (image upload) | — | Select or upload an image from the input directory. |
-| `Target Megapixels` (`target_megapixels`) | Float | `1.0` | Target size in megapixels (0.01–16.0). |
-| `Aspect Ratio` (`aspect_ratio`) | Combo | `original` | Keep original or pick a preset (`1:1`, `4:3`, `3:2`, `16:9`, `21:9`, `3:4`, `2:3`, `9:16`, `9:21`). Non-original ratios center-crop the source first. |
-| `Resample Method` (`method`) | Combo (`lanczos`, `bicubic`, `bilinear`, `nearest-exact`, `area`) | `lanczos` | Interpolation algorithm. |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Image` (`image`) | Image | The resized image. |
-| `Mask` (`mask`) | Mask | Alpha-channel mask (inverted — black = opaque). |
-| `Width` (`width`) | Int | Width of the resized image. |
-| `Height` (`height`) | Int | Height of the resized image. |
-| `Orig Width` (`original_width`) | Int | Original image width before resize. |
-| `Orig Height` (`original_height`) | Int | Original image height before resize. |
-| `Filename` (`filename`) | String | Source image filename. |
-| `Megapixels` (`megapixels`) | Float | Megapixel count of the resized image. |
-| `Aspect Ratio` (`aspect_ratio_str`) | String | Aspect ratio of the resized image (e.g. `16:9`). |
-
-#### How it works
-
-1. Select or upload an image using the built-in image picker.
-2. Set the desired **Target Megapixels** — the image is scaled so its total pixel count matches this target.
-3. Optionally choose an **Aspect Ratio** preset. When a non-original ratio is selected, the source image is center-cropped to that ratio before resizing.
-4. After execution, the on-node info panel shows the filename, source dimensions, output dimensions, aspect ratio, and megapixel count.
-
-#### Use cases
-
-- Replace a separate Load Image → Resize chain with a single node.
-- Quickly resize to a consistent megapixel budget while controlling aspect ratio for different model architectures.
-- Feed the metadata outputs (width, height, filename, megapixels) into downstream nodes for conditional logic or file naming.
-
-### Megapixel Resize
-
-**Category:** `Duffy / Image`
-
-Resizes images to a target megapixel count while preserving aspect ratio. Output dimensions are rounded to the nearest multiple of 8 for VAE compatibility.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Image` (`image`) | Image | — | The input image batch. |
-| `Target Megapixels` (`target_megapixels`) | Float | `1.0` | Target size in megapixels (e.g. 1.0 ≈ 1024×1024). |
-| `Resample Method` (`method`) | Combo (`lanczos`, `bicubic`, `bilinear`, `nearest-exact`, `area`) | `lanczos` | Interpolation algorithm. |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Image` (`image`) | Image | The resized image. |
-| `Width` (`width`) | Int | Width of the resized image in pixels. |
-| `Height` (`height`) | Int | Height of the resized image in pixels. |
-
-### Save Image with Sidecar TXT
-
-**Category:** `Duffy / IO`
-
-Saves images in PNG, JPG, or WEBP format and writes a companion `.txt` file alongside each image containing model details, prompts, and multi-pass sampling metadata.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Images` (`images`) | Image | — | Image batch to save. |
-| `Filename Prefix` (`filename_prefix`) | String | `ComfyUI` | Base name for saved files. |
-| `File Format` (`file_format`) | Combo (`PNG`, `JPG`, `JPEG`, `WEBP`) | `PNG` | Output image format. |
-| `Output Path` (`output_path`) | String (optional) | `""` | Custom output directory. |
-| `Positive Prompt` (`positive_prompt`) | String (optional, multiline) | `""` | Positive prompt text. |
-| `Negative Prompt` (`negative_prompt`) | String (optional, multiline) | `""` | Negative prompt text. |
-| `Model Name` (`model_name`) | String (optional) | `Unknown Model` | Diffusion model name. |
-| `CLIP Name` (`clip_name`) | String (optional) | `Unknown CLIP` | CLIP model name. |
-| `VAE Name` (`vae_name`) | String (optional) | `Unknown VAE` | VAE model name. |
-| Pass 1–3 Sampler/Scheduler/Steps/Seed | String / Int (optional) | — | Per-pass sampling metadata. |
-
-#### Output
-
-This is an **output node** — it saves files to disk and displays a thumbnail preview. No output ports.
-
-### Directory Image Iterator
-
-**Category:** `Duffy / Image`
-
-Loads a sorted slice of images from a directory and emits them as a list for downstream iteration. Supports mixed resolutions, start index / limit controls, and smart cache invalidation that re-executes only when the actual file slice changes.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Folder Path` (`folder_path`) | String | `""` | Absolute path to the image directory. |
-| `Start Index` (`start_index`) | Int | `0` | Zero-based index of the first image. |
-| `Image Limit` (`image_limit`) | Int | `0` | Max images to load (0 = all). |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Image` (`image`) | Image (list) | One image tensor per file. |
-| `Filename` (`filename`) | String (list) | Original filename of each image. |
-
-### Iterator Current Filename
-
-**Category:** `Duffy / Image`
-
-Helper node for Directory Image Iterator. Strips file extensions from a list of filenames, producing clean filename prefixes suitable for wiring into SaveImage.
-
-#### Inputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Filename` (`filename`) | String (list) | Filename list from Directory Image Iterator. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Filename Prefix` (`filename_prefix`) | String (list) | Filename with extension stripped. |
-
-### Empty Qwen-2512 Latent Image
-
-**Category:** `Duffy / Latent`
-
-Creates an empty 16-channel latent tensor for the Qwen-Image-2512 model. Select a base resolution from a dropdown of optimised aspect ratios and optionally scale it with a multiplier. Dimensions are automatically snapped to multiples of 16 for clean patch alignment.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Resolution` (`resolution`) | Combo | `16:9 (1664x928)` | Base resolution preset for the Qwen-Image-2512 architecture. |
-| `Size Multiplier` (`size_multiplier`) | Float (slider 1.0 – 2.0) | `1.0` | Scales the base resolution. |
-| `Batch Size` (`batch_size`) | Int | `1` | Number of latent images in the batch. |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Latent` (`latent`) | Latent | Empty 16-channel latent tensor. |
-| `Width` (`width`) | Int | Pixel width after scaling and alignment. |
-| `Height` (`height`) | Int | Pixel height after scaling and alignment. |
-
-### Latent Noise Blender
-
-**Category:** `Duffy / Latent`
-
-Blends a base latent with a noise latent using a percentage slider. Automatically resizes noise to match the image dimensions and handles device mismatches.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Latent Image` (`latent_image`) | Latent | — | The base latent structure. |
-| `Latent Noise` (`latent_noise`) | Latent | — | The noise latent to blend in. |
-| `Blend %` (`blend_percentage`) | Int (slider 0 – 100) | `50` | 0 = pure image, 100 = pure noise. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Blended Latent` (`blended_latent`) | Latent | Result of blending the image and noise latents. |
-
-### Generate Noise (Flux 2 Klein)
-
-**Category:** `Duffy / Latent`
-
-Generates highly parameterised noise for injection or use as empty latents. Supports Flux 2 Klein architectures (128 channels, f16 spatial downsampling) alongside SD1.5/SDXL/SD3 workflows (4/16 channels, f8). Offers seed control, variance normalisation, sigma-based scaling, and three tensor layouts for image or video synthesis.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Width` (`width`) | Int | `1024` | Pixel width (step of 16 for f16 alignment). |
-| `Height` (`height`) | Int | `1024` | Pixel height (step of 16 for f16 alignment). |
-| `Batch Size` (`batch_size`) | Int | `1` | Number of noise samples to generate. |
-| `Seed` (`seed`) | Int | `123` | Random seed for deterministic generation. |
-| `Multiplier` (`multiplier`) | Float | `1.0` | Intensity multiplier applied to the noise. |
-| `Constant Batch Noise` (`constant_batch_noise`) | Boolean | `False` | All batch items share identical noise. |
-| `Normalize` (`normalize`) | Boolean | `False` | Normalize noise to unit variance. |
-| `Model` (`model`) | Model (optional) | — | Model used for sigma-based variance scaling. |
-| `Sigmas` (`sigmas`) | Sigmas (optional) | — | Sigma schedule for variance scaling. |
-| `Latent Channels` (`latent_channels`) | Combo (`4`, `16`, `128`) | `4` | Channel count: 4 = SD1.5/SDXL, 16 = SD3, 128 = Flux 2. |
-| `Shape` (`shape`) | Combo (`BCHW`, `BCTHW`, `BTCHW`) | `BCHW` | Tensor layout: BCHW for images, BCTHW/BTCHW for video. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Latent` (`latent`) | Latent | Generated noise tensor wrapped in a latent dictionary. |
-
-### Primitive Integer
-
-**Category:** `Duffy / Primitives`
-
-A simple pass-through node that takes a single integer value and outputs it unchanged. Useful for injecting constant integer values into a workflow.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Value` (`value`) | Int | `0` | Integer value to pass through. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Value` (`value`) | Int | The integer value. |
-
-### Primitive Float
-
-**Category:** `Duffy / Primitives`
-
-A simple pass-through node that takes a single float value and outputs it unchanged. Useful for injecting constant float values into a workflow.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Value` (`value`) | Float | `0.0` | Float value to pass through. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Value` (`value`) | Float | The float value. |
-
-### Primitive String
-
-**Category:** `Duffy / Primitives`
-
-A simple pass-through node that takes a single-line string value and outputs it unchanged. Useful for injecting constant text values into a workflow.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Value` (`value`) | String | `""` | Single-line string value to pass through. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Value` (`value`) | String | The string value. |
-
-### Primitive String (Multiline)
-
-**Category:** `Duffy / Primitives`
-
-A simple pass-through node that takes a multiline string value and outputs it unchanged. Useful for injecting multi-line text blocks such as prompts into a workflow.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Value` (`value`) | String (multiline) | `""` | Multiline string value to pass through. |
-
-#### Output
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Value` (`value`) | String | The multiline string value. |
-
-### Model Selector
-
-**Category:** `Duffy / Selectors`
-
-Three-slot model path selector using **DynamicCombo**. The default ComfyUI models directory is always scanned automatically; additional directories can be added via the **Extra Model Directories** multiline text field directly on the node — no source-code editing required. Each slot pairs a **folder** dropdown (listing immediate subfolders) with a nested **model** dropdown (listing `.safetensors`, `.ckpt`, `.pt`, `.bin`, `.pth`, `.gguf` files found recursively inside the chosen subfolder). Each slot also has a customizable **label** that is reflected on the corresponding output port via a companion JavaScript extension. Outputs the selected filenames as plain strings — no models are loaded into memory. It is the user's responsibility to assign the correct model type to each slot.
-
-#### Inputs
-
-| Name | Type | Default | Description |
-|------|------|---------|-------------|
-| `Extra Model Directories` (`model_directories`) | String (multiline) | `""` | Additional model directory paths, one per line. The default ComfyUI models directory is always included automatically. After changing paths, run the workflow once to save, then restart ComfyUI to rescan. |
-| `Label 1–3` (`label_1` to `label_3`) | String | `Model 1–3` | Custom label for each slot (shown on the output port). |
-| `Folder 1–3` (`folder_1` to `folder_3`) | DynamicCombo | `(empty)` | Subfolder to browse for models in each slot. Options are populated from the configured directories at startup. |
-| `Model 1–3` (`model_1` to `model_3`) | Combo (nested) | — | Model file dropdown for the selected subfolder in each slot. |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Model 1` (`model_string_1`) | String | Filename of the model selected in slot 1. |
-| `Model 2` (`model_string_2`) | String | Filename of the model selected in slot 2. |
-| `Model 3` (`model_string_3`) | String | Filename of the model selected in slot 3. |
-
-#### How it works
-
-1. Add the **Model Selector** node to your workflow.
-2. Enter any extra model directory paths (one per line) into the **Extra Model Directories** text field. The default ComfyUI models directory is always included — you never need to enter it.
-3. Queue/run the workflow once. This saves your paths to a `model_dirs_config.json` file alongside the node.
-4. Restart ComfyUI. The **folder** dropdowns will now list all subfolders found across your configured directories.
-5. For each slot, select a subfolder from the **Folder** dropdown. The paired **Model** dropdown is populated with model files inside that subfolder (searched recursively).
-6. Optionally rename each slot using the **Label** fields — the labels are synced to the output port names on the canvas.
-7. Connect the string outputs to loader nodes, display nodes, or sidecar metadata nodes.
-
-#### Use cases
-
-- Decouple model selection from model loading so you can conditionally load only the models needed by an active workflow branch.
-- Feed model filenames into a **Save Image with Sidecar TXT** node for automatic metadata logging.
-- Build A/B comparison workflows that switch between models without loading all of them into VRAM simultaneously.
-- Works with any folder structure — add as many root directories as you need and their subfolders appear as selectable options.
-
-### Triple Sampler & Scheduler Selector
-
-**Category:** `Duffy / Sampling`
-
-A centralized routing node for advanced workflow generation and comparative analysis. Enables the simultaneous selection of three independent sampler + scheduler pairs, outputting each selection as a plain text string. Designed specifically for parallelized permutation testing, side-by-side sampler comparisons, and downstream metadata integration with nodes like SaveImageWithMetadata. The dropdown menus are dynamically populated from the ComfyUI sampler registry, automatically inheriting any custom samplers or schedulers added by third-party extensions.
-
-![Triple Sampler Scheduler node](images/triple_sampler_scheduler.jpg)
-
-#### Inputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Sampler 1` (`sampler_1`) | Combo | First sampler algorithm selection. |
-| `Scheduler 1` (`scheduler_1`) | Combo | First noise scheduler selection. |
-| `Sampler 2` (`sampler_2`) | Combo | Second sampler algorithm selection. |
-| `Scheduler 2` (`scheduler_2`) | Combo | Second noise scheduler selection. |
-| `Sampler 3` (`sampler_3`) | Combo | Third sampler algorithm selection. |
-| `Scheduler 3` (`scheduler_3`) | Combo | Third noise scheduler selection. |
-
-#### Outputs
-
-| Name | Type | Description |
-|------|------|-------------|
-| `Sampler 1` | String | Selected sampler 1 as plain text string. |
-| `Scheduler 1` | String | Selected scheduler 1 as plain text string. |
-| `Sampler 2` | String | Selected sampler 2 as plain text string. |
-| `Scheduler 2` | String | Selected scheduler 2 as plain text string. |
-| `Sampler 3` | String | Selected sampler 3 as plain text string. |
-| `Scheduler 3` | String | Selected scheduler 3 as plain text string. |
-
-#### How it works
-
-1. Add the **Triple Sampler & Scheduler Selector** node to your workflow.
-2. Use the six dropdown menus to configure three distinct sampler/scheduler combinations.
-3. Fan out the six text string outputs to three parallel KSampler nodes (or any other sampling architecture).
-4. Optionally route the text outputs into metadata injection nodes to ensure the exact sampling parameters are embedded in your final images.
-
-The node acts as a pure pass-through data orchestrator — selected values are immediately returned as strings without any processing. Dropdown options are populated directly from `comfy.samplers.KSampler.SAMPLERS` and `comfy.samplers.KSampler.SCHEDULERS`, ensuring compatibility with any custom samplers registered by other extensions.
-
-#### Use cases
-
-- **Parallelized permutation testing**: Route three different sampler/scheduler configurations to three independent KSampler nodes and compare the results side-by-side in a single workflow execution.
-- **Metadata preservation**: Feed the plain text outputs directly into SaveImageWithMetadata nodes to embed the exact sampling parameters in PNG/WEBP/JPEG metadata headers.
-- **Workflow organization**: Establish a single source of truth for experimental parameters at the origin of complex multi-branch workflows, preventing "interface spaghetti" and reducing user error.
-- **Grid testing**: Combine with iterative looping nodes to systematically test hundreds of sampler/scheduler/CFG combinations without manual intervention.
-- **Civitai compatibility**: Plain text outputs ensure seamless parsing by universal metadata scanners, generating Civitai-compatible image metadata that functions as executable code recipes.
-
-#### Technical details
-
-- **Dynamic registry integration**: Dropdown options are fetched at schema definition time from the core ComfyUI sampler registry. Any new samplers added by third-party extensions appear automatically without code updates.
-- **Stateless execution**: The node performs zero mathematical operations — it simply routes UI selections to downstream nodes. Graph caching is enabled (`not_idempotent = False`) for optimal performance during iterative workflows.
-- **String primitive outputs**: By outputting via `io.String.Output` rather than proprietary Python objects, the node guarantees total compatibility with text-based metadata extraction engines and avoids serialization failures with custom sampler types.
+## ✨ Features
+
+🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
+🎯 **25+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
+⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
+🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
+🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
+📦 **Zero Dependencies** - Works out of the box with your existing ComfyUI installation  
 
 ---
 
-## Installation
+## 📦 Installation
 
-### Via ComfyUI Manager *(recommended)*
+### Method 1: ComfyUI Manager (Recommended)
+1. Open ComfyUI Manager
+2. Search for "Duffy Nodes"
+3. Click Install
 
-Search for **Duffy Nodes** inside ComfyUI Manager and click **Install**.
-
-### Manual
-
+### Method 2: Manual Installation
 ```bash
 cd ComfyUI/custom_nodes
-git clone https://github.com/duffy/comfyui-duffy-nodes
+git clone https://github.com/yourusername/comfyui-duffy-nodes.git
 cd comfyui-duffy-nodes
 pip install -r requirements.txt
 ```
 
-Restart ComfyUI. The nodes will appear under the **Duffy** category in the node browser.
+Restart ComfyUI after installation.
 
 ---
 
-## Requirements
+## 📚 Node Catalog
 
-| Dependency | Minimum version |
-|------------|-----------------|
-| Python | 3.10 |
-| PyTorch | 2.1.0 |
-| NumPy | 1.26.0 |
-| ComfyUI | Nodes 2.0 (V3 Schema) |
+### 🔢 Primitive Nodes
+Essential input nodes for basic data types with clean, intuitive interfaces.
 
----
+#### ➕ Primitive Integer
+![Primitive Integer](images/primitive_integer.jpg)
+*Category: `Duffy/Primitives`*
 
-## Architecture
+Simple integer input with configurable range (-9007199254740991 to 9007199254740991). Perfect for counters, indices, and discrete parameters.
 
-All nodes are built on the **ComfyUI V3 Schema** (`comfy_api.latest.io`):
-
-- **Stateless execution** — every run is a pure function of its inputs; no hidden state between queue passes.
-- **Declarative schema** — inputs, outputs, and UI widgets are defined once in `define_schema()`. The Vue frontend auto-generates the UI from that definition with no JavaScript needed.
-- **Lazy evaluation** — `check_lazy_status` tells the ComfyUI scheduler which upstream branches to skip, preventing wasted computation on inactive paths.
-- **Async registration** — the extension is loaded through `comfy_entrypoint` / `ComfyExtension.get_node_list()`, isolating startup errors and enabling safe concurrent extension loading.
+**Outputs:** `INTEGER`
 
 ---
 
-## License
+#### ➕ Primitive Float  
+![Primitive Float](images/primitive_float.jpg)
+*Category: `Duffy/Primitives`*
 
-MIT — see [LICENSE](LICENSE) for details.
+Floating-point input with high precision support. Ideal for weights, multipliers, and continuous parameters.
+
+**Outputs:** `FLOAT`
+
+---
+
+#### 📝 Primitive String
+![Primitive String](images/primitive_string.jpg)
+*Category: `Duffy/Primitives`*
+
+Single-line text input for prompts, filenames, and short text snippets.
+
+**Outputs:** `STRING`
+
+---
+
+#### 📄 Primitive String (Multiline)
+![Primitive String Multiline](images/primitive_string_multiline.jpg)
+*Category: `Duffy/Primitives`*
+
+Multi-line text editor for complex prompts, descriptions, and formatted text.
+
+**Outputs:** `STRING`
+
+---
+
+### 🧮 Math Operations
+Powerful mathematical nodes for precise numerical control.
+
+#### ➗ Float Math
+![Float Math](images/float_math.jpg)
+*Category: `Duffy/Math`*
+
+Perform arithmetic operations on floating-point values. Supports addition, subtraction, multiplication, division, power, and modulo.
+
+**Inputs:** `a` (float), `b` (float), `operation` (dropdown)  
+**Outputs:** `result` (float)
+
+**Operations:** Add, Subtract, Multiply, Divide, Power, Modulo
+
+---
+
+#### ✖️ Integer Math
+![Integer Math](images/int_math.jpg)
+*Category: `Duffy/Math`*
+
+Integer-based mathematical operations with floor division support. Perfect for discrete calculations and index manipulation.
+
+**Inputs:** `a` (int), `b` (int), `operation` (dropdown)  
+**Outputs:** `result` (int)
+
+**Operations:** Add, Subtract, Multiply, Floor Divide, Power, Modulo
+
+---
+
+#### 🎛️ Five Float Sliders
+![Five Float Sliders](images/five_float_slider.jpg)
+*Category: `Duffy/Math`*
+
+Five independent float sliders (0.0–100.0) with custom UI widget. Ideal for multi-parameter experimentation and fine-tuning.
+
+**Outputs:** `float_1`, `float_2`, `float_3`, `float_4`, `float_5`
+
+---
+
+#### 🎚️ Five Int Sliders
+![Five Int Sliders](images/five_int_slider.jpg)
+*Category: `Duffy/Math`*
+
+Five independent integer sliders (0–100) with synchronized UI. Perfect for batch processing controls and discrete parameter sweeps.
+
+**Outputs:** `int_1`, `int_2`, `int_3`, `int_4`, `int_5`
+
+---
+
+### 🖼️ Image Processing
+Advanced image manipulation nodes with GPU acceleration.
+
+#### 🎨 Image Adjuster
+![Image Adjuster](images/image_adjuster.jpg)
+*Category: `Duffy/Image`*
+
+Professional-grade color correction tool. Adjust brightness, contrast, saturation, and hue with GPU-accelerated torchvision transforms.
+
+**Inputs:** `image` (IMAGE), `brightness` (0.0–3.0), `contrast` (0.0–3.0), `saturation` (0.0–3.0), `hue` (-0.5–0.5)  
+**Outputs:** `IMAGE`
+
+**Features:**
+- Real-time GPU acceleration via torchvision
+- Zero-cost pass-through for unmodified parameters
+- Automatic tensor permutation handling
+- Output clamping prevents artifacts
+
+---
+
+#### 📐 Megapixel Resize
+![Megapixel Resize](images/mega_pixel_resize.jpg)
+*Category: `Duffy/Image`*
+
+Intelligent image resizer targeting specific megapixel counts while preserving aspect ratio. Perfect for consistent resolution workflows.
+
+**Inputs:** `image` (IMAGE), `target_megapixels` (float), `mode` (dropdown)  
+**Outputs:** `IMAGE`, `width` (int), `height` (int)
+
+**Modes:** Bilinear, Nearest, Bicubic, Area, Lanczos
+
+---
+
+#### 📂 Load Image & Resize
+![Load Image Resize](images/load_image_resize.jpg)
+*Category: `Duffy/Image`*
+
+Combined image loader and intelligent resizer. Loads images and automatically resizes to target megapixels in one step.
+
+**Inputs:** `image` (file picker), `target_megapixels` (float), `mode` (dropdown)  
+**Outputs:** `IMAGE`, `width` (int), `height` (int), `MASK`
+
+---
+
+#### 🎭 RGBA to RGB Converter
+![RGBA to RGB](images/rgba_to_rgb.jpg)
+*Category: `Duffy/Image`*
+
+Convert RGBA images to RGB with configurable background color. Handles alpha blending gracefully.
+
+**Inputs:** `image` (IMAGE), `background_color` (dropdown)  
+**Outputs:** `IMAGE`
+
+**Background Options:** White, Black, Custom RGB
+
+---
+
+#### 💾 Save Image with Sidecar
+![Save Image with Sidecar](images/save_image_with_sidecar.jpg)
+*Category: `Duffy/Image`*
+
+Save images with JSON metadata sidecar files. Perfect for tracking generation parameters and workflow documentation.
+
+**Inputs:** `images` (IMAGE), `filename_prefix` (string), `metadata` (dict)  
+**Outputs:** Saved files + JSON metadata
+
+---
+
+#### 📁 Directory Image Iterator
+![Directory Image Iterator](images/directory_image_iterator.jpg)
+*Category: `Duffy/Image`*
+
+Iterate through images in a directory with automatic batching. Essential for batch processing workflows.
+
+**Inputs:** `directory` (string), `index` (int), `recursive` (boolean)  
+**Outputs:** `IMAGE`, `filename` (string), `total_count` (int)
+
+---
+
+#### 🏷️ Iterator Current Filename
+![Iterator Current Filename](images/iterator_current_filename.jpg)
+*Category: `Duffy/Image`*
+
+Extract and pass through the current filename from directory iterator. Useful for metadata and naming.
+
+**Inputs:** `filename` (string)  
+**Outputs:** `STRING`
+
+---
+
+### 🎲 Latent Operations
+Specialized nodes for latent space manipulation and noise generation.
+
+#### 📦 Empty Qwen 2512 Latent
+![Empty Qwen Latent](images/empty_qwen_2512_latent_image.jpg)
+*Category: `Duffy/Latent`*
+
+Generate empty latent tensors optimized for Qwen 2.5 12B model workflows. Ensures proper dimensionality and scaling.
+
+**Inputs:** `width` (int), `height` (int), `batch_size` (int)  
+**Outputs:** `LATENT`
+
+---
+
+#### 🌊 Flux Klein Noise Generator
+![Flux Klein Noise](images/generate_noise_flux_klein.jpg)
+*Category: `Duffy/Latent`*
+
+Advanced noise generator implementing Klein mathematical patterns for Flux model initialization.
+
+**Inputs:** `latent` (LATENT), `seed` (int), `strength` (float)  
+**Outputs:** `LATENT`
+
+---
+
+#### 🎭 Latent Noise Blender
+![Latent Noise Blender](images/latent_noise_blender.jpg)
+*Category: `Duffy/Latent`*
+
+Blend two latent tensors with configurable mixing ratio. Enables latent interpolation and noise injection workflows.
+
+**Inputs:** `latent_a` (LATENT), `latent_b` (LATENT), `blend_factor` (0.0–1.0)  
+**Outputs:** `LATENT`
+
+---
+
+### 🎯 Sampling & Scheduling
+Advanced sampling control nodes for fine-grained generation control.
+
+#### 🔀 Triple Sampler & Scheduler Selector
+![Triple Sampler Scheduler](images/tripple_sampler_selector.jpg)
+*Category: `Duffy/Sampling`*
+
+Select three independent sampler + scheduler combinations simultaneously. Perfect for comparative analysis and permutation testing.
+
+**Outputs:** `Sampler 1`, `Scheduler 1`, `Sampler 2`, `Scheduler 2`, `Sampler 3`, `Scheduler 3` (all strings)
+
+**Features:**
+- Dynamic population from ComfyUI's sampler registry
+- Automatic detection of custom samplers/schedulers
+- Optimized for parallelized grid testing
+- Civitai metadata compatible
+
+---
+
+#### 🎪 Multi-Pass Sampling
+![Multi-Pass Sampling](images/multi_pass_sampling.jpg)
+*Category: `Duffy/Sampling`*
+
+Execute multiple sampling passes with different parameters in sequence. Enables iterative refinement workflows.
+
+**Inputs:** `latent` (LATENT), `passes` (int), `steps_per_pass` (int)  
+**Outputs:** `LATENT`
+
+---
+
+### 🔧 Selectors & Utilities
+Workflow helpers for routing and dynamic selection.
+
+#### 📡 Signal Selector
+![Signal Selector](images/signal_selector.jpg)
+*Category: `Duffy/Selectors`*
+
+Route one of five inputs to a single output based on selector index. Universal type support via `*` wildcard.
+
+**Inputs:** `selector` (1–5), `input_1` through `input_5` (any type)  
+**Outputs:** Selected input (preserves type)
+
+---
+
+#### 🔀 Toggle Switch
+![Toggle Switch](images/toggle_switch.jpg)
+*Category: `Duffy/Selectors`*
+
+Binary switch between two inputs with custom UI. Clean A/B testing interface.
+
+**Inputs:** `enable` (boolean), `input_a` (any), `input_b` (any)  
+**Outputs:** Selected input (preserves type)
+
+---
+
+#### 📂 Model Selector
+![Model Selector](images/model_selector.jpg)
+*Category: `Duffy/Selectors`*
+
+Dynamic model selection interface for Diffusion, CLIP, and VAE models. Scans custom directories and populates dropdowns automatically.
+
+**Inputs:** `models_path` (string)  
+**Outputs:** `diffusion_model` (string), `clip_model` (string), `vae_model` (string)
+
+**Features:**
+- User-provided base path
+- Recursive folder scanning
+- Multiple model format support (.safetensors, .ckpt, .pt, .bin, .pth, .gguf)
+- Path traversal protection
+- Dynamic dropdown population via REST API
+
+---
+
+#### 🏷️ LoRA Prompt Combiner
+![LoRA Prompt Combiner](images/lora_prompt_combiner.jpg)
+*Category: `Duffy/Utilities`*
+
+Intelligently combine base prompts with LoRA tags and weights. Supports advanced formatting and tag injection.
+
+**Inputs:** `base_prompt` (string), `lora_name` (string), `lora_weight` (float), `position` (dropdown)  
+**Outputs:** `STRING` (formatted prompt)
+
+**Position Modes:** Prepend, Append, Replace
+
+---
+
+## 🎯 Use Cases
+
+### 🎨 Professional Workflow Optimization
+- **Batch Processing:** Use Directory Image Iterator + Multi-Pass Sampling for high-volume generation
+- **Color Grading:** Image Adjuster provides professional post-processing controls
+- **Model Management:** Model Selector simplifies switching between checkpoints
+
+### 🔬 Research & Experimentation
+- **Comparative Analysis:** Triple Sampler Scheduler enables side-by-side testing
+- **Parameter Sweeps:** Five Float/Int Sliders for multi-dimensional optimization
+- **Latent Exploration:** Noise Blender and Klein Noise for creative latent manipulation
+
+### ⚡ Production Pipelines
+- **Metadata Tracking:** Save Image with Sidecar for workflow documentation
+- **Dynamic Resolution:** Megapixel Resize ensures consistent output sizes
+- **Conditional Logic:** Signal Selector and Toggle Switch for smart routing
+
+---
+
+## ⚙️ Requirements
+
+- **ComfyUI** (latest version recommended)
+- **Python** 3.10 or higher
+- **PyTorch** 2.1.0+
+- **torchvision** (latest stable)
+- **NumPy** 1.26.0+
+- **Pillow** (for image I/O)
+
+All dependencies are automatically installed with ComfyUI. No additional setup required.
+
+---
+
+## 🏗️ Architecture
+
+This node pack is built with **ComfyUI Nodes 2.0** and **Schema V3** standards:
+
+✅ **Stateless Design** - All nodes use `@classmethod` methods, no instance variables  
+✅ **Declarative Schema** - Inputs/outputs defined via `define_schema()` with typed `io` objects  
+✅ **Proper Caching** - Implements `fingerprint_inputs()` for intelligent cache invalidation  
+✅ **Vue-Compatible UI** - Custom widgets use `getCustomWidgets()` API with pointer event capture  
+✅ **Type Safety** - Full type hints and proper tensor dimension handling  
+✅ **Zero Side Effects** - Pure functions with predictable behavior  
+
+---
+
+## 📝 License
+
+This project is licensed under the **MIT License**. See [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
+
+### Development Guidelines
+- Follow V3 Schema architecture patterns
+- Maintain stateless node design
+- Include docstrings and type hints
+- Test with multiple ComfyUI versions
+- Update CHANGELOG.md with changes
+
+---
+
+## 🙏 Acknowledgments
+
+Built with ❤️ for the ComfyUI community.
+
+Special thanks to:
+- **comfyanonymous** for creating ComfyUI
+- The ComfyUI community for inspiration and feedback
+- Contributors and testers
+
+---
+
+## 📞 Support
+
+- **Issues:** Report bugs via [GitHub Issues](https://github.com/yourusername/comfyui-duffy-nodes/issues)
+- **Discussions:** Join the conversation on [GitHub Discussions](https://github.com/yourusername/comfyui-duffy-nodes/discussions)
+- **Documentation:** Check the [Wiki](https://github.com/yourusername/comfyui-duffy-nodes/wiki) for detailed guides
+
+---
+
+## 📊 Version
+
+Current Version: **0.13.0** (March 2, 2026)
+
+See [CHANGELOG.md](CHANGELOG.md) for complete version history.
+
+---
+
+<div align="center">
+
+**[⬆ Back to Top](#-duffy-nodes---comfyui-custom-node-pack)**
+
+Made with 🎨 by the Duffy Nodes Team
+
+</div>
