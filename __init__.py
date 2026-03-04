@@ -7,10 +7,6 @@ from comfy_api.latest import ComfyExtension, io
 # Instructs ComfyUI to serve the './web' directory to the frontend
 WEB_DIRECTORY = "./web"
 
-# Import V3 Schema node classes from the nodes subpackage
-# Example: from .nodes.my_node import MyNode
-from .nodes import NODE_LIST
-
 
 class DuffyNodesExtension(ComfyExtension):
     """
@@ -21,6 +17,8 @@ class DuffyNodesExtension(ComfyExtension):
         """
         Returns the list of active V3 schema nodes to the application registry.
         """
+        # Import here to avoid relative import issues at module load time
+        from .nodes import NODE_LIST
         return NODE_LIST
 
 async def comfy_entrypoint() -> DuffyNodesExtension:

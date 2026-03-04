@@ -1,4 +1,4 @@
-import { app } from "../../scripts/app.js";
+import { app } from "../../../scripts/app.js";
 
 /**
  * Dynamically syncs user-defined labels to the input ports

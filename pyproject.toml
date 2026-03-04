@@ -1,5 +1,5 @@
 [project]
-name = "comfyui-duffy-nodes"
+name = "Duffy_Nodes"
 description = "A custom node pack for ComfyUI built on the V3 Schema."
 version = "0.1.0"
 license = "MIT"

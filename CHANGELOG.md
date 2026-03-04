@@ -6,6 +6,27 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.14.0] — 2026-03-03
+
+### Added
+
+- **Advanced Folder Image Selector** node (`DuffyAdvancedFolderImageSelector`, category `Duffy/Image/Selection`).
+  - Interactive thumbnail browser for selecting up to 5 images from a directory.
+  - Paginated 3×3 grid display with Base64-encoded thumbnail previews.
+  - Two sorting modes: by filename (alphabetical) and by creation date (newest first).
+  - Visual selection indicators with numbered badges showing selection order.
+  - Persistent state management through hidden widget — selections survive workflow reloads.
+  - Async API endpoint (`/advanced_selector/refresh_folder`) for non-blocking thumbnail generation.
+  - Security features: path traversal protection, permission error handling, and file type validation.
+  - Five discrete image tensor outputs (`image_1` through `image_5`) for downstream processing.
+  - Empty tensor fallbacks (64×64 transparent) for unselected slots to prevent pipeline errors.
+  - Auto-refresh on node creation if folder path is already set.
+  - Custom DOM widget integration using Nodes 2.0 architecture with proper event isolation.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+  - Companion JavaScript extension (`advanced_folder_image_selector.js`) with Vue-compatible DOM injection.
+
+---
+
 ## [0.13.0] — 2026-03-02
 
 ### Added

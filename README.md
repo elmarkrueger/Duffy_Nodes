@@ -12,7 +12,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 ## ✨ Features
 
 🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
-🎯 **25+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
+🎯 **26+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
 ⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
 🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
 🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
@@ -220,6 +220,26 @@ Extract and pass through the current filename from directory iterator. Useful fo
 
 **Inputs:** `filename` (string)  
 **Outputs:** `STRING`
+
+---
+
+#### 🔍 Advanced Folder Image Selector
+![Advanced Folder Image Selector](images/advanced_folder_image_selector.jpg)
+*Category: `Duffy/Image/Selection`*
+
+Interactive thumbnail browser for selecting up to 5 images from a directory. Features pagination, sorting, and real-time preview.
+
+**Inputs:** `folder_path` (string), `selected_images_state` (string, hidden)  
+**Outputs:** `image_1`, `image_2`, `image_3`, `image_4`, `image_5` (IMAGE)
+
+**Features:**
+- 🖼️ Thumbnail grid with 3×3 pagination
+- 🔄 Sort by filename or creation date
+- ✅ Visual selection indicators with badges
+- 💾 Persistent selection state across sessions
+- ⚡ Async thumbnail generation for performance
+
+**Use Cases:** Manual image selection from large batches, creating comparison workflows, curating datasets
 
 ---
 
