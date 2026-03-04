@@ -6,6 +6,26 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.15.0] — 2026-03-04
+
+### Added
+
+- **Seed** node (`Duffy_Seed`, category `Duffy/utilities`).
+  - Advanced seed management node with randomize, increment, decrement, and fixed modes.
+  - Integer seed input with full range (±1,125,899,906,842,624) and a single `SEED` (INT) output.
+  - Three dedicated UI buttons: "🎲 Randomize Each Time" (sets seed to -1), "🎲 New Fixed Random" (immediate random), "♻️ Use Last Queued Seed" (restore last used value).
+  - Frontend prompt interception: hooks into `api.queuePrompt` to replace special seed values (-1 random, -2 increment, -3 decrement) in both serialized output and workflow metadata before server submission.
+  - Dedicated random state isolated from the global Python/JS random state to prevent interference with other extensions.
+  - Server-side API fallback: if special seeds arrive without frontend interception (e.g. direct API calls), the backend generates a random seed and persists it to workflow and prompt metadata via hidden inputs (`UNIQUE_ID`, `PROMPT`, `EXTRA_PNGINFO`).
+  - `fingerprint_inputs` forces re-execution when special seed values are used (V3 equivalent of `IS_CHANGED`).
+  - Removes the default ComfyUI `control_after_generate` dropdown widget in favor of the dedicated button interface.
+  - Context menu with quick actions (randomize, fixed random, use last seed) and toggleable "Show/Hide Last Seed Display" read-only text widget.
+  - Custom node theming (gold/brown colour scheme) applied via `nodeCreated` lifecycle hook.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+  - Companion JavaScript extension (`seed.js`) with Vue-compatible Nodes 2.0 architecture.
+
+---
+
 ## [0.14.0] — 2026-03-03
 
 ### Added

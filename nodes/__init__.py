@@ -26,6 +26,7 @@ from .primitive_string_multiline import DuffyPrimitiveStringMultiline
 # Image processing nodes (migrated from legacy V1)
 from .rgba_to_rgb import DuffyRGBAtoRGB
 from .save_image_sidecar import DuffySaveImageWithSidecar
+from .seed import DuffySeed
 from .signal_selector import DuffySignalSelector
 from .toggle_switch import DuffyToggleSwitch
 from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
@@ -61,4 +62,6 @@ NODE_LIST = [
     DuffyModelSelector,
     # Sampling nodes
     DuffyTripleSamplerScheduler,
+    # Utility nodes
+    DuffySeed,
 ]

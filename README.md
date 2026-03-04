@@ -12,7 +12,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 ## ✨ Features
 
 🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
-🎯 **26+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
+🎯 **27+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
 ⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
 🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
 🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
@@ -352,7 +352,30 @@ Dynamic model selection interface for Diffusion, CLIP, and VAE models. Scans cus
 
 ---
 
-#### 🏷️ LoRA Prompt Combiner
+#### � Seed
+![Duffy Seed](images/seed.jpg)
+*Category: `Duffy/utilities`*
+
+Advanced seed node with randomize, increment, decrement, and fixed modes. Handles seed generation on the frontend before the prompt is sent to the server, ensuring reproducibility and proper metadata embedding. Includes a server-side fallback for direct API usage.
+
+**Inputs:** `seed` (INT, range ±1,125,899,906,842,624)  
+**Outputs:** `SEED` (INT)
+
+**Features:**
+- 🎲 **Randomize Each Time** — generates a new random seed on every queue (seed = -1)
+- 🔒 **New Fixed Random** — generates a single random seed and locks it in place
+- ♻️ **Use Last Queued Seed** — restores the last actually-used seed value
+- ➕ **Increment / Decrement** — automatically increments or decrements the last seed (seed = -2 / -3)
+- 📡 **Frontend prompt interception** — replaces special seed values in the serialized prompt and workflow metadata before they reach the server, avoiding caching issues
+- 🛡️ **Server-side API fallback** — when special seeds arrive via direct API calls (no frontend), the backend generates a random seed and persists it to workflow & prompt metadata
+- 📋 **Context menu** with quick actions and toggleable "Last Seed" display widget
+- 🧩 Removes the default ComfyUI `control_after_generate` dropdown in favor of dedicated buttons
+
+**Use Cases:** Reproducible generation runs, iterative seed exploration, A/B seed comparison, API-driven batch pipelines
+
+---
+
+#### �🏷️ LoRA Prompt Combiner
 ![LoRA Prompt Combiner](images/lora_prompt_combiner.jpg)
 *Category: `Duffy/Utilities`*
 
@@ -450,7 +473,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.13.0** (March 2, 2026)
+Current Version: **0.15.0** (March 4, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
