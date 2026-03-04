@@ -227,10 +227,10 @@ Extract and pass through the current filename from directory iterator. Useful fo
 ![Advanced Folder Image Selector](images/advanced_folder_image_selector.jpg)
 *Category: `Duffy/Image/Selection`*
 
-Interactive thumbnail browser for selecting up to 5 images from a directory. Features pagination, sorting, and real-time preview.
+Interactive thumbnail browser for selecting up to 10 images from a directory. Features pagination, sorting, and real-time preview.
 
 **Inputs:** `folder_path` (string), `selected_images_state` (string, hidden)  
-**Outputs:** `image_1`, `image_2`, `image_3`, `image_4`, `image_5` (IMAGE)
+**Outputs:** `image_1`, `image_2`, `image_3`, `image_4`, `image_5`, `image_6`, `image_7`, `image_8`, `image_9`, `image_10` (IMAGE)
 
 **Features:**
 - 🖼️ Thumbnail grid with 3×3 pagination

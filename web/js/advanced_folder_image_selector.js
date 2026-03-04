@@ -194,7 +194,7 @@ app.registerExtension({
         // ====================================================================
 
         function updateSelectionCounter() {
-            selectionCounter.innerText = `${selectedImages.length} of 5 images selected`;
+            selectionCounter.innerText = `${selectedImages.length} of 10 images selected`;
             if (stateWidget) {
                 stateWidget.value = JSON.stringify(selectedImages);
             }
@@ -272,10 +272,10 @@ app.registerExtension({
                         selectedImages.splice(index, 1);
                     } else {
                         // Select (if limit not reached)
-                        if (selectedImages.length < 5) {
+                        if (selectedImages.length < 10) {
                             selectedImages.push(item.path);
                         } else {
-                            alert("Maximum of 5 images can be selected for the available outputs.");
+                            alert("Maximum of 10 images can be selected for the available outputs.");
                             return;
                         }
                     }

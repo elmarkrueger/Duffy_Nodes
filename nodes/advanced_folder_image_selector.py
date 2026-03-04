@@ -151,6 +151,11 @@ class DuffyAdvancedFolderImageSelector(io.ComfyNode):
                 io.Image.Output("image_3"),
                 io.Image.Output("image_4"),
                 io.Image.Output("image_5"),
+                io.Image.Output("image_6"),
+                io.Image.Output("image_7"),
+                io.Image.Output("image_8"),
+                io.Image.Output("image_9"),
+                io.Image.Output("image_10"),
             ],
         )
 
@@ -175,8 +180,8 @@ class DuffyAdvancedFolderImageSelector(io.ComfyNode):
 
         output_tensors = []
 
-        # Process up to 5 images
-        for i in range(5):
+        # Process up to 10 images
+        for i in range(10):
             if i < len(selected_paths) and os.path.isfile(selected_paths[i]):
                 try:
                     # Load the image
