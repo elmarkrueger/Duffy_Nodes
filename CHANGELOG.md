@@ -6,6 +6,29 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.16.0] — 2026-03-05
+
+### Added
+
+- **Image Stitch** node (`Duffy_ImageStitch`, category `Duffy/Image`).
+  - Upload up to 9 images via an interactive 3×3 grid and stitch them into a single output image.
+  - Two orientation modes: **Horizontal** (scales all images to the tallest height, preserving aspect ratios, concatenated left-to-right) and **Vertical** (center-crops all images to the narrowest width, stacked top-to-bottom).
+  - 9 optional `io.Combo.Input` slots with `upload=io.UploadType.image` — uses ComfyUI's native image upload mechanism for full workflow serialization compatibility.
+  - Interactive 3×3 grid frontend with numbered badge labels ("Image 1"–"Image 9") that remain visible over thumbnails.
+  - Per-slot image upload via file picker, thumbnail preview loaded from ComfyUI's `/view` endpoint.
+  - HTML5 drag-and-drop reordering: swap images between any two grid cells by dragging.
+  - Per-slot clear button (×) to remove individual images.
+  - Custom orientation toggle widget (→ Horizontal / ↓ Vertical) synced to hidden combo input.
+  - All combo widgets hidden in favor of the custom DOM grid interface.
+  - Image resizing via `comfy.utils.common_upscale` with Lanczos interpolation for high-quality stitching.
+  - Empty state returns a 64×64 black placeholder to prevent pipeline errors.
+  - `fingerprint_inputs` (SHA-256 hash of all image files + orientation) for proper cache invalidation.
+  - `validate_inputs` for file existence checking on all non-empty slots.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+  - Companion JavaScript extension (`image_stitch.js`) with Vue-compatible Nodes 2.0 architecture, event isolation (`pointerdown`/`wheel` stopPropagation), and Duffy node theming.
+
+---
+
 ## [0.15.0] — 2026-03-04
 
 ### Added
