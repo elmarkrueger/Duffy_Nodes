@@ -396,7 +396,20 @@ Advanced seed node with randomize, increment, decrement, and fixed modes. Handle
 **Use Cases:** Reproducible generation runs, iterative seed exploration, A/B seed comparison, API-driven batch pipelines
 
 ---
+#### 📝 JSON Format String
+![JSON Format String](images/json_to_text.jpg)
+*Category: `Duffy/utilities`*
 
+Parses a raw JSON string and outputs it as a well-formatted multiline representation. Connect a Primitive String (Multiline) containing JSON to the input, then pipe the output to another String Multiline or Show Any node for clean display.
+
+**Inputs:** `json_text` (string, multiline), `format_mode` (dropdown), `indent_size` (int, 1–8)  
+**Outputs:** `formatted_text` (STRING)
+
+**Format Modes:**
+- **Pretty JSON** — Standard indented JSON with proper line breaks
+- **Readable Text** — Human-friendly labeled sections with nested indentation (e.g. `Scene: ...`, `Color Palette:`, `  Tile Teal: #20B2AA`)
+
+---
 #### �🏷️ LoRA Prompt Combiner
 ![LoRA Prompt Combiner](images/lora_prompt_combiner.jpg)
 *Category: `Duffy/Utilities`*
@@ -495,7 +508,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.15.0** (March 4, 2026)
+Current Version: **0.17.0** (March 6, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

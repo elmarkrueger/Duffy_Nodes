@@ -13,6 +13,7 @@ from .image_adjuster import DuffyImageAdjuster
 from .image_stitch import DuffyImageStitch
 from .integer_math import DuffyIntegerMath
 from .iterator_current_filename import DuffyIteratorCurrentFilename
+from .json_format_string import DuffyJsonFormatString
 from .latent_noise_blender import DuffyLatentNoiseBlender
 from .load_image_resize import DuffyLoadImageResize
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
@@ -67,4 +68,5 @@ NODE_LIST = [
     DuffyTripleSamplerScheduler,
     # Utility nodes
     DuffySeed,
+    DuffyJsonFormatString,
 ]

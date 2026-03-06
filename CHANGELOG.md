@@ -6,6 +6,20 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.17.0] — 2026-03-06
+
+### Added
+
+- **JSON Format String** node (`Duffy_JsonFormatString`, category `Duffy/utilities`).
+  - Parses a raw JSON string and outputs a well-formatted multiline representation.
+  - Two format modes: **Pretty JSON** (standard indented JSON with configurable indent size 1–8) and **Readable Text** (human-friendly labeled sections with nested indentation, underscored keys converted to title case).
+  - Accepts input by direct paste or by connecting from another string node (e.g. Primitive String Multiline).
+  - Graceful error handling: invalid JSON returns a descriptive `[JSON Parse Error]` message instead of raising an exception.
+  - `fingerprint_inputs` for proper cache invalidation based on input text, format mode, and indent size.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
+---
+
 ## [0.16.0] — 2026-03-05
 
 ### Added
