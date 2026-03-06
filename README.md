@@ -247,9 +247,9 @@ Interactive thumbnail browser for selecting up to 10 images from a directory. Fe
 ![Image Stitch](images/duyy_image_stitch.jpg)
 *Category: `Duffy/Image`*
 
-Upload up to 9 images via an interactive 3×3 grid and stitch them into a single output image — horizontally or vertically. Drag-and-drop reordering lets you control the exact image sequence before stitching.
+Upload up to 9 images via an interactive 3×3 grid and stitch them into a single output image — horizontally, vertically, or in a grid layout. Drag-and-drop reordering lets you control the exact image sequence before stitching.
 
-**Inputs:** `orientation` (Horizontal/Vertical), `image_1`–`image_9` (file upload, optional)  
+**Inputs:** `orientation` (Horizontal/Vertical/Layout), `image_1`–`image_9` (file upload, optional)  
 **Outputs:** `stitched_image` (IMAGE)
 
 **Features:**
@@ -258,8 +258,9 @@ Upload up to 9 images via an interactive 3×3 grid and stitch them into a single
 - 🔀 Drag-and-drop reordering between grid cells
 - ↔️ Horizontal mode: scales all images to the tallest height, preserving aspect ratios
 - ↕️ Vertical mode: center-crops all images to the narrowest width
+- ⊞ Layout mode: stitches images preserving their 3×3 grid positions — empty rows/columns are excluded, empty cells within active rows/columns are filled with black
 - ❌ Per-slot clear button to remove individual images
-- 🎨 Custom orientation toggle (→ Horizontal / ↓ Vertical)
+- 🎨 Custom orientation toggle (→ Horizontal / ↓ Vertical / ⊞ Layout)
 
 **Use Cases:** Contact sheets, image comparisons, before/after compositions, multi-image collages, reference boards
 

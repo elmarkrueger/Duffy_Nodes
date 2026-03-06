@@ -80,6 +80,51 @@ def _stitch_vertical(tensors: list[torch.Tensor]) -> torch.Tensor:
     return torch.cat(cropped, dim=1)  # cat along H
 
 
+def _scale_to_cell(t: torch.Tensor, cell_h: int, cell_w: int) -> torch.Tensor:
+    """Scale a [1,H,W,C] tensor to exactly (cell_h, cell_w) using lanczos."""
+    bchw = t.movedim(-1, 1)
+    scaled = comfy.utils.common_upscale(bchw, cell_w, cell_h, "lanczos", crop="disabled")
+    return scaled.movedim(1, -1)
+
+
+def _stitch_layout(grid: list[list[torch.Tensor | None]]) -> torch.Tensor:
+    """
+    Stitch images preserving their 3×3 grid positions.
+
+    - Rows and columns that contain zero images are excluded.
+    - All images are scaled to a uniform cell size (max_h × max_w).
+    - Empty cells within active rows/columns are filled with black.
+    """
+    # Determine active rows and columns
+    active_rows = [r for r in range(3) if any(grid[r][c] is not None for c in range(3))]
+    active_cols = [c for c in range(3) if any(grid[r][c] is not None for r in range(3))]
+
+    if not active_rows or not active_cols:
+        return torch.zeros((1, 64, 64, 3), dtype=torch.float32)
+
+    # Collect all present tensors to determine uniform cell size
+    all_tensors = [grid[r][c] for r in active_rows for c in active_cols if grid[r][c] is not None]
+    if not all_tensors:
+        return torch.zeros((1, 64, 64, 3), dtype=torch.float32)
+
+    cell_h = max(t.shape[1] for t in all_tensors)
+    cell_w = max(t.shape[2] for t in all_tensors)
+
+    # Build each active row
+    row_tensors = []
+    for r in active_rows:
+        cells = []
+        for c in active_cols:
+            t = grid[r][c]
+            if t is not None:
+                cells.append(_scale_to_cell(t, cell_h, cell_w))
+            else:
+                cells.append(torch.zeros((1, cell_h, cell_w, 3), dtype=torch.float32))
+        row_tensors.append(torch.cat(cells, dim=2))  # cat along W
+
+    return torch.cat(row_tensors, dim=1)  # cat along H
+
+
 class DuffyImageStitch(io.ComfyNode):
     """
     Upload up to 9 images, reorder them via drag-and-drop in a 3×3 grid,
@@ -109,18 +154,19 @@ class DuffyImageStitch(io.ComfyNode):
             display_name="Duffy Image Stitch",
             category="Duffy/Image",
             description=(
-                "Upload up to 9 images and stitch them together horizontally "
-                "or vertically. Reorder images via the interactive 3×3 grid. "
+                "Upload up to 9 images and stitch them together horizontally, "
+                "vertically, or in a grid layout preserving their 3×3 positions. "
                 "Horizontal mode scales all images to the tallest height. "
-                "Vertical mode center-crops all images to the narrowest width."
+                "Vertical mode center-crops all images to the narrowest width. "
+                "Layout mode arranges images in the grid pattern you set."
             ),
             inputs=[
                 io.Combo.Input(
                     "orientation",
-                    options=["Horizontal", "Vertical"],
+                    options=["Horizontal", "Vertical", "Layout"],
                     default="Horizontal",
                     display_name="Orientation",
-                    tooltip="Stitch direction: side-by-side or stacked",
+                    tooltip="Stitch direction: side-by-side, stacked, or grid layout",
                 ),
                 *image_inputs,
             ],
@@ -136,7 +182,22 @@ class DuffyImageStitch(io.ComfyNode):
 
     @classmethod
     def execute(cls, orientation: str, **kwargs) -> io.NodeOutput:
-        # Collect images in slot order (image_1 through image_9)
+        if orientation == "Layout":
+            # Build a 3×3 grid preserving slot positions
+            grid: list[list[torch.Tensor | None]] = [[None] * 3 for _ in range(3)]
+            has_any = False
+            for i in range(1, 10):
+                name = kwargs.get(f"image_{i}", "none")
+                if name and name != "none":
+                    r, c = divmod(i - 1, 3)
+                    grid[r][c] = _load_image_tensor(name)
+                    has_any = True
+            if not has_any:
+                return io.NodeOutput(torch.zeros((1, 64, 64, 3), dtype=torch.float32))
+            result = _stitch_layout(grid)
+            return io.NodeOutput(result)
+
+        # Horizontal / Vertical — collect images as flat list
         tensors: list[torch.Tensor] = []
         for i in range(1, 10):
             name = kwargs.get(f"image_{i}", "none")
@@ -144,7 +205,6 @@ class DuffyImageStitch(io.ComfyNode):
                 tensors.append(_load_image_tensor(name))
 
         if not tensors:
-            # No images provided — return a small black placeholder
             placeholder = torch.zeros((1, 64, 64, 3), dtype=torch.float32)
             return io.NodeOutput(placeholder)
 

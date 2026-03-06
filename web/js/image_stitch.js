@@ -187,17 +187,19 @@ app.registerExtension({
 
         const btnHorizontal = createToggleBtn("\u2192 Horizontal", "Horizontal");
         const btnVertical = createToggleBtn("\u2193 Vertical", "Vertical");
+        const btnLayout = createToggleBtn("\u229E Layout", "Layout");
         toggleRow.appendChild(btnHorizontal);
         toggleRow.appendChild(btnVertical);
+        toggleRow.appendChild(btnLayout);
         container.appendChild(toggleRow);
 
         function syncToggleUI() {
             const current = orientationWidget?.value || "Horizontal";
-            const isH = current === "Horizontal";
-            btnHorizontal.style.backgroundColor = isH ? COLORS.activeBtn : COLORS.inactiveBtn;
-            btnHorizontal.style.borderBottom = isH ? `2px solid ${COLORS.activeBorder}` : "2px solid transparent";
-            btnVertical.style.backgroundColor = !isH ? COLORS.activeBtn : COLORS.inactiveBtn;
-            btnVertical.style.borderBottom = !isH ? `2px solid ${COLORS.activeBorder}` : "2px solid transparent";
+            for (const btn of [btnHorizontal, btnVertical, btnLayout]) {
+                const active = btn.dataset.value === current;
+                btn.style.backgroundColor = active ? COLORS.activeBtn : COLORS.inactiveBtn;
+                btn.style.borderBottom = active ? `2px solid ${COLORS.activeBorder}` : "2px solid transparent";
+            }
         }
 
         btnHorizontal.addEventListener("click", () => {
@@ -206,6 +208,10 @@ app.registerExtension({
         });
         btnVertical.addEventListener("click", () => {
             if (orientationWidget) orientationWidget.value = "Vertical";
+            syncToggleUI();
+        });
+        btnLayout.addEventListener("click", () => {
+            if (orientationWidget) orientationWidget.value = "Layout";
             syncToggleUI();
         });
         syncToggleUI();
@@ -453,12 +459,22 @@ app.registerExtension({
             serialize: false,
             hideOnZoom: false,
         });
-        domWidget.computeSize = () => [420, 540];
+        const MIN_W = 420;
+        const MIN_H = 580;
+        domWidget.computeSize = () => [MIN_W, 540];
 
-        // Resize node to fit
+        // Enforce minimum node size on user resize
+        const origOnResize = node.onResize;
+        node.onResize = function (size) {
+            size[0] = Math.max(MIN_W, size[0]);
+            size[1] = Math.max(MIN_H, size[1]);
+            origOnResize?.call(this, size);
+        };
+
+        // Initial size
         setTimeout(() => {
             const sz = node.computeSize();
-            node.size = [Math.max(420, sz[0]), Math.max(580, sz[1])];
+            node.size = [Math.max(MIN_W, sz[0]), Math.max(MIN_H, sz[1])];
             app.graph.setDirtyCanvas(true, true);
         }, 100);
     },
