@@ -2,6 +2,7 @@
 # Import each node class here and add it to NODE_LIST.
 
 from .advanced_folder_image_selector import DuffyAdvancedFolderImageSelector
+from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
@@ -53,6 +54,7 @@ NODE_LIST = [
     DuffyAdvancedFolderImageSelector,
     # Image stitching
     DuffyImageStitch,
+    DuffyConnectedImageStitch,
     # Latent nodes
     DuffyEmptyQwenLatent,
     DuffyLatentNoiseBlender,

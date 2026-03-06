@@ -6,6 +6,24 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.18.0] — 2026-03-06
+
+### Added
+
+- **Connected Image Stitch** node (`Duffy_ConnectedImageStitch`, category `Duffy/Image`).
+  - Connection-based variant of Image Stitch — accepts up to 9 optional image inputs via node connections instead of file uploads.
+  - Three orientation modes: **Horizontal** (scales to tallest height), **Vertical** (center-crops to narrowest width), and **Layout** (3×3 grid with custom mapping).
+  - Interactive 3×3 layout mapping grid (visible only in Layout mode) with per-cell dropdown to assign any input (Image 1–9 or None) to any grid position.
+  - "Reset to Default (1–9)" button to restore the identity mapping.
+  - Graceful handling of unconnected inputs: if a grid cell references an input that isn't wired, the cell is treated as empty (filled with black).
+  - Reuses all stitching functions from Image Stitch (`_stitch_horizontal`, `_stitch_vertical`, `_stitch_layout`) — no code duplication.
+  - Custom orientation toggle widget (→ Horizontal / ↓ Vertical / ⊞ Layout) with Duffy node theming.
+  - Node auto-resizes when toggling between modes to accommodate or hide the layout grid.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+  - Companion JavaScript extension (`connected_image_stitch.js`) with Vue-compatible Nodes 2.0 architecture, event isolation, and dynamic DOM widget sizing.
+
+---
+
 ## [0.17.0] — 2026-03-06
 
 ### Added

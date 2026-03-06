@@ -266,6 +266,28 @@ Upload up to 9 images via an interactive 3×3 grid and stitch them into a single
 
 ---
 
+#### 🔗 Connected Image Stitch
+![Connected Image Stitch](images/connected_image_stitch.jpg)
+*Category: `Duffy/Image`*
+
+A connection-based variant of Image Stitch. Instead of uploading images directly, connect up to 9 image outputs from other nodes and stitch them into a single output image. In Layout mode, an interactive 3×3 mapping grid lets you assign any input to any grid position.
+
+**Inputs:** `orientation` (Horizontal/Vertical/Layout), `image_1`–`image_9` (IMAGE, optional connections), `layout_pos_1`–`layout_pos_9` (hidden, used by Layout grid)
+**Outputs:** `stitched_image` (IMAGE)
+
+**Features:**
+- 🔌 9 optional image input connections — wire outputs from Load Image, VAE Decode, or any image-producing node
+- ↔️ Horizontal mode: scales all connected images to the tallest height, preserving aspect ratios
+- ↕️ Vertical mode: center-crops all connected images to the narrowest width
+- ⊞ Layout mode: interactive 3×3 mapping grid with per-cell dropdown to assign any input (Image 1–9) to any grid position
+- 🔄 "Reset to Default (1–9)" button to restore identity mapping
+- 🛡️ Graceful handling of unconnected inputs — if a grid cell references an input that isn't connected, it is treated as empty (black)
+- 🎨 Same orientation toggle and Duffy node theming as Image Stitch
+
+**Use Cases:** Dynamic image compositions from upstream nodes, workflow-driven collages, pipeline-based contact sheets, comparing outputs from multiple generation branches
+
+---
+
 ### 🎲 Latent Operations
 Specialized nodes for latent space manipulation and noise generation.
 
