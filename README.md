@@ -288,6 +288,26 @@ A connection-based variant of Image Stitch. Instead of uploading images directly
 
 ---
 
+#### 🔠 Image Text Overlay
+![Image Text Overlay](images/image_text_overlay.jpg)
+*Category: `Duffy/Image`*
+
+Stateless V3 node to overlay text onto an image batch. Features a modern color picker, font size slider, precise X/Y positioning, and a robust font resolution engine that supports custom `.ttf`/`.otf` files and system-wide fonts.
+
+**Inputs:** `image` (IMAGE), `text` (string, multiline), `font_color` (hex string), `font_size` (int, 8–1024), `font_name` (dropdown), `position_x` (int), `position_y` (int)
+**Outputs:** `image` (IMAGE)
+
+**Features:**
+- 🎨 **Modern Color Picker** — Injected HTML5 color widget for intuitive font color selection
+- 🔤 **Custom Font Support** — Drop your own `.ttf`, `.otf`, or `.ttc` files into the `fonts/` directory for automatic detection
+- 🏢 **System Font Mapping** — Robust resolution for standard Windows and macOS system fonts (Arial, Impact, etc.)
+- 📐 **Precise Placement** — Interactive sliders for pixel-perfect X/Y text positioning
+- ⚡ **GPU-Friendly** — Processes batch image tensors in standard `[B, H, W, C]` layout
+
+**Use Cases:** Adding watermarks, labeling generation parameters, creating memes, cinematic titles, and procedural text overlays.
+
+---
+
 ### 🎲 Latent Operations
 Specialized nodes for latent space manipulation and noise generation.
 
@@ -546,7 +566,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.17.0** (March 6, 2026)
+Current Version: **0.20.0** (March 7, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

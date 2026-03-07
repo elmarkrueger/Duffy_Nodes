@@ -6,6 +6,23 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.20.0] — 2026-03-07
+
+### Added
+
+- **Image Text Overlay** node (`Duffy_ImageTextOverlay`, category `Duffy/Image`).
+  - Stateless V3 node for overlaying text onto image batches.
+  - Interactive HTML5 Color Picker widget injected via Vue for intuitive font color selection.
+  - Robust **Font Resolution Engine** that maps common display names (Arial, Impact, etc.) to actual system font files on Windows and macOS.
+  - Support for custom fonts: drop `.ttf`, `.otf`, or `.ttc` files into the `fonts/` directory for automatic discovery in the node dropdown.
+  - Precise X/Y positioning and font size sliders with real-time feedback.
+  - Batch-aware execution: applies the same overlay to all images in a tensor batch.
+  - Correct dimension handling: processes tensors in `[B, H, W, C]` layout.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema` with list-based inputs/outputs, and explicit IDs.
+  - Companion JavaScript extension (`image_text_overlay.js`) for UI enhancements and theme integration.
+
+---
+
 ## [0.19.0] — 2026-03-07
 
 ### Added

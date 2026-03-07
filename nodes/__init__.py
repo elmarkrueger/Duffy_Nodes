@@ -4,6 +4,7 @@
 from .advanced_folder_image_selector import DuffyAdvancedFolderImageSelector
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
+from .image_text_overlay import DuffyImageTextOverlay
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
 from .find_and_replace_text import DuffyFindAndReplaceText
@@ -73,4 +74,5 @@ NODE_LIST = [
     # Utility nodes
     DuffySeed,
     DuffyJsonFormatString,
+    DuffyImageTextOverlay,
 ]
