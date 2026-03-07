@@ -6,6 +6,7 @@ from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
+from .find_and_replace_text import DuffyFindAndReplaceText
 from .five_float_sliders import DuffyFiveFloatSliders
 from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
@@ -37,6 +38,7 @@ from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
 NODE_LIST = [
     DuffySignalSelector,
     DuffyLoRaPromptCombiner,
+    DuffyFindAndReplaceText,
     DuffyFiveFloatSliders,
     DuffyFiveIntSliders,
     DuffyFloatMath,

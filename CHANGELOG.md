@@ -6,6 +6,21 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.19.0] — 2026-03-07
+
+### Added
+
+- **Find and Replace Text** node (`Duffy_FindAndReplaceText`, category `Duffy/Text`).
+  - Performs literal find-and-replace on single-line and multiline string inputs.
+  - Replaces all matches across the full input string.
+  - Supports both case-sensitive and case-insensitive matching via a boolean toggle.
+  - Accepts direct text entry or connected string input from upstream nodes.
+  - Empty `find_text` is handled deterministically by returning the input unchanged.
+  - `fingerprint_inputs` tracks source text, search text, replacement text, and case sensitivity for correct cache invalidation.
+  - Full V3 Schema implementation: stateless `@classmethod` design, declarative `define_schema`, typed `io.NodeOutput` return.
+
+---
+
 ## [0.18.0] — 2026-03-06
 
 ### Added

@@ -12,7 +12,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 ## ✨ Features
 
 🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
-🎯 **27+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
+🎯 **28+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
 ⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
 🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
 🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
@@ -431,6 +431,21 @@ Parses a raw JSON string and outputs it as a well-formatted multiline representa
 **Format Modes:**
 - **Pretty JSON** — Standard indented JSON with proper line breaks
 - **Readable Text** — Human-friendly labeled sections with nested indentation (e.g. `Scene: ...`, `Color Palette:`, `  Tile Teal: #20B2AA`)
+
+---
+#### 🔎 Find and Replace Text
+![Find and Replace Text](images/find_and_replace.jpg)
+*Category: `Duffy/Text`*
+
+Perform literal find-and-replace operations on single-line or multiline strings. Useful for prompt cleanup, token renaming, metadata normalization, and bulk text edits inside a workflow.
+
+**Inputs:** `text` (string, multiline), `find_text` (string), `replace_with` (string), `case_sensitive` (boolean)  
+**Outputs:** `text` (STRING)
+
+**Behavior:**
+- Replaces all matches across the full input string
+- Supports case-sensitive and case-insensitive matching
+- Returns the original input unchanged when `find_text` is empty
 
 ---
 #### �🏷️ LoRA Prompt Combiner
