@@ -1,0 +1,64 @@
+import { createApp } from "vue";
+// @ts-ignore
+import { app as comfyApp } from "COMFY_APP";
+import AdvancedImageAdjuster from "./AdvancedImageAdjuster.vue";
+
+comfyApp.registerExtension({
+    name: "Duffy.AdvancedImageAdjuster.Vue",
+
+    async nodeCreated(node: any) {
+        if (node.comfyClass !== "Duffy_AdvancedImageAdjuster") return;
+
+        const dataWidget = node.widgets?.find((w: any) => w.name === "saved_adjustments");
+        if (dataWidget) {
+            dataWidget.type = "hidden";
+            dataWidget.computeSize = () => [0, -4];
+        }
+
+        const container = document.createElement("div");
+        container.style.cssText = "width:100%; box-sizing:border-box; overflow:hidden;";
+        container.addEventListener("pointerdown", (e) => e.stopPropagation());
+        container.addEventListener("wheel", (e) => e.stopPropagation());
+
+        console.log(`Duffy_AdvancedImageAdjuster nodeCreated: ${node.id}`);
+
+        const vueApp = createApp(AdvancedImageAdjuster, {
+            nodeId: String(node.id),
+            onChange: (json: string) => {
+                if (dataWidget) {
+                    dataWidget.value = json;
+                }
+                node.setDirtyCanvas(true, true);
+            }
+        });
+
+        const instance = vueApp.mount(container) as any;
+
+        const domWidget = node.addDOMWidget("vue_ui", "custom", container, { serialize: false });
+        domWidget.computeSize = () => [800, 640];
+        domWidget.content = container;
+
+        // Ensure node starts large enough
+        const MIN_W = 800, MIN_H = 640;
+        const origOnResize = node.onResize;
+        node.onResize = function(size: number[]) {
+            size[0] = Math.max(MIN_W, size[0]);
+            size[1] = Math.max(MIN_H, size[1]);
+            origOnResize?.call(this, size);
+        };
+        node.size = [MIN_W, MIN_H];
+
+        // Restore saved workflow state
+        if (dataWidget?.value) {
+            instance.deserialise(dataWidget.value);
+        }
+
+        // Safe unmount
+        const origRemoved = node.onRemoved;
+        node.onRemoved = function () {
+            instance.cleanup?.();
+            vueApp.unmount();
+            origRemoved?.apply(this, arguments);
+        };
+    }
+});

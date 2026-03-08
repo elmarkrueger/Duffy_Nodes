@@ -6,6 +6,23 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.23.0] — 2026-03-08
+
+### Added
+
+- **Advanced Image Adjuster** node (`Duffy_AdvancedImageAdjuster`, category `Duffy/Image`).
+  - Interactively adjust image brightness, contrast, saturation, and hue with a live preview during workflow execution.
+  - Workflow Pausing: Execution stops at the node, allowing real-time adjustment before continuing.
+  - Live CSS-filtered preview in the Vue 3 UI that mirrors the backend PyTorch transformation math.
+  - Sliders for Brightness (0.0–3.0), Contrast (0.0–3.0), Saturation (0.0–3.0), and Hue (-0.5–0.5).
+  - Pure PyTorch implementation for image adjustments, avoiding external dependencies like `torchvision` for better compatibility.
+  - State Persistence: Adjustments are serialized to JSON and stored in the workflow metadata.
+  - Double-click a slider to reset it to its default value.
+  - Async synchronization using a dedicated `/duffy/adjust/continue` API route.
+  - Companion JavaScript extension (`advanced_image_adjuster.js`) with Vue 3 SFC integration.
+
+---
+
 ## [0.22.0] — 2026-03-08
 
 ### Added

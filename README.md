@@ -153,6 +153,27 @@ Professional-grade color correction tool. Adjust brightness, contrast, saturatio
 
 ---
 
+#### 🎨 Advanced Image Adjuster
+![Advanced Image Adjuster](images/advanced_image_adjuster.jpg)
+*Category: `Duffy/Image`*
+
+Interactive post-processing node that pauses your workflow to allow real-time image adjustment. Dial in the perfect look with a live preview before continuing the execution.
+
+**Inputs:** `image` (IMAGE), `pause_execution` (boolean), `saved_adjustments` (hidden JSON state)  
+**Outputs:** `image` (IMAGE)
+
+**Features:**
+- ⏸️ **Workflow Pausing** — Execution stops at the node, revealing an interactive adjustment studio.
+- 📺 **Live Preview** — See your changes instantly with a responsive CSS-filtered preview that mirrors the backend math.
+- 🎛️ **Precise Sliders** — Fine-tune brightness (0.0–3.0), contrast (0.0–3.0), saturation (0.0–3.0), and hue (-0.5–0.5).
+- ⚡ **Pure PyTorch Backend** — Final adjustments are computed using optimized tensor operations, ensuring high-quality output without external dependencies.
+- 💾 **State Persistence** — Your settings are saved into the workflow metadata for easy reproduction or batch runs.
+- 🔄 **Double-Click Reset** — Quickly reset individual sliders to their default values with a double-click.
+
+**Use Cases:** Visual fine-tuning of generations, color grading, mood adjustment, and interactive A/B testing of image parameters.
+
+---
+
 #### 📐 Megapixel Resize
 ![Megapixel Resize](images/mega_pixel_resize.jpg)
 *Category: `Duffy/Image`*
@@ -607,7 +628,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.22.0** (March 8, 2026)
+Current Version: **0.23.0** (March 8, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

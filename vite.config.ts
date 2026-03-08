@@ -9,7 +9,13 @@ export default defineConfig({
   },
   build: {
     emptyOutDir: false,
-    lib: { entry: "./src/interactive_relight.ts", formats: ["es"], fileName: "interactive_relight" },
+    lib: { 
+      entry: {
+        interactive_relight: "./src/interactive_relight.ts",
+        advanced_image_adjuster: "./src/advanced_image_adjuster.ts"
+      },
+      formats: ["es"]
+    },
     rollupOptions: {
       external: ["COMFY_APP", "COMFY_API"],
       output: {
