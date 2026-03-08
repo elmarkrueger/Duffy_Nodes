@@ -7,6 +7,9 @@
 
 A comprehensive collection of custom nodes for ComfyUI, built with the modern **Nodes 2.0 V3 Schema** architecture. This pack provides essential utilities, advanced image processing, flexible primitives, and powerful workflow helpers designed for professional AI art generation pipelines.
 
+> [!TIP]
+> **Modern UI Integration:** Several nodes in this pack feature advanced **Vue 3** interactive interfaces for a superior user experience. These frontend components are **precompiled** into the `web/js` directory. Users do not need to install Node.js, Vite, or any build tools to use this pack; it works immediately upon installation like any other ComfyUI extension.
+
 ---
 
 ## ✨ Features
@@ -329,6 +332,27 @@ A connection-based variant of Image Stitch. Instead of uploading images directly
 
 ---
 
+#### 🔗 Advanced Connected Image Stitch
+![Advanced Connected Image Stitch](images/advanced_connected_image_stitch.jpg)
+*Category: `Duffy/Image`*
+
+An interactive version of the Connected Image Stitch node. It pauses execution to provide a real-time 3×3 grid workspace where you can visually map up to 9 connected image inputs to specific grid cells with a live preview of the final stitched result.
+
+**Inputs:** `image_1`–`image_9` (IMAGE, optional connections), `saved_layout` (hidden JSON state), `pause_execution` (boolean)
+**Outputs:** `stitched_image` (IMAGE)
+
+**Features:**
+- ⏸️ **Workflow Pausing** — Execution stops at the node, revealing an interactive stitching studio.
+- 🖼️ **Live 3×3 Preview** — See exactly how your images will be combined before continuing the workflow.
+- ↔️ **Multiple Modes** — Supports Horizontal, Vertical, and custom 3×3 Grid Layouts.
+- 📍 **Visual Mapping** — Drag-and-drop or use dropdowns to assign any connected input (1-9) to any grid position.
+- ⚡ **Optimized Backend** — Reuses high-quality Lanczos scaling and center-cropping logic for consistent results.
+- 💾 **State Persistence** — Your layout configurations are saved into the workflow metadata.
+
+**Use Cases:** Visual contact sheet composition, custom multi-image collages, interactive A/B comparison grids, and complex layout prototyping.
+
+---
+
 #### 🔠 Image Text Overlay
 ![Image Text Overlay](images/image_text_overlay.jpg)
 *Category: `Duffy/Image`*
@@ -648,7 +672,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.23.0** (March 8, 2026)
+Current Version: **0.24.0** (March 8, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

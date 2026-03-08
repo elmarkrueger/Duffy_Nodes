@@ -6,6 +6,22 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.24.0] — 2026-03-08
+
+### Added
+
+- **Advanced Connected Image Stitch** node (`Duffy_AdvancedConnectedImageStitch`, category `Duffy/Image`).
+  - Interactive version of the connection-based image stitcher.
+  - Workflow Pausing: Execution stops at the node, revealing a modern Vue 3-based 3x3 grid workspace.
+  - Live Preview: Real-time visual feedback of the stitching result (Horizontal, Vertical, or Grid) based on current configuration.
+  - Visual Mapping: Intuitive 3x3 grid UI to map connected image inputs (1-9) to specific output positions.
+  - Pure PyTorch/Comfy backend: Uses the same robust stitching logic as the standard node for high-quality Lanczos scaling and cropping.
+  - State Persistence: Layout configurations are serialized to JSON and stored in the workflow metadata.
+  - Async synchronization using the `/duffy/stitch/continue` API route.
+  - Companion JavaScript extension (`advanced_connected_image_stitch.js`) with Vue 3 SFC and Vite build integration.
+
+---
+
 ## [0.23.0] — 2026-03-08
 
 ### Added

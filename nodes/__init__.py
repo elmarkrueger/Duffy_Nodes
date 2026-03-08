@@ -8,6 +8,7 @@ from .image_text_overlay import DuffyImageTextOverlay
 from .advanced_text_overlay import DuffyAdvancedTextOverlay
 from .interactive_relight import DuffyInteractiveRelight
 from .advanced_image_adjuster import DuffyAdvancedImageAdjuster
+from .advanced_connected_image_stitch import DuffyAdvancedConnectedImageStitch
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
 from .find_and_replace_text import DuffyFindAndReplaceText
@@ -83,4 +84,5 @@ NODE_LIST = [
     DuffyAdvancedTextOverlay,
     DuffyInteractiveRelight,
     DuffyAdvancedImageAdjuster,
+    DuffyAdvancedConnectedImageStitch,
 ]
