@@ -6,6 +6,21 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.21.0] — 2026-03-08
+
+### Added
+
+- **Image Compare** node (`Duffy_ImageCompare`, category `Duffy/Image`).
+  - Interactively compare two images with a vertical, laser-sharp divider slider.
+  - Interactive scrubbing: Move the mouse horizontally over the node to reveal the boundary in real-time.
+  - High-visibility cyan divider line with a glow effect for precise identification of differences.
+  - Responsive image scaling using `object-fit: contain` to support any input image size or aspect ratio.
+  - Pointer event isolation: Scrubbing logic does not interfere with the ComfyUI canvas or node dragging.
+  - Stateless V3 Schema implementation: uses the modern `onExecuted` lifecycle hook to fetch images from the server.
+  - Companion JavaScript extension (`image_compare.js`) for the custom DOM slider interface.
+
+---
+
 ## [0.20.0] — 2026-03-07
 
 ### Added

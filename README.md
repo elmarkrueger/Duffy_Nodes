@@ -223,6 +223,26 @@ Extract and pass through the current filename from directory iterator. Useful fo
 
 ---
 
+#### 🔍 Image Compare
+![Image Compare](images/image_compare_node.jpg)
+*Category: `Duffy/Image`*
+
+Interactively compare two images with a vertical, laser-sharp slider that adjusts to your mouse position. Perfect for identifying subtle differences between two connected images (e.g., comparing different upscalers or sampling parameters).
+
+**Inputs:** `image_a` (IMAGE), `image_b` (IMAGE)
+**Outputs:** (Visual only)
+
+**Features:**
+- ⚡ **Interactive Scrubbing** — Move your mouse horizontally over the node to reveal `image_a` over `image_b` in real-time.
+- 🌈 **Laser-Sharp Divider** — High-visibility cyan divider line with a glow effect for precise boundary identification.
+- 📐 **Responsive Scaling** — Automatically fits images of any size using `object-fit: contain` while preserving aspect ratios.
+- 🛡️ **Pointer Isolation** — Interaction logic is isolated from the ComfyUI canvas, allowing smooth scrubbing without accidentally dragging the node.
+- 🚀 **Stateless V3 Execution** — Efficiently processes image batches and updates the UI via the modern `onExecuted` lifecycle hook.
+
+**Use Cases:** A/B testing, upscaler comparison, noise-level analysis, color grading verification, and spot-the-difference debugging.
+
+---
+
 #### 🔍 Advanced Folder Image Selector
 ![Advanced Folder Image Selector](images/advanced_folder_image_selector.jpg)
 *Category: `Duffy/Image/Selection`*
@@ -566,7 +586,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.20.0** (March 7, 2026)
+Current Version: **0.21.0** (March 8, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

@@ -13,6 +13,7 @@ from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
 from .flux2_klein_noise import DuffyFlux2KleinNoise
 from .image_adjuster import DuffyImageAdjuster
+from .image_compare import DuffyImageCompare
 from .image_stitch import DuffyImageStitch
 from .integer_math import DuffyIntegerMath
 from .iterator_current_filename import DuffyIteratorCurrentFilename
@@ -56,6 +57,7 @@ NODE_LIST = [
     DuffyIteratorCurrentFilename,
     DuffyAdvancedFolderImageSelector,
     # Image stitching
+    DuffyImageCompare,
     DuffyImageStitch,
     DuffyConnectedImageStitch,
     # Latent nodes
