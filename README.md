@@ -12,7 +12,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 ## ✨ Features
 
 🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
-🎯 **28+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
+🎯 **35+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
 ⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
 🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
 🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
@@ -346,6 +346,26 @@ Stateless V3 node to overlay text onto an image batch. Features a modern color p
 - ⚡ **GPU-Friendly** — Processes batch image tensors in standard `[B, H, W, C]` layout
 
 **Use Cases:** Adding watermarks, labeling generation parameters, creating memes, cinematic titles, and procedural text overlays.
+
+---
+
+#### 🧾 Advanced Text Overlay
+![Advanced Text Overlay](images/advanced_text_overlay.jpg)
+*Category: `Duffy/Image`*
+
+Interactive multi-layer text compositor that pauses execution so you can place, style, and preview multiple text overlays directly on the image before continuing the workflow.
+
+**Inputs:** `image` (IMAGE), `saved_overlays` (hidden JSON state), `pause_execution` (boolean)  
+**Outputs:** `image` (IMAGE)
+
+**Features:**
+- ⏸️ **Interactive Pause Workflow** — Stops execution and opens a dedicated text overlay studio for live editing.
+- 🧱 **Multiple Text Layers** — Add, remove, and manage multiple independent text blocks in a single node.
+- 🔤 **Font Browser Support** — Uses system fonts and automatically detects custom `.ttf`, `.otf`, and `.ttc` files from the `fonts/` directory.
+- 🎨 **Live Styling Controls** — Adjust text, font, size, color, and normalized X/Y placement with immediate preview feedback.
+- 💾 **Persistent Overlay State** — Stores layer configuration in hidden workflow state so layouts can be reused and resumed.
+
+**Use Cases:** Poster layouts, captions, subtitles, meme composition, watermark stacks, title cards, and multi-label annotation workflows.
 
 ---
 

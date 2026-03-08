@@ -5,6 +5,7 @@ from .advanced_folder_image_selector import DuffyAdvancedFolderImageSelector
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
 from .image_text_overlay import DuffyImageTextOverlay
+from .advanced_text_overlay import DuffyAdvancedTextOverlay
 from .interactive_relight import DuffyInteractiveRelight
 from .advanced_image_adjuster import DuffyAdvancedImageAdjuster
 # Latent nodes (migrated from legacy V1)
@@ -79,6 +80,7 @@ NODE_LIST = [
     DuffySeed,
     DuffyJsonFormatString,
     DuffyImageTextOverlay,
+    DuffyAdvancedTextOverlay,
     DuffyInteractiveRelight,
     DuffyAdvancedImageAdjuster,
 ]
