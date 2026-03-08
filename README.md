@@ -328,6 +328,27 @@ Stateless V3 node to overlay text onto an image batch. Features a modern color p
 
 ---
 
+#### 💡 Interactive Relighting
+![Interactive Relighting](images/interactive_relighter.jpg)
+*Category: `Duffy/Image`*
+
+Pause your workflow and interactively relight your images in real-time. Add multiple 2D light sources—**Point**, **Directional**, and **Ambient**—and manipulate them directly on a high-fidelity canvas preview before continuing the execution.
+
+**Inputs:** `image` (IMAGE), `pause_execution` (boolean), `saved_lights` (hidden JSON state)  
+**Outputs:** `image` (IMAGE)
+
+**Features:**
+- ⏸️ **Workflow Pausing** — Execution stops at the node, revealing an interactive lighting studio.
+- 🔦 **Multiple Light Types** — Mix and match Point lights (radial falloff), Directional lights (linear gradients), and Ambient fills.
+- 🎨 **Real-time Color & Intensity** — Adjust RGB colors and light power with immediate visual feedback on the canvas.
+- 📍 **Precision Positioning** — Drag-and-drop simulated light centers and adjust radii or angles with fine-tuned sliders.
+- ⚡ **PyTorch Backend** — The final lighting is computed using high-performance PyTorch tensor math, ensuring the output perfectly matches your preview.
+- 💾 **State Persistence** — Your lighting configurations are saved into the workflow metadata, allowing for easy reproduction or batch processing.
+
+**Use Cases:** Dramatic portrait relighting, mood adjustment, highlighting specific subjects, simulated studio photography, and creative color grading.
+
+---
+
 ### 🎲 Latent Operations
 Specialized nodes for latent space manipulation and noise generation.
 
@@ -586,7 +607,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.21.0** (March 8, 2026)
+Current Version: **0.22.0** (March 8, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

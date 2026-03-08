@@ -1,7 +1,7 @@
 [project]
 name = "Duffy_Nodes"
 description = "A custom node pack for ComfyUI built on the V3 Schema."
-version = "0.1.0"
+version = "0.22.0"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [

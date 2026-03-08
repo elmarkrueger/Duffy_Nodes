@@ -6,6 +6,23 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.22.0] — 2026-03-08
+
+### Added
+
+- **Interactive Relighting** node (`Duffy_InteractiveRelight`, category `Duffy/Image`).
+  - Pause workflow execution to interactively relight images in real-time.
+  - Three distinct light types: **Point** (radial falloff), **Directional** (linear gradient), and **Ambient** (global fill).
+  - Modern Vue 3-based UI with a high-fidelity canvas preview and a horizontally scrollable light management panel.
+  - Real-time interaction: Add, move, and delete multiple light sources directly on the node.
+  - Precise control over light color (RGB picker), power/intensity, radius (for point lights), and angle (for directional lights).
+  - High-performance PyTorch backend: Applies the final lighting configuration to the image batch using optimized tensor math, ensuring perfect visual parity with the preview.
+  - State Persistence: Automatically serializes lighting configurations to JSON for workflow metadata, allowing for exact reproduction and batch processing.
+  - Async synchronization: Uses a custom `aiohttp` API route (`/duffy/relight/continue`) and thread events to safely resume workflows.
+  - Companion JavaScript extension (`interactive_relight.js`) with Vue 3 SFC and Vite build integration.
+
+---
+
 ## [0.21.0] — 2026-03-08
 
 ### Added
