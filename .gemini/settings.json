@@ -1,8 +1,0 @@
-{
-  "ui": {
-    "showModelInfoInChat": true
-  },
-  "experimental": {
-    "plan": true
-  }
-}
