@@ -87,6 +87,16 @@ Multi-line text editor for complex prompts, descriptions, and formatted text.
 
 ---
 
+#### 🔘 Primitive Boolean
+![Primitive Boolean](images/primitive_boolean.jpg)
+*Category: `Duffy/Logic`*
+
+Simple boolean toggle input (True/False). Perfect for enabling/disabling workflow branches and controlling logic gates.
+
+**Outputs:** `BOOLEAN`
+
+---
+
 ### 🧮 Math Operations
 Powerful mathematical nodes for precise numerical control.
 
@@ -113,6 +123,22 @@ Integer-based mathematical operations with floor division support. Perfect for d
 **Outputs:** `result` (int)
 
 **Operations:** Add, Subtract, Multiply, Floor Divide, Power, Modulo
+
+---
+
+### 🧠 Logic Operations
+Perform boolean logic and conditional routing.
+
+#### 🧩 Logic Gate
+![Logic Gate](images/logic_gate.jpg)
+*Category: `Duffy/Logic`*
+
+Perform boolean logical operations on inputs. Supports standard gates including AND, OR, NOT, NAND, NOR, XOR, and XNOR.
+
+**Inputs:** `a` (boolean), `b` (boolean, optional), `operation` (dropdown)  
+**Outputs:** `result` (boolean)
+
+**Operations:** AND, OR, NOT, NAND, NOR, XOR, XNOR
 
 ---
 
@@ -672,7 +698,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.24.0** (March 8, 2026)
+Current Version: **0.25.0** (March 9, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

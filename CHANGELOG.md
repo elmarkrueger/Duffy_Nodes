@@ -6,6 +6,21 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.25.0] — 2026-03-09
+
+### Added
+
+- **Logic Gate** node (`Duffy_LogicGate`, category `Duffy/Logic`).
+  - Performs boolean logical operations (AND, OR, NOT, NAND, NOR, XOR, XNOR).
+  - Supports optional second operand for unary operations like NOT.
+  - Full V3 Schema implementation with efficient fingerprinting for cache invalidation.
+- **Primitive Boolean** node (`Duffy_PrimitiveBoolean`, category `Duffy/Logic`).
+  - Simple boolean pass-through node for workflow control.
+  - Toggle-based UI for easy True/False selection.
+  - Full V3 Schema implementation.
+
+---
+
 ## [0.24.0] — 2026-03-08
 
 ### Added
