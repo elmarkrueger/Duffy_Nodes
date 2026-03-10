@@ -268,13 +268,31 @@ Iterate through images in a directory with automatic batching. Essential for bat
 
 Extract and pass through the current filename from directory iterator. Useful for metadata and naming.
 
-**Inputs:** `filename` (string)  
+**Inputs:** `filename` (string)
 **Outputs:** `STRING`
 
 ---
 
-#### 🔍 Image Compare
-![Image Compare](images/image_compare_node.jpg)
+#### 🖼️ Image Preview
+![Image Preview](images/image_preview.jpg)
+*Category: `Duffy/Image`*
+
+Simple image preview node that displays an image batch natively within the node. Serving strictly as a visual endpoint, it helps you inspect images at any point in your workflow.
+
+**Inputs:** `image` (IMAGE)
+**Outputs:** (Visual only)
+
+**Features:**
+- ⚡ **Native Rendering** — Leverages ComfyUI's standard image preview widget for reliable and consistent display.
+- 📦 **Stateless V3 Execution** — Clean, predictable behavior with proper caching and fingerprinting.
+- 🚀 **Batch Support** — Automatically handles and displays all images in a batch.
+- 🛡️ **Zero Overhead** — Minimal performance impact, designed for visual verification.
+
+**Use Cases:** Visual inspection of intermediate results, prompt testing, and final output verification.
+
+---
+
+#### 🔍 Image Compare![Image Compare](images/image_compare_node.jpg)
 *Category: `Duffy/Image`*
 
 Interactively compare two images with a vertical, laser-sharp slider that adjusts to your mouse position. Perfect for identifying subtle differences between two connected images (e.g., comparing different upscalers or sampling parameters).
