@@ -3,14 +3,6 @@ import { app } from "../../../scripts/app.js";
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-function gcd(a, b) { return b ? gcd(b, a % b) : a; }
-
-function aspectRatioString(w, h) {
-    const g = gcd(w, h);
-    const rw = w / g, rh = h / g;
-    return (rw > 100 || rh > 100) ? `${(w / h).toFixed(2)}:1` : `${rw}:${rh}`;
-}
-
 const ASPECT_RATIOS = {
     "original": null,
     "1:1": 1.0,
@@ -24,11 +16,33 @@ const ASPECT_RATIOS = {
     "9:21": 9 / 21,
 };
 
+function aspectRatioString(w, h) {
+    const ratio = w / h;
+    for (const [name, val] of Object.entries(ASPECT_RATIOS)) {
+        if (val !== null && Math.abs(ratio - val) < 0.05) {
+            return name;
+        }
+    }
+    // Fallback logic, limiting denominator
+    let bestDist = Infinity;
+    let bestNum = 1, bestDen = 1;
+    for (let d = 1; d <= 32; d++) {
+        let n = Math.round(ratio * d);
+        let dist = Math.abs(ratio - n / d);
+        if (dist < bestDist) {
+            bestDist = dist;
+            bestNum = n;
+            bestDen = d;
+        }
+    }
+    return `${bestNum}:${bestDen}`;
+}
+
 /**
  * Compute the expected output dimensions from target megapixels,
  * aspect ratio, and original image size — mirrors the Python logic.
  */
-function computeOutputDims(origW, origH, targetMP, arKey) {
+function computeOutputDims(origW, origH, targetMP, arKey, divisibleBy = 8) {
     let targetAR;
     if (arKey === "original" || ASPECT_RATIOS[arKey] == null) {
         targetAR = origW / origH;
@@ -40,8 +54,8 @@ function computeOutputDims(origW, origH, targetMP, arKey) {
     const newHf = Math.sqrt(targetPx / targetAR);
     const newWf = newHf * targetAR;
 
-    const newW = Math.max(Math.round(newWf / 8) * 8, 8);
-    const newH = Math.max(Math.round(newHf / 8) * 8, 8);
+    const newW = Math.max(Math.round(newWf / divisibleBy) * divisibleBy, divisibleBy);
+    const newH = Math.max(Math.round(newHf / divisibleBy) * divisibleBy, divisibleBy);
     return { w: newW, h: newH };
 }
 
@@ -117,11 +131,12 @@ app.registerExtension({
 
                 const targetMP = parseFloat(getWidgetValue("target_megapixels")) || 1.0;
                 const arKey = getWidgetValue("aspect_ratio") || "original";
-                const out = computeOutputDims(srcW, srcH, targetMP, arKey);
+                const divisibleBy = parseInt(getWidgetValue("divisible_by"), 10) || 8;
+                const out = computeOutputDims(srcW, srcH, targetMP, arKey, divisibleBy);
 
                 lines.push(`Output: ${out.w} × ${out.h}`);
                 lines.push(`Ratio:  ${aspectRatioString(out.w, out.h)}`);
-                lines.push(`MP:     ${((out.w * out.h) / 1_000_000).toFixed(4)}`);
+                lines.push(`MP:     ${((out.w * out.h) / 1_000_000).toFixed(2)}`);
             }
 
             infoDiv.textContent = lines.join("\n");
@@ -182,6 +197,7 @@ app.registerExtension({
             hookWidget("image", true);
             hookWidget("target_megapixels", false);
             hookWidget("aspect_ratio", false);
+            hookWidget("divisible_by", false);
 
             // Trigger initial load if a file is already selected
             const current = getWidgetValue("image");

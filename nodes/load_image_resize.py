@@ -1,3 +1,4 @@
+from fractions import Fraction
 import hashlib
 import math
 import os
@@ -65,12 +66,16 @@ def _center_crop_mask(mask_tensor: torch.Tensor, target_ar: float, orig_w: int, 
 
 
 def _aspect_ratio_string(w: int, h: int) -> str:
-    """Return a human-readable aspect ratio like '16:9' or '1.78:1' for large ratios."""
-    g = math.gcd(w, h)
-    rw, rh = w // g, h // g
-    if rw > 100 or rh > 100:
-        return f"{w / h:.2f}:1"
-    return f"{rw}:{rh}"
+    """Return a human-readable aspect ratio like '16:9'."""
+    ratio = w / h
+    # Check against known presets with a small tolerance
+    for name, val in ASPECT_RATIOS.items():
+        if val is not None and abs(ratio - val) < 0.05:
+            return name
+    
+    # Fallback to nearest fraction
+    f = Fraction(ratio).limit_denominator(32)
+    return f"{f.numerator}:{f.denominator}"
 
 
 class DuffyLoadImageResize(io.ComfyNode):
@@ -133,6 +138,15 @@ class DuffyLoadImageResize(io.ComfyNode):
                     default="lanczos",
                     tooltip="Interpolation algorithm used for resizing",
                 ),
+                io.Int.Input(
+                    "divisible_by",
+                    display_name="Divisible By",
+                    default=8,
+                    min=1,
+                    max=256,
+                    step=1,
+                    tooltip="Dimensions will be snapped to multiples of this value.",
+                ),
             ],
             outputs=[
                 io.Image.Output(
@@ -190,6 +204,8 @@ class DuffyLoadImageResize(io.ComfyNode):
         target_megapixels: float,
         aspect_ratio: str,
         method: str,
+        divisible_by: int = 8,
+        **kwargs,
     ) -> io.NodeOutput:
         # ── Load the image from disk ──────────────────────────────────
         image_path = folder_paths.get_annotated_filepath(image)
@@ -260,8 +276,8 @@ class DuffyLoadImageResize(io.ComfyNode):
         new_h_f = math.sqrt(target_pixels / target_ar)
         new_w_f = new_h_f * target_ar
 
-        new_w = max(int(round(new_w_f / 8.0) * 8), 8)
-        new_h = max(int(round(new_h_f / 8.0) * 8), 8)
+        new_w = max(int(round(new_w_f / divisible_by) * divisible_by), divisible_by)
+        new_h = max(int(round(new_h_f / divisible_by) * divisible_by), divisible_by)
 
         # Resize image  [B, H, W, C] → [B, C, H, W]
         img_bchw = loaded_image.movedim(-1, 1)
@@ -277,7 +293,7 @@ class DuffyLoadImageResize(io.ComfyNode):
             result_mask = loaded_mask
 
         # ── Compute metadata ──────────────────────────────────────────
-        megapixels = round((new_w * new_h) / 1_000_000, 4)
+        megapixels = round((new_w * new_h) / 1_000_000, 2)
         ar_str = _aspect_ratio_string(new_w, new_h)
 
         return io.NodeOutput(
