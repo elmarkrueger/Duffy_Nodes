@@ -1,15 +1,16 @@
-import torch
-import numpy as np
-from comfy_api.latest import io
-import server
-from aiohttp import web
+import base64
+import io as py_io
+import json
 import threading
 import uuid
-import base64
-import json
-from PIL import Image
-import io as py_io
+
 import comfy.utils
+import numpy as np
+import server
+import torch
+from aiohttp import web
+from comfy_api.latest import io, ui
+from PIL import Image
 
 # Dictionary to hold thread synchronization objects
 PENDING_STITCHES = {}
@@ -189,4 +190,4 @@ class DuffyAdvancedConnectedImageStitch(io.ComfyNode):
         else:
             result = _stitch_vertical(tensors)
 
-        return io.NodeOutput(result)
+        return io.NodeOutput(result, ui=ui.PreviewImage(result, cls=cls))

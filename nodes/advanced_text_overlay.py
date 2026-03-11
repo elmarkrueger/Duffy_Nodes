@@ -1,17 +1,18 @@
+import base64
+import io as py_io
+import json
 import os
 import platform
-import torch
-import numpy as np
-from comfy_api.latest import io
-import server
-from aiohttp import web
 import threading
 import uuid
-import base64
-import json
-from PIL import Image, ImageDraw, ImageFont
-import io as py_io
 from pathlib import Path
+
+import numpy as np
+import server
+import torch
+from aiohttp import web
+from comfy_api.latest import io, ui
+from PIL import Image, ImageDraw, ImageFont
 
 # Base fonts directory for custom fonts
 FONTS_DIR = Path(__file__).parent.parent / "fonts"
@@ -232,4 +233,4 @@ class DuffyAdvancedTextOverlay(io.ComfyNode):
             output_images.append(out_tensor)
 
         batch_out = torch.stack(output_images)
-        return io.NodeOutput(batch_out)
+        return io.NodeOutput(batch_out, ui=ui.PreviewImage(batch_out, cls=cls))

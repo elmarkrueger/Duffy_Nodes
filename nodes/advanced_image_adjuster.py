@@ -1,14 +1,15 @@
-import torch
-import numpy as np
-from comfy_api.latest import io
-import server
-from aiohttp import web
+import base64
+import io as py_io
+import json
 import threading
 import uuid
-import base64
-import json
+
+import numpy as np
+import server
+import torch
+from aiohttp import web
+from comfy_api.latest import io, ui
 from PIL import Image
-import io as py_io
 
 # Dictionary to hold thread synchronization objects
 PENDING_ADJUSTMENTS = {}
@@ -126,6 +127,7 @@ class DuffyAdvancedImageAdjuster(io.ComfyNode):
             # If torchvision is absolutely needed for Hue, we could try to import it locally.
             try:
                 import torchvision.transforms.functional as TF
+
                 # Permute to [B, C, H, W] for torchvision
                 image = image.permute(0, 3, 1, 2)
                 image = TF.adjust_hue(image, hue)
@@ -137,4 +139,4 @@ class DuffyAdvancedImageAdjuster(io.ComfyNode):
         # Clamp to valid [0.0, 1.0] range
         image = torch.clamp(image, 0.0, 1.0)
 
-        return io.NodeOutput(image)
+        return io.NodeOutput(image, ui=ui.PreviewImage(image, cls=cls))

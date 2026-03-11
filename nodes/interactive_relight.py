@@ -1,15 +1,16 @@
-import torch
-import numpy as np
-from comfy_api.latest import io
-import server
-from aiohttp import web
+import base64
+import io as py_io
+import json
+import math
 import threading
 import uuid
-import base64
-import json
+
+import numpy as np
+import server
+import torch
+from aiohttp import web
+from comfy_api.latest import io, ui
 from PIL import Image
-import io as py_io
-import math
 
 # Dictionary to hold thread synchronization objects
 PENDING_RELIGHTS = {}
@@ -153,5 +154,5 @@ class DuffyInteractiveRelight(io.ComfyNode):
 
         # Additive blending and clamp
         out_image = torch.clamp(image + total_light, 0.0, 1.0)
-        
-        return io.NodeOutput(out_image)
+
+        return io.NodeOutput(out_image, ui=ui.PreviewImage(out_image, cls=cls))
