@@ -43,7 +43,8 @@ comfyApp.registerExtension({
             size[1] = Math.max(MIN_H, size[1]);
             origOnResize?.call(this, size);
         };
-        node.size = [MIN_W, MIN_H];
+        node.setSize?.([MIN_W, MIN_H]);
+        node.setDirtyCanvas?.(true, true);
 
         if (dataWidget?.value) {
             instance.deserialise(dataWidget.value);

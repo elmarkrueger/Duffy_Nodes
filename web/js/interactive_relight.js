@@ -388,7 +388,7 @@ const InteractiveRelight = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId",
 app.registerExtension({
   name: "Duffy.InteractiveRelight.Vue",
   async nodeCreated(node) {
-    var _a;
+    var _a, _b, _c;
     if (node.comfyClass !== "Duffy_InteractiveRelight") return;
     const dataWidget = (_a = node.widgets) == null ? void 0 : _a.find((w) => w.name === "saved_lights");
     if (dataWidget) {
@@ -420,7 +420,8 @@ app.registerExtension({
       size[1] = Math.max(MIN_H, size[1]);
       origOnResize == null ? void 0 : origOnResize.call(this, size);
     };
-    node.size = [MIN_W, MIN_H];
+    (_b = node.setSize) == null ? void 0 : _b.call(node, [MIN_W, MIN_H]);
+    (_c = node.setDirtyCanvas) == null ? void 0 : _c.call(node, true, true);
     if (dataWidget == null ? void 0 : dataWidget.value) {
       instance.deserialise(dataWidget.value);
     }
