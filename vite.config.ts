@@ -14,7 +14,8 @@ export default defineConfig({
         interactive_relight: "./src/interactive_relight.ts",
         advanced_image_adjuster: "./src/advanced_image_adjuster.ts",
         advanced_text_overlay: "./src/advanced_text_overlay.ts",
-        advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts"
+        advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts",
+        painter_node: "./src/painter_node.ts"
       },
       formats: ["es"]
     },
