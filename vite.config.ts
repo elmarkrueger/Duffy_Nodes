@@ -12,6 +12,7 @@ export default defineConfig({
     lib: { 
       entry: {
         interactive_relight: "./src/interactive_relight.ts",
+        advanced_layer_control: "./src/advanced_layer_control.ts",
         advanced_image_adjuster: "./src/advanced_image_adjuster.ts",
         advanced_text_overlay: "./src/advanced_text_overlay.ts",
         advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts",
