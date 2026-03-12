@@ -6,6 +6,18 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.26.0] — 2026-03-12
+
+### Added
+
+- **Advanced Layer Control** node (`Duffy_AdvancedLayerControl`, category `Duffy/Image`).
+  - Interactive visual compositor allowing users to pause the workflow and arrange up to five image layers over a background.
+  - Features precise numerical controls and interactive Fabric.js canvas bindings for dragging, scaling, rotating, and mirroring.
+  - Implements complete z-index sorting with "Bring Forward" and "Send Backward" controls.
+  - Fully responsive, Vue 3-powered frontend widget with auto-scaling to seamlessly support high-resolution background assets without scrolling.
+
+---
+
 ## [0.25.0] — 2026-03-09
 
 ### Added

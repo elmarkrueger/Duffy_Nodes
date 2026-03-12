@@ -481,6 +481,28 @@ Pause your workflow and interactively relight your images in real-time. Add mult
 
 ---
 
+#### 🎛️ Advanced Layer Control
+![Advanced Layer Control](images/advanced_layer_control.jpg)
+*Category: `Duffy/Image`*
+
+Pause your workflow to interactively compose up to five distinct object layers over a background image. Position, resize, rotate, mirror, and adjust the z-order of each element on a dynamic canvas.
+
+**Inputs:** `background_image` (IMAGE), `object_1`–`object_5` (IMAGE, optional), `pause_execution` (boolean), `saved_layers` (hidden JSON state)  
+**Outputs:** `image` (IMAGE)
+
+**Features:**
+- ⏸️ **Interactive Workspace** — Pauses execution to let you visually arrange layers before generating the final composited image.
+- 🎨 **Fabric.js Canvas** — Smooth drag-and-drop mechanics with responsive auto-scaling to fit large aspect ratio background images perfectly.
+- 📐 **Precision Transforms** — Dial in exact X/Y coordinates, scale, rotation, and flipping via numerical inputs and handy sliders.
+- 📚 **Z-Order Management** — Bring objects forward or send them backward, completely changing how elements overlap.
+- 👁️ **Visibility Toggles** — Quickly hide or show connected layers without destroying your transform settings.
+- ⚡ **Optimized PyTorch Compositing** — Final renders execute quickly on the backend matching your exact visual layout.
+- 💾 **Session State** — Layer states are saved in your workflow so re-running prompts keeps everything precisely where you placed it.
+
+**Use Cases:** Crafting complex scenes, adding foreground elements, building collages, placing characters against generated backgrounds, and manual subject positioning.
+
+---
+
 ### 🎲 Latent Operations
 Specialized nodes for latent space manipulation and noise generation.
 
