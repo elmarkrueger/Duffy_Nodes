@@ -612,6 +612,22 @@ Dynamic model selection interface for Diffusion, CLIP, and VAE models. Scans cus
 
 ---
 
+#### 📦 Duffy Lora Loader
+![Duffy Lora Loader](images/duffy_lora_loader.jpg)
+*Category: `Duffy/Loaders`*
+
+Stateless V3 Schema Python node supporting `strength_model` and `strength_clip`. Bypasses native V3 searchable flat dropdowns using a custom Vue 3 widget mapped to `LiteGraph.ContextMenu` to preserve hierarchical folder structures.
+
+**Inputs:** `model` (Model), `clip` (CLIP), `lora_name` (String: hidden), `strength_model` (Float), `strength_clip` (Float)
+**Outputs:** Modified `model` (Model), Modified `clip` (CLIP)
+
+**Features:**
+- Loads LoRAs from the default `models/loras/` folder.
+- Custom Vue 3 widget to restore native `LiteGraph.ContextMenu` hierarchical cascading submenus.
+- Stateless Python Nodes 2.0 backend (`io.ComfyNode`).
+
+---
+
 #### � Seed
 ![Duffy Seed](images/seed.jpg)
 *Category: `Duffy/utilities`*

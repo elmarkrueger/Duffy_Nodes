@@ -1,5 +1,5 @@
-import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { defineConfig } from "vite";
 import cssInjectedByJs from "vite-plugin-css-injected-by-js";
 
 export default defineConfig({
@@ -16,7 +16,8 @@ export default defineConfig({
         advanced_image_adjuster: "./src/advanced_image_adjuster.ts",
         advanced_text_overlay: "./src/advanced_text_overlay.ts",
         advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts",
-        painter_node: "./src/painter_node.ts"
+        painter_node: "./src/painter_node.ts",
+        lora_loader: "./src/lora_loader.ts"
       },
       formats: ["es"]
     },

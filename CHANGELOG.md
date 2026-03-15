@@ -6,6 +6,14 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.27.0] — 2026-03-15
+
+### Added
+
+- **Duffy Lora Loader** node (`Duffy_LoraLoader`, category `Duffy/Loaders`).
+- Stateless V3 Schema compliant backend supporting `strength_model` and `strength_clip`.
+- Custom Vue 3 widget to override native V3 flat lists and restore hierarchical folder support using `LiteGraph.ContextMenu`.
+
 ## [0.26.0] — 2026-03-12
 
 ### Added

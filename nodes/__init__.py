@@ -28,6 +28,7 @@ from .latent_noise_blender import DuffyLatentNoiseBlender
 from .load_image_resize import DuffyLoadImageResize
 # Logic nodes
 from .logic_gate import DuffyLogicGate
+from .lora_loader import DuffyLoraLoader
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
 from .megapixel_resize import DuffyMegapixelResize
 from .model_selector import DuffyModelSelector
@@ -84,6 +85,8 @@ NODE_LIST = [
     DuffyLogicGate,
     # Selector nodes
     DuffyModelSelector,
+    # Loaders
+    DuffyLoraLoader,
     # Sampling nodes
     DuffyTripleSamplerScheduler,
     # Utility nodes
