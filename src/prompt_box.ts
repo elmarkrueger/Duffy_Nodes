@@ -29,6 +29,17 @@ comfyApp.registerExtension({
         container.addEventListener("pointerdown", (e) => e.stopPropagation());
         container.addEventListener("wheel", (e) => e.stopPropagation());
 
+        // Capture-phase intercept: prevent ComfyUI from eating clipboard/text-editing
+        // shortcuts when the user is typing inside our textarea.
+        function captureKeyboard(e: KeyboardEvent) {
+            if (!container.contains(e.target as Node)) return;
+            const key = e.key.toLowerCase();
+            if ((e.ctrlKey || e.metaKey) && ["v", "c", "x", "a", "z"].includes(key)) {
+                e.stopPropagation();
+            }
+        }
+        document.addEventListener("keydown", captureKeyboard, true);
+
         const vueApp = createApp(PromptBoxWidget, {
             onChange: (json: string) => {
                 if (dataWidget) dataWidget.value = json;
@@ -51,8 +62,20 @@ comfyApp.registerExtension({
 
         if (dataWidget?.value) instance.deserialise(dataWidget.value);
 
+        const origOnExecuted = node.onExecuted;
+        node.onExecuted = function(message: any) {
+            origOnExecuted?.apply(this, arguments);
+            if (message?.text && message.text.length > 0) {
+                // Update Vue state with the backend output
+                instance.deserialise(JSON.stringify({ text: message.text[0] }));
+                // We do NOT call emitChange here because this reflects the executed state,
+                // and it would wrongfully trigger a dirty canvas state flag.
+            }
+        };
+
         const origRemoved = node.onRemoved;
         node.onRemoved = function () {
+            document.removeEventListener("keydown", captureKeyboard, true);
             instance.cleanup?.();
             vueApp.unmount();
             origRemoved?.apply(this, arguments);

@@ -5,12 +5,15 @@
       <div class="actions">
         <button @click="clearText">Clear</button>
         <button @click="copyText">Copy</button>
+        <button @click="pasteText">Paste</button>
         <button @click="saveText">Save</button>
       </div>
     </div>
     <textarea
+      ref="textareaRef"
       v-model="text"
       @input="emitChange"
+      @paste="handleNativePaste"
       class="prompt-textarea"
       placeholder="Enter your prompt here..."
     ></textarea>
@@ -22,6 +25,7 @@ import { ref } from "vue";
 
 const props = defineProps<{ onChange?: (json: string) => void }>();
 const text = ref("");
+const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 function serialise() {
   return JSON.stringify({ text: text.value });
@@ -40,6 +44,17 @@ function emitChange() {
   props.onChange?.(serialise());
 }
 
+function handleNativePaste(e: ClipboardEvent) {
+  // Let the browser perform the default paste into the textarea,
+  // then sync v-model on the next tick.
+  setTimeout(() => {
+    if (textareaRef.value) {
+      text.value = textareaRef.value.value;
+    }
+    emitChange();
+  }, 0);
+}
+
 function clearText() {
   text.value = "";
   emitChange();
@@ -50,6 +65,29 @@ async function copyText() {
     await navigator.clipboard.writeText(text.value);
   } catch (err) {
     console.error("Failed to copy text: ", err);
+  }
+}
+
+async function pasteText() {
+  try {
+    const pasteStr = await navigator.clipboard.readText();
+    if (textareaRef.value) {
+      const el = textareaRef.value;
+      const start = el.selectionStart;
+      const end = el.selectionEnd;
+      text.value = text.value.substring(0, start) + pasteStr + text.value.substring(end);
+      
+      setTimeout(() => {
+        el.selectionStart = el.selectionEnd = start + pasteStr.length;
+        el.focus();
+      }, 0);
+    } else {
+      text.value += pasteStr;
+    }
+    emitChange();
+  } catch (err) {
+    console.error("Failed to paste text: ", err);
+    alert("Clipboard read permission denied. Please use Ctrl+V or Right Click -> Paste instead.");
   }
 }
 

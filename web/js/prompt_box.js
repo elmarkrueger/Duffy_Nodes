@@ -9,6 +9,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { expose: __expose }) {
     const props = __props;
     const text = ref("");
+    const textareaRef = ref(null);
     function serialise() {
       return JSON.stringify({ text: text.value });
     }
@@ -23,6 +24,14 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       var _a;
       (_a = props.onChange) == null ? void 0 : _a.call(props, serialise());
     }
+    function handleNativePaste(e) {
+      setTimeout(() => {
+        if (textareaRef.value) {
+          text.value = textareaRef.value.value;
+        }
+        emitChange();
+      }, 0);
+    }
     function clearText() {
       text.value = "";
       emitChange();
@@ -32,6 +41,27 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
         await navigator.clipboard.writeText(text.value);
       } catch (err) {
         console.error("Failed to copy text: ", err);
+      }
+    }
+    async function pasteText() {
+      try {
+        const pasteStr = await navigator.clipboard.readText();
+        if (textareaRef.value) {
+          const el = textareaRef.value;
+          const start = el.selectionStart;
+          const end = el.selectionEnd;
+          text.value = text.value.substring(0, start) + pasteStr + text.value.substring(end);
+          setTimeout(() => {
+            el.selectionStart = el.selectionEnd = start + pasteStr.length;
+            el.focus();
+          }, 0);
+        } else {
+          text.value += pasteStr;
+        }
+        emitChange();
+      } catch (err) {
+        console.error("Failed to paste text: ", err);
+        alert("Clipboard read permission denied. Please use Ctrl+V or Right Click -> Paste instead.");
       }
     }
     function saveText() {
@@ -56,12 +86,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           createBaseVNode("div", { class: "actions" }, [
             createBaseVNode("button", { onClick: clearText }, "Clear"),
             createBaseVNode("button", { onClick: copyText }, "Copy"),
+            createBaseVNode("button", { onClick: pasteText }, "Paste"),
             createBaseVNode("button", { onClick: saveText }, "Save")
           ])
         ]),
         withDirectives(createBaseVNode("textarea", {
+          ref_key: "textareaRef",
+          ref: textareaRef,
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => text.value = $event),
           onInput: emitChange,
+          onPaste: handleNativePaste,
           class: "prompt-textarea",
           placeholder: "Enter your prompt here..."
         }, null, 544), [
@@ -71,7 +105,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const PromptBoxWidget = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-9301a5d3"]]);
+const PromptBoxWidget = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-ddaae0e7"]]);
 app.registerExtension({
   name: "Duffy.PromptBox.Vue",
   async nodeCreated(node) {
@@ -97,6 +131,14 @@ app.registerExtension({
     container.style.cssText = "width:100%; height:100%; box-sizing:border-box; overflow:hidden;";
     container.addEventListener("pointerdown", (e) => e.stopPropagation());
     container.addEventListener("wheel", (e) => e.stopPropagation());
+    function captureKeyboard(e) {
+      if (!container.contains(e.target)) return;
+      const key = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && ["v", "c", "x", "a", "z"].includes(key)) {
+        e.stopPropagation();
+      }
+    }
+    document.addEventListener("keydown", captureKeyboard, true);
     const vueApp = createApp(PromptBoxWidget, {
       onChange: (json) => {
         if (dataWidget) dataWidget.value = json;
@@ -113,9 +155,17 @@ app.registerExtension({
       origOnResize == null ? void 0 : origOnResize.call(this, size);
     };
     if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    const origOnExecuted = node.onExecuted;
+    node.onExecuted = function(message) {
+      origOnExecuted == null ? void 0 : origOnExecuted.apply(this, arguments);
+      if ((message == null ? void 0 : message.text) && message.text.length > 0) {
+        instance.deserialise(JSON.stringify({ text: message.text[0] }));
+      }
+    };
     const origRemoved = node.onRemoved;
     node.onRemoved = function() {
       var _a2;
+      document.removeEventListener("keydown", captureKeyboard, true);
       (_a2 = instance.cleanup) == null ? void 0 : _a2.call(instance);
       vueApp.unmount();
       origRemoved == null ? void 0 : origRemoved.apply(this, arguments);
@@ -1411,7 +1461,7 @@ canvas[data-v-3cee2115] {\r
   background: var(--comfy-hover-bg, #333);
 }\r
 
-.prompt-box-root[data-v-9301a5d3] {\r
+.prompt-box-root[data-v-ddaae0e7] {\r
   display: flex;\r
   flex-direction: column;\r
   width: 100%;\r
@@ -1422,17 +1472,17 @@ canvas[data-v-3cee2115] {\r
   border-radius: 6px;\r
   box-sizing: border-box;
 }
-.header[data-v-9301a5d3] {\r
+.header[data-v-ddaae0e7] {\r
   display: flex;\r
   justify-content: space-between;\r
   align-items: center;\r
   margin-bottom: 8px;
 }
-h4[data-v-9301a5d3] {\r
+h4[data-v-ddaae0e7] {\r
   margin: 0;\r
   font-size: 14px;
 }
-.actions button[data-v-9301a5d3] {\r
+.actions button[data-v-ddaae0e7] {\r
   margin-left: 4px;\r
   padding: 2px 6px;\r
   background: var(--comfy-input-bg, #333);\r
@@ -1441,10 +1491,10 @@ h4[data-v-9301a5d3] {\r
   border-radius: 4px;\r
   cursor: pointer;
 }
-.actions button[data-v-9301a5d3]:hover {\r
+.actions button[data-v-ddaae0e7]:hover {\r
   background: var(--comfy-input-hover, #444);
 }
-.prompt-textarea[data-v-9301a5d3] {\r
+.prompt-textarea[data-v-ddaae0e7] {\r
   flex-grow: 1;\r
   width: 100%;\r
   resize: none;\r

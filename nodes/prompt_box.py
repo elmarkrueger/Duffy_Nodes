@@ -18,7 +18,8 @@ class DuffyPromptBox(io.ComfyNode):
                     "optional_input",
                     display_name="Optional Input",
                     tooltip="Optional input string. If provided, this overrides the text in the box.",
-                    optional=True
+                    optional=True,
+                    force_input=True
                 ),
             ],
             outputs=[
@@ -46,4 +47,4 @@ class DuffyPromptBox(io.ComfyNode):
             except json.JSONDecodeError:
                 text = ""
             
-        return io.NodeOutput(text)
+        return io.NodeOutput(text, ui={"text": [text]})
