@@ -5,6 +5,12 @@
 [![Schema V3](https://img.shields.io/badge/Schema-V3-green)](https://github.com/comfyanonymous/ComfyUI)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue)](https://www.python.org/)
 
+> [!IMPORTANT]
+> **⚠️ NODES 2.0 REQUIRED FOR RIGHT-CLICK FUNCTIONALITY**  
+> This Node Pack **requires** the ComfyUI **Nodes 2.0** extension to be enabled for proper right-click context menu functionality within workflows. Without Nodes 2.0 enabled, right-click interactions will not work correctly. Unfortunately, it was not possible to integrate this functionality when Nodes 2.0 is disabled.  
+>
+> **If you do not intend to use Nodes 2.0, please refrain from using this Node Pack.**
+
 A comprehensive collection of custom nodes for ComfyUI, built with the modern **Nodes 2.0 V3 Schema** architecture. This pack provides essential utilities, advanced image processing, flexible primitives, and powerful workflow helpers designed for professional AI art generation pipelines.
 
 [!TIP]
