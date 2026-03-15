@@ -612,7 +612,26 @@ Dynamic model selection interface for Diffusion, CLIP, and VAE models. Scans cus
 
 ---
 
-#### 📦 Duffy Lora Loader
+#### � Duffy CLIP Loader
+![Duffy CLIP Loader](images/duffy_clip_loader.jpg)
+*Category: `Duffy/Loaders`*
+
+Loads CLIP/Text Encoder models for text conditioning. Supports multiple architecture types including Stable Diffusion, SD3, FLUX2, and many others with flexible device placement options.
+
+**Inputs:** `clip_name` (CLIP model file), `type` (architecture type), `device` (CPU/default)
+**Outputs:** `CLIP` (loaded CLIP model)
+
+**Features:**
+- Supports 18+ architecture types (SD, SD3, Flux2, Mochi, LTX-V, Cosmos, Qwen, HunyuanImage, etc.)
+- CPU offload option for memory-constrained systems
+- Intelligent cache fingerprinting based on file modification time
+- Stateless V3 Schema implementation with proper error handling
+
+**Use Cases:** Text conditioning for any ComfyUI pipeline, multi-architecture workflows, memory-optimized inference
+
+---
+
+#### �📦 Duffy Lora Loader
 ![Duffy Lora Loader](images/duffy_lora_loader.jpg)
 *Category: `Duffy/Loaders`*
 

@@ -6,6 +6,7 @@ from .advanced_folder_image_selector import DuffyAdvancedFolderImageSelector
 from .advanced_image_adjuster import DuffyAdvancedImageAdjuster
 from .advanced_layer_control import DuffyAdvancedLayerControl
 from .advanced_text_overlay import DuffyAdvancedTextOverlay
+from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
 # Latent nodes (migrated from legacy V1)
@@ -50,6 +51,7 @@ from .toggle_switch import DuffyToggleSwitch
 from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
 
 NODE_LIST = [
+    DuffyClipLoader,
     DuffySignalSelector,
     DuffyLoRaPromptCombiner,
     DuffyFindAndReplaceText,

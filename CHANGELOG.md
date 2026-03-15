@@ -18,6 +18,11 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - **Duffy Lora Loader** node (`Duffy_LoraLoader`, category `Duffy/Loaders`).
   - Stateless V3 Schema compliant backend supporting `strength_model` and `strength_clip`.
   - Custom Vue 3 widget to override native V3 flat lists and restore hierarchical folder support using `LiteGraph.ContextMenu`.
+- **Duffy CLIP Loader** node (`Duffy_ClipLoader`, category `Duffy/Loaders`).
+  - Loads CLIP/Text Encoder models with support for 18+ architecture types.
+  - Includes CPU offload option for memory-constrained workflows.
+  - Features intelligent cache fingerprinting based on file modification time.
+  - Fully stateless V3 Schema implementation.
 
 ## [0.26.0] — 2026-03-12
 
