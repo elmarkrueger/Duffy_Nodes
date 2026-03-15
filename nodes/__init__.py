@@ -40,6 +40,7 @@ from .primitive_float import DuffyPrimitiveFloat
 from .primitive_integer import DuffyPrimitiveInteger
 from .primitive_string import DuffyPrimitiveString
 from .primitive_string_multiline import DuffyPrimitiveStringMultiline
+from .prompt_box import DuffyPromptBox
 # Image processing nodes (migrated from legacy V1)
 from .rgba_to_rgb import DuffyRGBAtoRGB
 from .save_image_sidecar import DuffySaveImageWithSidecar
@@ -81,6 +82,7 @@ NODE_LIST = [
     DuffyPrimitiveFloat,
     DuffyPrimitiveString,
     DuffyPrimitiveStringMultiline,
+    DuffyPromptBox,
     # Logic nodes
     DuffyLogicGate,
     # Selector nodes

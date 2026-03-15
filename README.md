@@ -664,7 +664,27 @@ Parses a raw JSON string and outputs it as a well-formatted multiline representa
 - **Readable Text** — Human-friendly labeled sections with nested indentation (e.g. `Scene: ...`, `Color Palette:`, `  Tile Teal: #20B2AA`)
 
 ---
-#### 🔎 Find and Replace Text
+#### � Prompt Box
+![Prompt Box](images/duffy_prompt_box.jpg)
+*Category: `Duffy/Text`*
+
+A sophisticated multiline text editor with built-in utility buttons for quick text manipulation. Features a clean, spacious interface with Copy, Clear, and Save functionality, plus an optional input socket that can override the text content when connected.
+
+**Inputs:** `optional_input` (STRING, optional), `json_data` (hidden JSON state)  
+**Outputs:** `text` (STRING)
+
+**Features:**
+- 📝 **Large Multiline Editor** — Spacious text area perfect for complex prompts, descriptions, or documentation
+- 📋 **Copy to Clipboard** — One-click button to copy the current text content
+- 💾 **Save to File** — Export your text content to a file with automatic timestamp
+- ❌ **Quick Clear** — Instantly reset the text area
+- 🔌 **Optional Input Override** — When connected, external text input takes precedence over the editor content
+- 💾 **State Persistence** — Text content is saved in the workflow for easy reuse and modification
+
+**Use Cases:** Writing and editing complex prompts, preparing multi-paragraph descriptions, documenting workflows, storing reference text, creating reusable prompt templates
+
+---
+#### �🔎 Find and Replace Text
 ![Find and Replace Text](images/find_and_replace.jpg)
 *Category: `Duffy/Text`*
 

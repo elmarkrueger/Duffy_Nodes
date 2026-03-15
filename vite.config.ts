@@ -17,7 +17,8 @@ export default defineConfig({
         advanced_text_overlay: "./src/advanced_text_overlay.ts",
         advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts",
         painter_node: "./src/painter_node.ts",
-        lora_loader: "./src/lora_loader.ts"
+        lora_loader: "./src/lora_loader.ts",
+        prompt_box: "./src/prompt_box.ts"
       },
       formats: ["es"]
     },

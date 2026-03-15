@@ -10,9 +10,14 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Duffy Prompt Box** node (`Duffy_PromptBox`, category `Duffy/Text`).
+  - Multiline text editor with Copy, Clear, and Save utility buttons.
+  - Optional input socket for external text override capability.
+  - Vue 3-powered frontend widget with persistent state management.
+  - Designed for complex prompt editing and text workflow documentation.
 - **Duffy Lora Loader** node (`Duffy_LoraLoader`, category `Duffy/Loaders`).
-- Stateless V3 Schema compliant backend supporting `strength_model` and `strength_clip`.
-- Custom Vue 3 widget to override native V3 flat lists and restore hierarchical folder support using `LiteGraph.ContextMenu`.
+  - Stateless V3 Schema compliant backend supporting `strength_model` and `strength_clip`.
+  - Custom Vue 3 widget to override native V3 flat lists and restore hierarchical folder support using `LiteGraph.ContextMenu`.
 
 ## [0.26.0] — 2026-03-12
 
