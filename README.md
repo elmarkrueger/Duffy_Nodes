@@ -31,11 +31,6 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 
 ## 📦 Installation
 
-### Method 1: ComfyUI Manager (Recommended)
-1. Open ComfyUI Manager
-2. Search for "Duffy Nodes"
-3. Click Install
-
 ### Method 2: Manual Installation
 ```bash
 cd ComfyUI/custom_nodes
