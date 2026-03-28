@@ -6,6 +6,8 @@ from .advanced_folder_image_selector import DuffyAdvancedFolderImageSelector
 from .advanced_image_adjuster import DuffyAdvancedImageAdjuster
 from .advanced_layer_control import DuffyAdvancedLayerControl
 from .advanced_text_overlay import DuffyAdvancedTextOverlay
+from .audio_duration import DuffyAudioDuration
+from .audio_slicer import DuffyAudioSlicer
 from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
@@ -31,6 +33,7 @@ from .load_image_resize import DuffyLoadImageResize
 from .logic_gate import DuffyLogicGate
 from .lora_loader import DuffyLoraLoader
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
+from .math_expression import DuffyMathExpression
 from .megapixel_resize import DuffyMegapixelResize
 from .model_selector import DuffyModelSelector
 from .multi_pass_node import DuffyMultiPassSampling
@@ -51,6 +54,8 @@ from .toggle_switch import DuffyToggleSwitch
 from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
 
 NODE_LIST = [
+    DuffyAudioSlicer,
+    DuffyAudioDuration,
     DuffyClipLoader,
     DuffySignalSelector,
     DuffyLoRaPromptCombiner,
@@ -59,6 +64,7 @@ NODE_LIST = [
     DuffyFiveIntSliders,
     DuffyFloatMath,
     DuffyIntegerMath,
+    DuffyMathExpression,
     DuffyMultiPassSampling,
     DuffyToggleSwitch,
     # Image processing
