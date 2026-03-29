@@ -24,11 +24,14 @@ class DuffyAudioDuration(io.ComfyNode):
     @classmethod
     def execute(cls, audio: dict, **kwargs) -> io.NodeOutput:
         # Check if the inputs appear valid
-        if not audio or 'waveform' not in audio or 'sampler_rate' not in audio:
+        if not audio or 'waveform' not in audio:
             return io.NodeOutput(0.0, 0)
             
         waveform = audio['waveform']
-        sampler_rate = audio['sampler_rate']
+        sampler_rate = audio.get('sampler_rate', audio.get('sample_rate'))
+        
+        if sampler_rate is None or sampler_rate <= 0:
+            return io.NodeOutput(0.0, 0)
             
         # audio['waveform'] shape is typically [batch/channel, samples] or [batch, channel, samples].
         # The number of samples is always the last dimension.
