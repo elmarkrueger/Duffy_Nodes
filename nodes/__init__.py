@@ -18,6 +18,7 @@ from .five_float_sliders import DuffyFiveFloatSliders
 from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
 from .flux2_klein_noise import DuffyFlux2KleinNoise
+from .flux_max_shift import DuffyFluxMaxShift
 from .image_adjuster import DuffyImageAdjuster
 from .image_compare import DuffyImageCompare
 from .image_preview import DuffyImagePreview
@@ -99,6 +100,7 @@ NODE_LIST = [
     DuffyLoraLoader,
     # Sampling nodes
     DuffyTripleSamplerScheduler,
+    DuffyFluxMaxShift,
     # Utility nodes
     DuffySeed,
     DuffyJsonFormatString,
