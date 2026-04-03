@@ -3,10 +3,10 @@
     <div class="header">
       <h4>Prompt Box</h4>
       <div class="actions">
-        <button @click="clearText">Clear</button>
-        <button @click="copyText">Copy</button>
-        <button @click="pasteText">Paste</button>
-        <button @click="saveText">Save</button>
+        <button @click="clearText" :class="{ 'btn-feedback': feedbackButton === 'clear' }">{{ feedbackButton === 'clear' ? 'Cleared ✓' : 'Clear' }}</button>
+        <button @click="copyText" :class="{ 'btn-feedback': feedbackButton === 'copy' }">{{ feedbackButton === 'copy' ? 'Copied ✓' : 'Copy' }}</button>
+        <button @click="pasteText" :class="{ 'btn-feedback': feedbackButton === 'paste' }">{{ feedbackButton === 'paste' ? 'Pasted ✓' : 'Paste' }}</button>
+        <button @click="saveText" :class="{ 'btn-feedback': feedbackButton === 'save' }">{{ feedbackButton === 'save' ? 'Saved ✓' : 'Save' }}</button>
       </div>
     </div>
     <div class="font-size-row">
@@ -35,6 +35,17 @@ const props = defineProps<{ onChange?: (json: string) => void }>();
 const text = ref("");
 const fontSize = ref(DEFAULT_FONT_SIZE);
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
+const feedbackButton = ref<string | null>(null);
+let feedbackTimer: ReturnType<typeof setTimeout> | null = null;
+
+function showFeedback(name: string) {
+  if (feedbackTimer) clearTimeout(feedbackTimer);
+  feedbackButton.value = name;
+  feedbackTimer = setTimeout(() => {
+    feedbackButton.value = null;
+    feedbackTimer = null;
+  }, 800);
+}
 
 function serialise() {
   return JSON.stringify({ text: text.value, fontSize: fontSize.value });
@@ -73,11 +84,13 @@ function handleNativePaste(e: ClipboardEvent) {
 function clearText() {
   text.value = "";
   emitChange();
+  showFeedback("clear");
 }
 
 async function copyText() {
   try {
     await navigator.clipboard.writeText(text.value);
+    showFeedback("copy");
   } catch (err) {
     console.error("Failed to copy text: ", err);
   }
@@ -100,6 +113,7 @@ async function pasteText() {
       text.value += pasteStr;
     }
     emitChange();
+    showFeedback("paste");
   } catch (err) {
     console.error("Failed to paste text: ", err);
     alert("Clipboard read permission denied. Please use Ctrl+V or Right Click -> Paste instead.");
@@ -117,9 +131,12 @@ function saveText() {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  showFeedback("save");
 }
 
-function cleanup() {}
+function cleanup() {
+  if (feedbackTimer) clearTimeout(feedbackTimer);
+}
 
 defineExpose({ serialise, deserialise, cleanup });
 </script>
@@ -161,6 +178,13 @@ h4 {
 
 .actions button:hover {
   background: var(--comfy-input-hover, #444);
+}
+
+.actions button.btn-feedback {
+  background: rgba(76, 175, 80, 0.35);
+  border-color: rgba(76, 175, 80, 0.6);
+  color: #a5d6a7;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .font-size-row {

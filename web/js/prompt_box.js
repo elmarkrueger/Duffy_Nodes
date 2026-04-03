@@ -1,8 +1,10 @@
 import { app } from "../../../scripts/app.js";
-import { d as defineComponent, b as openBlock, c as createElementBlock, e as createBaseVNode, w as withDirectives, v as vModelText, t as toDisplayString, m as normalizeStyle, h as ref, _ as _export_sfc, i as createApp } from "./_plugin-vue_export-helper-CojN6hzB.js";
+import { d as defineComponent, b as openBlock, c as createElementBlock, e as createBaseVNode, k as normalizeClass, t as toDisplayString, w as withDirectives, v as vModelText, m as normalizeStyle, h as ref, _ as _export_sfc, i as createApp } from "./_plugin-vue_export-helper-CojN6hzB.js";
 const _hoisted_1 = { class: "prompt-box-root" };
-const _hoisted_2 = { class: "font-size-row" };
-const _hoisted_3 = { class: "font-size-val" };
+const _hoisted_2 = { class: "header" };
+const _hoisted_3 = { class: "actions" };
+const _hoisted_4 = { class: "font-size-row" };
+const _hoisted_5 = { class: "font-size-val" };
 const DEFAULT_FONT_SIZE = 14;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "PromptBox",
@@ -14,6 +16,16 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     const text = ref("");
     const fontSize = ref(DEFAULT_FONT_SIZE);
     const textareaRef = ref(null);
+    const feedbackButton = ref(null);
+    let feedbackTimer = null;
+    function showFeedback(name) {
+      if (feedbackTimer) clearTimeout(feedbackTimer);
+      feedbackButton.value = name;
+      feedbackTimer = setTimeout(() => {
+        feedbackButton.value = null;
+        feedbackTimer = null;
+      }, 800);
+    }
     function serialise() {
       return JSON.stringify({ text: text.value, fontSize: fontSize.value });
     }
@@ -44,10 +56,12 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     function clearText() {
       text.value = "";
       emitChange();
+      showFeedback("clear");
     }
     async function copyText() {
       try {
         await navigator.clipboard.writeText(text.value);
+        showFeedback("copy");
       } catch (err) {
         console.error("Failed to copy text: ", err);
       }
@@ -68,6 +82,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
           text.value += pasteStr;
         }
         emitChange();
+        showFeedback("paste");
       } catch (err) {
         console.error("Failed to paste text: ", err);
         alert("Clipboard read permission denied. Please use Ctrl+V or Right Click -> Paste instead.");
@@ -84,22 +99,36 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
+      showFeedback("save");
     }
     function cleanup() {
+      if (feedbackTimer) clearTimeout(feedbackTimer);
     }
     __expose({ serialise, deserialise, cleanup });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1, [
-        createBaseVNode("div", { class: "header" }, [
+        createBaseVNode("div", _hoisted_2, [
           _cache[2] || (_cache[2] = createBaseVNode("h4", null, "Prompt Box", -1)),
-          createBaseVNode("div", { class: "actions" }, [
-            createBaseVNode("button", { onClick: clearText }, "Clear"),
-            createBaseVNode("button", { onClick: copyText }, "Copy"),
-            createBaseVNode("button", { onClick: pasteText }, "Paste"),
-            createBaseVNode("button", { onClick: saveText }, "Save")
+          createBaseVNode("div", _hoisted_3, [
+            createBaseVNode("button", {
+              onClick: clearText,
+              class: normalizeClass({ "btn-feedback": feedbackButton.value === "clear" })
+            }, toDisplayString(feedbackButton.value === "clear" ? "Cleared ✓" : "Clear"), 3),
+            createBaseVNode("button", {
+              onClick: copyText,
+              class: normalizeClass({ "btn-feedback": feedbackButton.value === "copy" })
+            }, toDisplayString(feedbackButton.value === "copy" ? "Copied ✓" : "Copy"), 3),
+            createBaseVNode("button", {
+              onClick: pasteText,
+              class: normalizeClass({ "btn-feedback": feedbackButton.value === "paste" })
+            }, toDisplayString(feedbackButton.value === "paste" ? "Pasted ✓" : "Paste"), 3),
+            createBaseVNode("button", {
+              onClick: saveText,
+              class: normalizeClass({ "btn-feedback": feedbackButton.value === "save" })
+            }, toDisplayString(feedbackButton.value === "save" ? "Saved ✓" : "Save"), 3)
           ])
         ]),
-        createBaseVNode("div", _hoisted_2, [
+        createBaseVNode("div", _hoisted_4, [
           _cache[3] || (_cache[3] = createBaseVNode("label", null, "Font Size", -1)),
           withDirectives(createBaseVNode("input", {
             type: "range",
@@ -117,7 +146,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
               { number: true }
             ]
           ]),
-          createBaseVNode("span", _hoisted_3, toDisplayString(fontSize.value) + "px", 1)
+          createBaseVNode("span", _hoisted_5, toDisplayString(fontSize.value) + "px", 1)
         ]),
         withDirectives(createBaseVNode("textarea", {
           ref_key: "textareaRef",
@@ -135,7 +164,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const PromptBoxWidget = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-56ad1140"]]);
+const PromptBoxWidget = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-e0c93561"]]);
 app.registerExtension({
   name: "Duffy.PromptBox.Vue",
   async nodeCreated(node) {
@@ -1491,7 +1520,7 @@ canvas[data-v-3cee2115] {\r
   background: var(--comfy-hover-bg, #333);
 }\r
 
-.prompt-box-root[data-v-56ad1140] {\r
+.prompt-box-root[data-v-e0c93561] {\r
   display: flex;\r
   flex-direction: column;\r
   width: 100%;\r
@@ -1502,17 +1531,17 @@ canvas[data-v-3cee2115] {\r
   border-radius: 6px;\r
   box-sizing: border-box;
 }
-.header[data-v-56ad1140] {\r
+.header[data-v-e0c93561] {\r
   display: flex;\r
   justify-content: space-between;\r
   align-items: center;\r
   margin-bottom: 8px;
 }
-h4[data-v-56ad1140] {\r
+h4[data-v-e0c93561] {\r
   margin: 0;\r
   font-size: 14px;
 }
-.actions button[data-v-56ad1140] {\r
+.actions button[data-v-e0c93561] {\r
   margin-left: 4px;\r
   padding: 2px 6px;\r
   background: var(--comfy-input-bg, #333);\r
@@ -1521,29 +1550,35 @@ h4[data-v-56ad1140] {\r
   border-radius: 4px;\r
   cursor: pointer;
 }
-.actions button[data-v-56ad1140]:hover {\r
+.actions button[data-v-e0c93561]:hover {\r
   background: var(--comfy-input-hover, #444);
 }
-.font-size-row[data-v-56ad1140] {\r
+.actions button.btn-feedback[data-v-e0c93561] {\r
+  background: rgba(76, 175, 80, 0.35);\r
+  border-color: rgba(76, 175, 80, 0.6);\r
+  color: #a5d6a7;\r
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.font-size-row[data-v-e0c93561] {\r
   display: flex;\r
   align-items: center;\r
   gap: 8px;\r
   margin-bottom: 6px;
 }
-.font-size-row label[data-v-56ad1140] {\r
+.font-size-row label[data-v-e0c93561] {\r
   font-size: 12px;\r
   white-space: nowrap;
 }
-.font-size-row input[type="range"][data-v-56ad1140] {\r
+.font-size-row input[type="range"][data-v-e0c93561] {\r
   flex: 1;\r
   cursor: pointer;
 }
-.font-size-val[data-v-56ad1140] {\r
+.font-size-val[data-v-e0c93561] {\r
   font-size: 12px;\r
   min-width: 36px;\r
   text-align: right;
 }
-.prompt-textarea[data-v-56ad1140] {\r
+.prompt-textarea[data-v-e0c93561] {\r
   flex-grow: 1;\r
   width: 100%;\r
   resize: none;\r
