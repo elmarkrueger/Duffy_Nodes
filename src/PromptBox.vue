@@ -9,12 +9,18 @@
         <button @click="saveText">Save</button>
       </div>
     </div>
+    <div class="font-size-row">
+      <label>Font Size</label>
+      <input type="range" min="8" max="32" step="1" v-model.number="fontSize" @input="emitChange" @dblclick="resetFontSize" />
+      <span class="font-size-val">{{ fontSize }}px</span>
+    </div>
     <textarea
       ref="textareaRef"
       v-model="text"
       @input="emitChange"
       @paste="handleNativePaste"
       class="prompt-textarea"
+      :style="{ fontSize: fontSize + 'px' }"
       placeholder="Enter your prompt here..."
     ></textarea>
   </div>
@@ -23,21 +29,30 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
+const DEFAULT_FONT_SIZE = 14;
+
 const props = defineProps<{ onChange?: (json: string) => void }>();
 const text = ref("");
+const fontSize = ref(DEFAULT_FONT_SIZE);
 const textareaRef = ref<HTMLTextAreaElement | null>(null);
 
 function serialise() {
-  return JSON.stringify({ text: text.value });
+  return JSON.stringify({ text: text.value, fontSize: fontSize.value });
 }
 
 function deserialise(json: string) {
   try {
     const data = JSON.parse(json);
     if (data.text !== undefined) text.value = data.text;
+    if (data.fontSize !== undefined) fontSize.value = data.fontSize;
   } catch (e) {
     // ignore
   }
+}
+
+function resetFontSize() {
+  fontSize.value = DEFAULT_FONT_SIZE;
+  emitChange();
 }
 
 function emitChange() {
@@ -146,6 +161,29 @@ h4 {
 
 .actions button:hover {
   background: var(--comfy-input-hover, #444);
+}
+
+.font-size-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.font-size-row label {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.font-size-row input[type="range"] {
+  flex: 1;
+  cursor: pointer;
+}
+
+.font-size-val {
+  font-size: 12px;
+  min-width: 36px;
+  text-align: right;
 }
 
 .prompt-textarea {

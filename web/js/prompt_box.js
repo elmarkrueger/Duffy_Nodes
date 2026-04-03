@@ -1,6 +1,9 @@
 import { app } from "../../../scripts/app.js";
-import { d as defineComponent, b as openBlock, c as createElementBlock, e as createBaseVNode, w as withDirectives, v as vModelText, h as ref, _ as _export_sfc, i as createApp } from "./_plugin-vue_export-helper-CojN6hzB.js";
+import { d as defineComponent, b as openBlock, c as createElementBlock, e as createBaseVNode, w as withDirectives, v as vModelText, t as toDisplayString, m as normalizeStyle, h as ref, _ as _export_sfc, i as createApp } from "./_plugin-vue_export-helper-CojN6hzB.js";
 const _hoisted_1 = { class: "prompt-box-root" };
+const _hoisted_2 = { class: "font-size-row" };
+const _hoisted_3 = { class: "font-size-val" };
+const DEFAULT_FONT_SIZE = 14;
 const _sfc_main = /* @__PURE__ */ defineComponent({
   __name: "PromptBox",
   props: {
@@ -9,16 +12,22 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
   setup(__props, { expose: __expose }) {
     const props = __props;
     const text = ref("");
+    const fontSize = ref(DEFAULT_FONT_SIZE);
     const textareaRef = ref(null);
     function serialise() {
-      return JSON.stringify({ text: text.value });
+      return JSON.stringify({ text: text.value, fontSize: fontSize.value });
     }
     function deserialise(json) {
       try {
         const data = JSON.parse(json);
         if (data.text !== void 0) text.value = data.text;
+        if (data.fontSize !== void 0) fontSize.value = data.fontSize;
       } catch (e) {
       }
+    }
+    function resetFontSize() {
+      fontSize.value = DEFAULT_FONT_SIZE;
+      emitChange();
     }
     function emitChange() {
       var _a;
@@ -82,7 +91,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1, [
         createBaseVNode("div", { class: "header" }, [
-          _cache[1] || (_cache[1] = createBaseVNode("h4", null, "Prompt Box", -1)),
+          _cache[2] || (_cache[2] = createBaseVNode("h4", null, "Prompt Box", -1)),
           createBaseVNode("div", { class: "actions" }, [
             createBaseVNode("button", { onClick: clearText }, "Clear"),
             createBaseVNode("button", { onClick: copyText }, "Copy"),
@@ -90,22 +99,43 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
             createBaseVNode("button", { onClick: saveText }, "Save")
           ])
         ]),
+        createBaseVNode("div", _hoisted_2, [
+          _cache[3] || (_cache[3] = createBaseVNode("label", null, "Font Size", -1)),
+          withDirectives(createBaseVNode("input", {
+            type: "range",
+            min: "8",
+            max: "32",
+            step: "1",
+            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => fontSize.value = $event),
+            onInput: emitChange,
+            onDblclick: resetFontSize
+          }, null, 544), [
+            [
+              vModelText,
+              fontSize.value,
+              void 0,
+              { number: true }
+            ]
+          ]),
+          createBaseVNode("span", _hoisted_3, toDisplayString(fontSize.value) + "px", 1)
+        ]),
         withDirectives(createBaseVNode("textarea", {
           ref_key: "textareaRef",
           ref: textareaRef,
-          "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => text.value = $event),
+          "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => text.value = $event),
           onInput: emitChange,
           onPaste: handleNativePaste,
           class: "prompt-textarea",
+          style: normalizeStyle({ fontSize: fontSize.value + "px" }),
           placeholder: "Enter your prompt here..."
-        }, null, 544), [
+        }, null, 36), [
           [vModelText, text.value]
         ])
       ]);
     };
   }
 });
-const PromptBoxWidget = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-ddaae0e7"]]);
+const PromptBoxWidget = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-56ad1140"]]);
 app.registerExtension({
   name: "Duffy.PromptBox.Vue",
   async nodeCreated(node) {
@@ -1461,7 +1491,7 @@ canvas[data-v-3cee2115] {\r
   background: var(--comfy-hover-bg, #333);
 }\r
 
-.prompt-box-root[data-v-ddaae0e7] {\r
+.prompt-box-root[data-v-56ad1140] {\r
   display: flex;\r
   flex-direction: column;\r
   width: 100%;\r
@@ -1472,17 +1502,17 @@ canvas[data-v-3cee2115] {\r
   border-radius: 6px;\r
   box-sizing: border-box;
 }
-.header[data-v-ddaae0e7] {\r
+.header[data-v-56ad1140] {\r
   display: flex;\r
   justify-content: space-between;\r
   align-items: center;\r
   margin-bottom: 8px;
 }
-h4[data-v-ddaae0e7] {\r
+h4[data-v-56ad1140] {\r
   margin: 0;\r
   font-size: 14px;
 }
-.actions button[data-v-ddaae0e7] {\r
+.actions button[data-v-56ad1140] {\r
   margin-left: 4px;\r
   padding: 2px 6px;\r
   background: var(--comfy-input-bg, #333);\r
@@ -1491,10 +1521,29 @@ h4[data-v-ddaae0e7] {\r
   border-radius: 4px;\r
   cursor: pointer;
 }
-.actions button[data-v-ddaae0e7]:hover {\r
+.actions button[data-v-56ad1140]:hover {\r
   background: var(--comfy-input-hover, #444);
 }
-.prompt-textarea[data-v-ddaae0e7] {\r
+.font-size-row[data-v-56ad1140] {\r
+  display: flex;\r
+  align-items: center;\r
+  gap: 8px;\r
+  margin-bottom: 6px;
+}
+.font-size-row label[data-v-56ad1140] {\r
+  font-size: 12px;\r
+  white-space: nowrap;
+}
+.font-size-row input[type="range"][data-v-56ad1140] {\r
+  flex: 1;\r
+  cursor: pointer;
+}
+.font-size-val[data-v-56ad1140] {\r
+  font-size: 12px;\r
+  min-width: 36px;\r
+  text-align: right;
+}
+.prompt-textarea[data-v-56ad1140] {\r
   flex-grow: 1;\r
   width: 100%;\r
   resize: none;\r
