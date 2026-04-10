@@ -50,6 +50,9 @@ from .prompt_box import DuffyPromptBox
 from .rgba_to_rgb import DuffyRGBAtoRGB
 from .save_image_sidecar import DuffySaveImageWithSidecar
 from .seed import DuffySeed
+from .seven_float_sliders import DuffySevenFloatSliders
+from .seven_int_sliders import DuffySevenIntSliders
+from .seven_wide_float_sliders import DuffySevenWideFloatSliders
 from .signal_selector import DuffySignalSelector
 from .toggle_switch import DuffyToggleSwitch
 from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
@@ -64,6 +67,9 @@ NODE_LIST = [
     DuffyFiveFloatSliders,
     DuffyFiveIntSliders,
     DuffyFloatMath,
+    DuffySevenFloatSliders,
+    DuffySevenIntSliders,
+    DuffySevenWideFloatSliders,
     DuffyIntegerMath,
     DuffyMathExpression,
     DuffyMultiPassSampling,
