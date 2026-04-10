@@ -29,6 +29,12 @@ app.registerExtension({
         // Prevent dragging the canvas when interacting with the widget
         container.addEventListener("pointerdown", (e) => e.stopPropagation());
         container.addEventListener("wheel", (e) => e.stopPropagation());
+        container.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = app.canvas;
+            if (canvas) canvas.processContextMenu(node, e);
+        });
 
         // Background Image (image_b / Right)
         const imgB = document.createElement("img");
@@ -104,16 +110,19 @@ app.registerExtension({
             updateSlider(e.clientX);
         });
 
-        window.addEventListener("mouseup", () => {
+        const onWindowMouseUp = () => {
             isDragging = false;
-        });
+        };
 
-        window.addEventListener("mousemove", (e) => {
+        const onWindowMouseMove = (e) => {
             // Update on drag OR on hover (adjusts to mouse position dynamically)
             if (isDragging || container.contains(e.target) || e.target === container) {
                 updateSlider(e.clientX);
             }
-        });
+        };
+
+        window.addEventListener("mouseup", onWindowMouseUp);
+        window.addEventListener("mousemove", onWindowMouseMove);
 
         // Add to DOM Widget
         const domWidget = node.addDOMWidget("compare_slider", "custom", container, {
@@ -160,6 +169,14 @@ app.registerExtension({
                 
                 placeholder.style.display = "none";
             }
+        };
+
+        // Cleanup global listeners when node is removed
+        const origOnRemoved = node.onRemoved;
+        node.onRemoved = function () {
+            window.removeEventListener("mouseup", onWindowMouseUp);
+            window.removeEventListener("mousemove", onWindowMouseMove);
+            origOnRemoved?.apply(this, arguments);
         };
     },
 });

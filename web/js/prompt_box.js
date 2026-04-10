@@ -190,6 +190,12 @@ app.registerExtension({
     container.style.cssText = "width:100%; height:100%; box-sizing:border-box; overflow:hidden;";
     container.addEventListener("pointerdown", (e) => e.stopPropagation());
     container.addEventListener("wheel", (e) => e.stopPropagation());
+    container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const canvas = app.canvas;
+      if (canvas) canvas.processContextMenu(node, e);
+    });
     function captureKeyboard(e) {
       if (!container.contains(e.target)) return;
       const key = e.key.toLowerCase();

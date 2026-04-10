@@ -67,6 +67,12 @@ app.registerExtension({
         // Prevent canvas drag/zoom when interacting with the widget
         container.addEventListener("pointerdown", (e) => e.stopPropagation());
         container.addEventListener("wheel", (e) => e.stopPropagation());
+        container.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = app.canvas;
+            if (canvas) canvas.processContextMenu(node, e);
+        });
 
         const domWidget = node.addDOMWidget("advanced_ui_container", "custom", container, {
             serialize: false,

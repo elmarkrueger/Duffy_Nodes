@@ -65,14 +65,6 @@ app.registerExtension({
     },
 });
 
-
-        node.color = "#2E4E3B";
-        node.bgcolor = "#1C3024";
-
-        setupToggleSwitch(node);
-    },
-
-    loadedGraphNode(node) {
         if (node.comfyClass !== "Duffy_ToggleSwitch") return;
         setupToggleSwitch(node);
     },

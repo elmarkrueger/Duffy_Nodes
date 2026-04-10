@@ -93,6 +93,12 @@ app.registerExtension({
         // Prevent canvas drag / zoom inside widget
         container.addEventListener("pointerdown", e => e.stopPropagation());
         container.addEventListener("wheel", e => e.stopPropagation());
+        container.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = app.canvas;
+            if (canvas) canvas.processContextMenu(node, e);
+        });
 
         // -- Title --
         const titleRow = document.createElement("div");

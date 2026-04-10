@@ -271,6 +271,12 @@ app.registerExtension({
     container.style.cssText = "width:100%; box-sizing:border-box; overflow:hidden;";
     container.addEventListener("pointerdown", (e) => e.stopPropagation());
     container.addEventListener("wheel", (e) => e.stopPropagation());
+    container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const canvas = app.canvas;
+      if (canvas) canvas.processContextMenu(node, e);
+    });
     console.log(`Duffy_AdvancedImageAdjuster nodeCreated: ${node.id}`);
     const vueApp = createApp(AdvancedImageAdjuster, {
       nodeId: String(node.id),

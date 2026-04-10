@@ -1238,6 +1238,12 @@ app.registerExtension({
     const stopCanvasEvent = (event) => event.stopPropagation();
     container.addEventListener("pointerdown", stopCanvasEvent);
     container.addEventListener("wheel", stopCanvasEvent);
+    container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const canvas = app.canvas;
+      if (canvas) canvas.processContextMenu(node, e);
+    });
     let widgetRef = null;
     const vueApp = createApp({
       render() {

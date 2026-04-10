@@ -69,6 +69,12 @@ app.registerExtension({
         const stopCanvasEvent = (event: Event) => event.stopPropagation();
         container.addEventListener("pointerdown", stopCanvasEvent);
         container.addEventListener("wheel", stopCanvasEvent);
+        container.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = (app as any).canvas;
+            if (canvas) canvas.processContextMenu(node, e);
+        });
 
         let widgetRef: any = null;
 

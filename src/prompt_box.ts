@@ -28,6 +28,12 @@ comfyApp.registerExtension({
         container.style.cssText = "width:100%; height:100%; box-sizing:border-box; overflow:hidden;";
         container.addEventListener("pointerdown", (e) => e.stopPropagation());
         container.addEventListener("wheel", (e) => e.stopPropagation());
+        container.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = (comfyApp as any).canvas;
+            if (canvas) canvas.processContextMenu(node, e);
+        });
 
         // Capture-phase intercept: prevent ComfyUI from eating clipboard/text-editing
         // shortcuts when the user is typing inside our textarea.

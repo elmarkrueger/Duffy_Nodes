@@ -74,6 +74,12 @@ app.registerExtension({
         // Prevent canvas drag/zoom when interacting with the picker
         container.addEventListener("pointerdown", (e) => e.stopPropagation());
         container.addEventListener("wheel", (e) => e.stopPropagation());
+        container.addEventListener("contextmenu", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const canvas = app.canvas;
+            if (canvas) canvas.processContextMenu(node, e);
+        });
 
         // Bind color picker to the hidden font_color widget
         colorInput.addEventListener("input", (e) => {

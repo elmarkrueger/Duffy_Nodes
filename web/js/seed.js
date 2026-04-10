@@ -220,7 +220,7 @@ app.registerExtension({
     // getNodeMenuItems – declarative context menu (Nodes 2.0 pattern)
     // ------------------------------------------------------------------
     getNodeMenuItems(node) {
-        if (node.comfyClass !== "Duffy_Seed") return;
+        if (node.comfyClass !== "Duffy_Seed") return [];
 
         const state = node._duffySeed;
         const items = [

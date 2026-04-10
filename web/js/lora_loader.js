@@ -61,6 +61,12 @@ app.registerExtension({
     container.style.cssText = "width:100%; box-sizing:border-box; overflow:visible;";
     container.addEventListener("pointerdown", (e) => e.stopPropagation());
     container.addEventListener("wheel", (e) => e.stopPropagation());
+    container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const canvas = app.canvas;
+      if (canvas) canvas.processContextMenu(node, e);
+    });
     const options = Array.isArray(dataWidget.options) ? dataWidget.options : ((_b = dataWidget.options) == null ? void 0 : _b.values) || [];
     const vueApp = createApp(LoraLoaderWidget, {
       options,

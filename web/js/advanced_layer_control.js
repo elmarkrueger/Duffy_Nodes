@@ -749,6 +749,12 @@ app.registerExtension({
     container.style.cssText = "width:100%; box-sizing:border-box; overflow:hidden; position:relative; isolation:isolate;";
     container.addEventListener("pointerdown", (event) => event.stopPropagation());
     container.addEventListener("wheel", (event) => event.stopPropagation());
+    container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const canvas = app.canvas;
+      if (canvas) canvas.processContextMenu(node, e);
+    });
     const vueApp = createApp(AdvancedLayerControl, {
       nodeId: String(node.id),
       onChange: (json) => {

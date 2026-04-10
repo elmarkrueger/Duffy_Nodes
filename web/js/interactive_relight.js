@@ -399,6 +399,12 @@ app.registerExtension({
     container.style.cssText = "width:100%; box-sizing:border-box; overflow:hidden;";
     container.addEventListener("pointerdown", (e) => e.stopPropagation());
     container.addEventListener("wheel", (e) => e.stopPropagation());
+    container.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const canvas = app.canvas;
+      if (canvas) canvas.processContextMenu(node, e);
+    });
     console.log(`Duffy_InteractiveRelight nodeCreated: ${node.id}`);
     const vueApp = createApp(InteractiveRelight, {
       nodeId: String(node.id),
