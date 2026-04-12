@@ -11,7 +11,8 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Added
 
 - **Gemma-4 GGUF Multimodal Analyzer** node (`Duffy_GemmaGGUFAnalyzer`, category `Duffy/LLM`).
-  - Professional-grade multimodal AI analysis using Google's Gemma-4-E4B-it model via llama.cpp.
+  - Professional-grade multimodal AI analysis using Google's **Gemma-4-E4B-it** model (GGUF format) via llama.cpp.
+  - **Requires llama-cpp-python>=0.3.35** (mandatory for Gemma4ChatHandler support).
   - Supports text, image, video, and audio inputs for comprehensive analysis.
   - Built-in preset prompts: "Reverse Engineered Prompt" for image-to-prompt generation, "Style Transfer Prompt" for content+style analysis.
   - Full GPU acceleration support via llama-cpp-python with CUDA.
@@ -33,7 +34,7 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
-- Updated `requirements.txt` to include LLM dependencies: `llama-cpp-python>=0.3.0`, `numpy>=1.24.0`, `torchaudio>=2.0.0`, `soundfile>=0.12.0`.
+- Updated `requirements.txt` to include LLM dependencies: **`llama-cpp-python>=0.3.35`** (mandatory for Gemma4ChatHandler), `numpy>=1.24.0`, `torchaudio>=2.0.0`, `soundfile>=0.12.0`.
 
 ---
 

@@ -2,7 +2,10 @@
 
 ## Gemma-4 GGUF Multimodal Analyzer
 
-The **Duffy_GemmaGGUFAnalyzer** node provides powerful multimodal analysis capabilities using Google's Gemma-4-E4B-it model via llama.cpp. This node supports text, image, video, and audio inputs for comprehensive AI-powered analysis.
+The **Duffy_GemmaGGUFAnalyzer** node provides powerful multimodal analysis capabilities using Google's **Gemma-4-E4B-it** model (GGUF format) via llama.cpp. This node supports text, image, video, and audio inputs for comprehensive AI-powered analysis.
+
+> **⚠️ Critical Version Requirement:**  
+> **llama-cpp-python version 0.3.35 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required for Gemma-4-E4B model support. Earlier versions will not work with this node.
 
 ---
 
@@ -13,17 +16,17 @@ The **Duffy_GemmaGGUFAnalyzer** node provides powerful multimodal analysis capab
 The following Python packages are required and can be installed via pip:
 
 ```bash
-pip install llama-cpp-python>=0.3.0 numpy>=1.24.0 torchaudio>=2.0.0 soundfile>=0.12.0
+pip install llama-cpp-python>=0.3.35 numpy>=1.24.0 torchaudio>=2.0.0 soundfile>=0.12.0
 ```
 
 **Important:** For GPU acceleration (highly recommended), install `llama-cpp-python` with CUDA support:
-
-```bash
-# For NVIDIA GPUs with CUDA
-CMAKE_ARGS="-DLLAMA_CUBLAS=on" pip install llama-cpp-python --upgrade --force-reinstall --no-cache-dir
+>=0.3.35 --upgrade --force-reinstall --no-cache-dir
 ```
 
 On Windows with NVIDIA GPU:
+```powershell
+$env:CMAKE_ARGS="-DLLAMA_CUBLAS=on"
+pip install llama-cpp-python>=0.3.35
 ```powershell
 $env:CMAKE_ARGS="-DLLAMA_CUBLAS=on"
 pip install llama-cpp-python --upgrade --force-reinstall --no-cache-dir
@@ -33,10 +36,10 @@ For other platforms or acceleration methods (Metal, OpenCL, Vulkan), see the [ll
 
 ### 2. Download Model Files
 
-You need two files for multimodal operation:
+You need two files for multimodal operation with **Gemma-4-E4B**:
 
-1. **The main GGUF model** (e.g., `gemma-2-27b-it-Q4_K_M.gguf`)
-2. **The multimodal projector** (e.g., `mmproj-gemma-4-e4b-it-f16.gguf`)
+1. **The main Gemma-4-E4B GGUF model** (e.g., `gemma-2-27b-it-Q4_K_M.gguf`)
+2. **The Gemma-4 multimodal projector** (e.g., `mmproj-gemma-4-e4b-it-f16.gguf`)
 
 **Where to download:**
 - Official Gemma models: [Google AI Studio](https://ai.google.dev/)
@@ -214,10 +217,11 @@ Add ~2-4 GB for the multimodal projector and context buffer.
 
 ## Known Limitations
 
+- **Model compatibility**: This node is specifically designed for **Gemma-4-E4B** models in GGUF format. Other models may not work correctly or may require fallback handlers.
+- **Version requirement**: Requires `llama-cpp-python>=0.3.35` with Gemma4ChatHandler support (earlier versions do not include the required handler).
 - **Video**: Only supports batch image tensors `[F, H, W, 3]` (not native video files)
 - **Audio**: Maximum 60-second duration
 - **Model format**: Only GGUF models are supported (not PyTorch `.safetensors`)
-- **Thinking mode**: Requires `llama-cpp-python>=0.3.35` with Gemma4ChatHandler support
 
 ---
 

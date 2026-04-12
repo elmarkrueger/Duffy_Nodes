@@ -733,7 +733,17 @@ Powerful multimodal AI analysis using local GGUF models.
 ![Gemma GGUF Analyzer](images/gguf_analyzer.jpg)
 *Category: `Duffy/LLM`*
 
-A professional-grade multimodal AI analysis node powered by Google's Gemma-4-E4B-it model via llama.cpp. Perform text, image, video, and audio analysis locally with full GPU acceleration support.
+A professional-grade multimodal AI analysis node powered by Google's **Gemma-4-E4B-it** model (GGUF format) via llama.cpp. Perform text, image, video, and audio analysis locally with full GPU acceleration support.
+
+> **⚠️ Important Version Requirement:**  
+> **llama-cpp-python version 0.3.35 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required by this node. Earlier versions will not work.
+>
+> Install the correct version with:
+> ```bash
+> pip install llama-cpp-python>=0.3.35
+> ```
+>
+> **llama-cpp-python must be compiled with GPU support for CUDA acceleration.** See [llama-cpp-python installation](https://github.com/abetlen/llama-cpp-python#installation) for build instructions.
 
 **Inputs:** `gguf_model` (dropdown), `mmproj_model` (dropdown), `system_prompt` (multiline string), `user_prompt` (multiline string), `image` (IMAGE, optional), `reference_image` (IMAGE, optional), `video` (IMAGE batch, optional), `audio` (AUDIO, optional), plus 20+ inference parameters
 **Outputs:** `analysis_text` (STRING)
@@ -769,9 +779,9 @@ A professional-grade multimodal AI analysis node powered by Google's Gemma-4-E4B
 - `video_fps` (0.1-5.0): Video frame sampling rate
 
 **Use Cases:** 
-- Reverse-engineering prompts from generated images for fine-tuning or recreation
-- Style transfer analysis for applying artistic styles across images
-- Image captioning and detailed visual description
+- **Gemma-4-E4B** GGUF model file (e.g., `gemma-4-E4B-it-Q4_K_M.gguf`) in `ComfyUI/models/LLM/`
+- Multimodal projector for Gemma-4 (e.g., `mmproj-gemma-4-e4b-it-f16.gguf`) in `ComfyUI/models/LLM/`
+- **`llama-cpp-python>=0.3.35`** with CUDA support (mandatory for Gemma4ChatHandler)
 - Video content analysis and summarization
 - Audio transcription and analysis
 - Multimodal question answering (e.g., "What's happening in this video?")
