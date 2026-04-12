@@ -6,6 +6,37 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.28.0] — 2026-04-12
+
+### Added
+
+- **Gemma-4 GGUF Multimodal Analyzer** node (`Duffy_GemmaGGUFAnalyzer`, category `Duffy/LLM`).
+  - Professional-grade multimodal AI analysis using Google's Gemma-4-E4B-it model via llama.cpp.
+  - Supports text, image, video, and audio inputs for comprehensive analysis.
+  - Built-in preset prompts: "Reverse Engineered Prompt" for image-to-prompt generation, "Style Transfer Prompt" for content+style analysis.
+  - Full GPU acceleration support via llama-cpp-python with CUDA.
+  - Advanced inference controls: temperature, top_p, top_k, repeat_penalty, presence_penalty, frequency_penalty, mirostat sampling.
+  - Intelligent video frame sampling (up to 30 frames) and audio processing (16 kHz mono, max 60s).
+  - Context window support up to 128K tokens for long-form analysis.
+  - Model caching system to keep models in VRAM between executions.
+  - Graceful fallback: Gemma4ChatHandler → Llava16ChatHandler → text-only mode.
+  - Thinking mode with optional tag stripping for extended reasoning.
+- **Utility modules** (`utils/media.py`, `utils/memory.py`).
+  - Image/video/audio to data URI conversion for LLM multimodal inputs.
+  - Aggressive VRAM/RAM cleanup utilities for optimal memory management.
+- **Comprehensive LLM documentation** (`docs/llm_node_setup.md`).
+  - Detailed setup guide including CUDA-enabled llama-cpp-python installation.
+  - Model download sources and placement instructions.
+  - VRAM requirements and quantization recommendations.
+  - Performance optimization tips and troubleshooting guide.
+  - Advanced parameter tuning and context window management.
+
+### Changed
+
+- Updated `requirements.txt` to include LLM dependencies: `llama-cpp-python>=0.3.0`, `numpy>=1.24.0`, `torchaudio>=2.0.0`, `soundfile>=0.12.0`.
+
+---
+
 ## [0.27.0] — 2026-03-15
 
 ### Added

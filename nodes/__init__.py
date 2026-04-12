@@ -19,6 +19,7 @@ from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
 from .flux2_klein_noise import DuffyFlux2KleinNoise
 from .flux_max_shift import DuffyFluxMaxShift
+from .gemma_gguf_analyzer import DuffyGemmaGGUFAnalyzer
 from .image_adjuster import DuffyImageAdjuster
 from .image_compare import DuffyImageCompare
 from .image_preview import DuffyImagePreview
@@ -118,4 +119,6 @@ NODE_LIST = [
     DuffyAdvancedConnectedImageStitch,
     DuffyImagePreview,
     DuffyPainterNode,
+    # LLM nodes
+    DuffyGemmaGGUFAnalyzer,
 ]

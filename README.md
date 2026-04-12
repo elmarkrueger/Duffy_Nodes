@@ -15,7 +15,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 ## ✨ Features
 
 🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
-🎯 **35+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, sampling, and more  
+🎯 **36+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, LLM analysis, and more  
 ⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
 🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
 🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
@@ -726,6 +726,68 @@ Intelligently combine base prompts with LoRA tags and weights. Supports advanced
 
 ---
 
+### 🤖 LLM & AI Analysis
+Powerful multimodal AI analysis using local GGUF models.
+
+#### 🧠 Gemma-4 GGUF Multimodal Analyzer
+![Gemma GGUF Analyzer](images/gguf_analyzer.jpg)
+*Category: `Duffy/LLM`*
+
+A professional-grade multimodal AI analysis node powered by Google's Gemma-4-E4B-it model via llama.cpp. Perform text, image, video, and audio analysis locally with full GPU acceleration support.
+
+**Inputs:** `gguf_model` (dropdown), `mmproj_model` (dropdown), `system_prompt` (multiline string), `user_prompt` (multiline string), `image` (IMAGE, optional), `reference_image` (IMAGE, optional), `video` (IMAGE batch, optional), `audio` (AUDIO, optional), plus 20+ inference parameters
+**Outputs:** `analysis_text` (STRING)
+
+**Features:**
+- 🖼️ **Multimodal Support** — Analyze text, images, videos, and audio in a single inference
+- 🎨 **Built-in Presets** — "Reverse Engineered Prompt" generates detailed image recreation prompts; "Style Transfer Prompt" combines content and style from two images
+- 🧠 **Thinking Mode** — Enable extended reasoning for more thoughtful, detailed responses
+- ⚡ **GPU Accelerated** — Full CUDA support via llama-cpp-python for 10-100× faster inference
+- 🎛️ **Fine-Grained Control** — Temperature, top_p, top_k, repeat_penalty, presence_penalty, frequency_penalty, mirostat, and more
+- 📹 **Smart Video Sampling** — Automatically subsamples video frames based on FPS and context window size (max 30 frames)
+- 🎵 **Audio Processing** — Supports audio inputs with automatic 16 kHz mono resampling (max 60 seconds)
+- 💾 **Model Caching** — Keeps models in VRAM between executions for instant re-runs
+- 🔄 **Context Window** — Supports up to 128K tokens (131,072) for long-form analysis
+- 🛡️ **Error Handling** — Graceful fallback from Gemma4ChatHandler → Llava16ChatHandler → text-only mode
+
+**Preset Prompts:**
+- **Reverse Engineered Prompt**: Analyzes an image and generates a 120-300 word natural-language prompt suitable for recreating it with image generation models. Includes style identification, subject description, composition, lighting, color palette, and mood.
+- **Style Transfer Prompt**: Analyzes two images (content + reference style) and generates a prompt to recreate the content in the reference image's visual style, lighting, and mood.
+
+**Inference Parameters:**
+- `max_tokens` (1-128000): Maximum response length
+- `temperature` (0.0-2.0): Randomness/creativity control
+- `top_k` (0-500): Vocabulary sampling limit
+- `top_p` (0.0-1.0): Nucleus sampling threshold
+- `min_p` (0.0-1.0): Minimum probability threshold
+- `repeat_penalty` (0.0-3.0): Repetition reduction
+- `presence_penalty` / `frequency_penalty` (-2.0 to 2.0): Token reuse penalties
+- `mirostat_mode` (0-2): Adaptive sampling mode
+- `seed` (-1 or positive): Reproducibility control
+- `n_gpu_layers` (-1 to 200): GPU offload control (-1 = all layers)
+- `n_ctx` (512-131072): Context window size
+- `video_fps` (0.1-5.0): Video frame sampling rate
+
+**Use Cases:** 
+- Reverse-engineering prompts from generated images for fine-tuning or recreation
+- Style transfer analysis for applying artistic styles across images
+- Image captioning and detailed visual description
+- Video content analysis and summarization
+- Audio transcription and analysis
+- Multimodal question answering (e.g., "What's happening in this video?")
+- Batch processing of images for metadata generation
+- Creative writing assistance based on visual references
+
+**Requirements:**
+- GGUF model file (e.g., `gemma-2-27b-it-Q4_K_M.gguf`) in `ComfyUI/models/LLM/`
+- Multimodal projector (e.g., `mmproj-gemma-4-e4b-it-f16.gguf`) in `ComfyUI/models/LLM/`
+- `llama-cpp-python>=0.3.0` with CUDA support (for GPU acceleration)
+- `numpy>=1.24.0`, `torchaudio>=2.0.0`, `soundfile>=0.12.0`
+
+**Setup Guide:** See [docs/llm_node_setup.md](docs/llm_node_setup.md) for detailed installation instructions, model downloads, VRAM requirements, performance optimization tips, and troubleshooting.
+
+---
+
 ## 🎯 Use Cases
 
 ### 🎨 Professional Workflow Optimization
@@ -811,7 +873,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.25.0** (March 9, 2026)
+Current Version: **0.28.0** (April 12, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
