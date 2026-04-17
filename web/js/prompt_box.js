@@ -220,6 +220,11 @@ app.registerExtension({
       origOnResize == null ? void 0 : origOnResize.call(this, size);
     };
     if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    const origConfigure = node.configure;
+    node.configure = function(info) {
+      origConfigure == null ? void 0 : origConfigure.call(this, info);
+      if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    };
     const origOnExecuted = node.onExecuted;
     node.onExecuted = function(message) {
       origOnExecuted == null ? void 0 : origOnExecuted.apply(this, arguments);

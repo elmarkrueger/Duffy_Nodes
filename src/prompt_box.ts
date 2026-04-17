@@ -68,6 +68,15 @@ comfyApp.registerExtension({
 
         if (dataWidget?.value) instance.deserialise(dataWidget.value);
 
+        // Re-sync Vue state after LiteGraph restores widget values from a saved workflow.
+        // nodeCreated fires before configure(), so the initial deserialise above sees the
+        // default value. This patch ensures the restored value is picked up.
+        const origConfigure = node.configure;
+        node.configure = function (info: any) {
+            origConfigure?.call(this, info);
+            if (dataWidget?.value) instance.deserialise(dataWidget.value);
+        };
+
         const origOnExecuted = node.onExecuted;
         node.onExecuted = function(message: any) {
             origOnExecuted?.apply(this, arguments);

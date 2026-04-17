@@ -29,7 +29,7 @@ async def comfy_entrypoint() -> DuffyNodesExtension:
     logging.info("")
     logging.info("*** Duffy_Nodes extension detected...")
     logging.info("*** Initializing Duffy_Nodes extension (Nodes 2.0 V3 Schema).")
-    logging.info("*** 35+ Nodes 2.0 compatible utility nodes have been registered.  🚀")
+    logging.info("*** 35+ Nodes 2.0 compatible utility nodes have been registered.")
     logging.info("")
     return DuffyNodesExtension()
 
