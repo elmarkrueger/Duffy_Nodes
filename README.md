@@ -306,29 +306,6 @@ Interactively compare two images with a vertical, laser-sharp slider that adjust
 
 ---
 
-#### 🎨 Advanced Painter
-![Advanced Painter](images/advanced_painter_node.jpg)
-*Category: `Duffy/Image`*
-
-A professional-grade interactive painting studio powered by Vue 3 and Fabric.js. Create, edit, and manipulate layers directly within ComfyUI with a full suite of drawing tools, vector shapes, and image transformation capabilities.
-
-**Inputs:** `json_data` (hidden JSON state)  
-**Outputs:** `image` (IMAGE), `mask` (MASK)
-
-**Features:**
-- 🖌️ **Painting Toolkit** — Pencil and Eraser brushes with adjustable size and real-time feedback.
-- 📐 **Vector Shapes** — Add Rectangles, Circles, and Triangles with customizable Fill or Outline styles.
-- 🔤 **Text Support** — Insert and style text layers with adjustable font properties.
-- 🖼️ **Image Integration** — Upload background images directly to the canvas for over-painting or reference.
-- 📑 **Object Management** — Select, move, and delete individual canvas elements with ease.
-- 🎭 **Dual Output** — Generates both a high-quality RGB image and a precise transparency-based Mask.
-- 💾 **State Persistence** — Your entire canvas composition is saved into the workflow metadata.
-- ⚡ **Fabric.js Engine** — High-performance canvas interactions with smooth vector scaling and rotation.
-
-**Use Cases:** Manual inpainting preparation, custom mask creation, layout sketching, composition planning, and interactive image markup.
-
----
-
 #### 🔍 Advanced Folder Image Selector
 ![Advanced Folder Image Selector](images/advanced_folder_image_selector.jpg)
 *Category: `Duffy/Image/Selection`*

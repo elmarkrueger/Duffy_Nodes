@@ -39,7 +39,6 @@ from .math_expression import DuffyMathExpression
 from .megapixel_resize import DuffyMegapixelResize
 from .model_selector import DuffyModelSelector
 from .multi_pass_node import DuffyMultiPassSampling
-from .painter_node import DuffyPainterNode
 # Primitive nodes
 from .primitive_boolean import DuffyPrimitiveBoolean
 from .primitive_float import DuffyPrimitiveFloat
@@ -118,7 +117,6 @@ NODE_LIST = [
     DuffyAdvancedImageAdjuster,
     DuffyAdvancedConnectedImageStitch,
     DuffyImagePreview,
-    DuffyPainterNode,
     # LLM nodes
     DuffyGemmaGGUFAnalyzer,
 ]

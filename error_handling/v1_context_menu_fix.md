@@ -78,7 +78,6 @@ This directly calls LiteGraph's `processContextMenu` to open the standard node c
 - `src/advanced_text_overlay.ts`
 - `src/interactive_relight.ts`
 - `src/lora_loader.ts`
-- `src/painter_node.ts`
 - `src/prompt_box.ts`
 - `web/js/advanced_folder_image_selector.js`
 - `web/js/connected_image_stitch.js`
