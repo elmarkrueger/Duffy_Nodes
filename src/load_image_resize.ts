@@ -91,7 +91,10 @@ comfyApp.registerExtension({
                 initialCrop,
                 onApply: (data: CropData) => {
                     if (cropWidget) {
-                        cropWidget.value = JSON.stringify(data);
+                        // w/h of 0 means "no crop" — clear the data
+                        cropWidget.value = (data.w > 0 && data.h > 0)
+                            ? JSON.stringify(data)
+                            : "{}";
                     }
                     node.setDirtyCanvas(true, true);
                     destroyActiveModal();

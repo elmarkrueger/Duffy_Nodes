@@ -2777,7 +2777,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
       if (!cropper) return;
       const data = cropper.getData(true);
       if (data.width <= 0 || data.height <= 0) {
-        props.onCancel();
+        props.onApply({ x: 0, y: 0, w: 0, h: 0 });
         return;
       }
       props.onApply({ x: data.x, y: data.y, w: data.width, h: data.height });
@@ -2887,7 +2887,7 @@ const _sfc_main = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const LoadImageResizeCrop = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-bc10b41c"]]);
+const LoadImageResizeCrop = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-3ba189c2"]]);
 function buildViewUrl(imageName) {
   let filename = imageName;
   let subfolder = "";
@@ -2954,7 +2954,7 @@ app.registerExtension({
         initialCrop,
         onApply: (data) => {
           if (cropWidget) {
-            cropWidget.value = JSON.stringify(data);
+            cropWidget.value = data.w > 0 && data.h > 0 ? JSON.stringify(data) : "{}";
           }
           node.setDirtyCanvas(true, true);
           destroyActiveModal();
@@ -4473,7 +4473,7 @@ h4[data-v-e0c93561] {\r
   cursor: not-allowed;
 }
 
-.crop-backdrop[data-v-bc10b41c] {\r
+.crop-backdrop[data-v-3ba189c2] {\r
   position: fixed;\r
   inset: 0;\r
   z-index: 9999;\r
@@ -4483,7 +4483,7 @@ h4[data-v-e0c93561] {\r
   justify-content: center;\r
   outline: none;
 }
-.crop-modal[data-v-bc10b41c] {\r
+.crop-modal[data-v-3ba189c2] {\r
   display: flex;\r
   flex-direction: column;\r
   width: 90vw;\r
@@ -4494,7 +4494,7 @@ h4[data-v-e0c93561] {\r
   border-radius: 8px;\r
   overflow: hidden;
 }
-.crop-toolbar[data-v-bc10b41c] {\r
+.crop-toolbar[data-v-3ba189c2] {\r
   display: flex;\r
   align-items: center;\r
   gap: 12px;\r
@@ -4504,12 +4504,12 @@ h4[data-v-e0c93561] {\r
   flex-shrink: 0;\r
   flex-wrap: wrap;
 }
-.crop-ratios[data-v-bc10b41c] {\r
+.crop-ratios[data-v-3ba189c2] {\r
   display: flex;\r
   gap: 4px;\r
   flex-wrap: wrap;
 }
-.crop-ratios button[data-v-bc10b41c] {\r
+.crop-ratios button[data-v-3ba189c2] {\r
   padding: 4px 10px;\r
   border: 1px solid var(--border-color, #555);\r
   border-radius: 4px;\r
@@ -4519,15 +4519,15 @@ h4[data-v-e0c93561] {\r
   font-size: 12px;\r
   transition: background 0.15s, border-color 0.15s;
 }
-.crop-ratios button[data-v-bc10b41c]:hover {\r
+.crop-ratios button[data-v-3ba189c2]:hover {\r
   background: var(--primary-bg, #3a3a3a);
 }
-.crop-ratios button.active[data-v-bc10b41c] {\r
+.crop-ratios button.active[data-v-3ba189c2] {\r
   background: #3b82f6;\r
   border-color: #3b82f6;\r
   color: #fff;
 }
-.crop-info[data-v-bc10b41c] {\r
+.crop-info[data-v-3ba189c2] {\r
   flex: 1;\r
   text-align: center;\r
   color: var(--fg-color, #aaa);\r
@@ -4535,11 +4535,11 @@ h4[data-v-e0c93561] {\r
   font-family: monospace;\r
   white-space: nowrap;
 }
-.crop-actions[data-v-bc10b41c] {\r
+.crop-actions[data-v-3ba189c2] {\r
   display: flex;\r
   gap: 6px;
 }
-.crop-actions button[data-v-bc10b41c] {\r
+.crop-actions button[data-v-3ba189c2] {\r
   padding: 6px 16px;\r
   border: 1px solid var(--border-color, #555);\r
   border-radius: 4px;\r
@@ -4547,27 +4547,27 @@ h4[data-v-e0c93561] {\r
   font-size: 13px;\r
   transition: background 0.15s;
 }
-.btn-secondary[data-v-bc10b41c] {\r
+.btn-secondary[data-v-3ba189c2] {\r
   background: var(--bg-color, #1e1e1e);\r
   color: var(--fg-color, #ccc);
 }
-.btn-secondary[data-v-bc10b41c]:hover {\r
+.btn-secondary[data-v-3ba189c2]:hover {\r
   background: var(--primary-bg, #3a3a3a);
 }
-.btn-primary[data-v-bc10b41c] {\r
+.btn-primary[data-v-3ba189c2] {\r
   background: #3b82f6;\r
   border-color: #3b82f6;\r
   color: #fff;
 }
-.btn-primary[data-v-bc10b41c]:hover {\r
+.btn-primary[data-v-3ba189c2]:hover {\r
   background: #2563eb;
 }
-.crop-workspace[data-v-bc10b41c] {\r
+.crop-workspace[data-v-3ba189c2] {\r
   flex: 1;\r
   overflow: hidden;\r
   position: relative;
 }
-.crop-workspace img[data-v-bc10b41c] {\r
+.crop-workspace img[data-v-3ba189c2] {\r
   display: block;\r
   max-width: 100%;
 }`));

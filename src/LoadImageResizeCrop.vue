@@ -87,7 +87,8 @@ function apply() {
   if (!cropper) return;
   const data = cropper.getData(true);
   if (data.width <= 0 || data.height <= 0) {
-    props.onCancel();
+    // No selection → clear any existing crop
+    props.onApply({ x: 0, y: 0, w: 0, h: 0 });
     return;
   }
   props.onApply({ x: data.x, y: data.y, w: data.width, h: data.height });
