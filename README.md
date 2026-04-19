@@ -215,10 +215,22 @@ Intelligent image resizer targeting specific megapixel counts while preserving a
 ![Load Image Resize](images/load_image_resize.jpg)
 *Category: `Duffy/Image`*
 
-Combined image loader and intelligent resizer. Loads images and automatically resizes to target megapixels in one step.
+Combined image loader, interactive cropper, and intelligent resizer. Loads images, optionally crops them via a fullscreen visual editor, and resizes to target megapixels — all in one node.
 
-**Inputs:** `image` (file picker), `target_megapixels` (float), `mode` (dropdown)  
-**Outputs:** `IMAGE`, `width` (int), `height` (int), `MASK`
+**Inputs:** `image` (file picker), `target_megapixels` (float), `aspect_ratio` (dropdown), `method` (dropdown), `divisible_by` (int), `crop_data` (hidden JSON state)  
+**Outputs:** `IMAGE`, `MASK`, `width` (int), `height` (int), `original_width` (int), `original_height` (int), `filename` (string), `megapixels` (float), `aspect_ratio` (string)
+
+**Features:**
+- ✂️ **Interactive Crop Editor** — A "✂ Crop Image" button opens a fullscreen modal overlay powered by Cropper.js for precise visual cropping.
+- 📐 **Aspect Ratio Presets** — Lock the crop selection to common ratios (Free, 1:1, 4:3, 3:4, 3:2, 2:3, 16:9, 9:16, 21:9, 9:21).
+- 📏 **Live Dimension Readout** — See the exact pixel dimensions and position of your crop in real-time.
+- 🔄 **Auto-Reset on Image Change** — Crop coordinates are automatically cleared when a new image is selected, preventing stale crops.
+- 🎯 **Non-Destructive Pipeline** — Crop → center-crop to aspect ratio → megapixel resize. The original image is never modified.
+- 💾 **State Persistence** — Crop coordinates are saved in the workflow and restored when reopening the editor.
+- 🛡️ **Bounds Safety** — Coordinates are clamped to tensor dimensions on the backend, preventing out-of-bounds errors.
+- ⌨️ **Keyboard Shortcuts** — Enter to apply, Escape to cancel.
+
+**Use Cases:** Region-of-interest extraction, composition refinement, dataset preparation, removing unwanted borders, and precise pre-crop before aspect ratio fitting.
 
 ---
 
@@ -860,7 +872,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.28.0** (April 12, 2026)
+Current Version: **0.29.0** (April 19, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 

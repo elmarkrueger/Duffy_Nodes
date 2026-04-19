@@ -17,7 +17,8 @@ export default defineConfig({
         advanced_text_overlay: "./src/advanced_text_overlay.ts",
         advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts",
         lora_loader: "./src/lora_loader.ts",
-        prompt_box: "./src/prompt_box.ts"
+        prompt_box: "./src/prompt_box.ts",
+        load_image_resize: "./src/load_image_resize.ts"
       },
       formats: ["es"]
     },

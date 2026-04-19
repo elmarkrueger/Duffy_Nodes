@@ -1,7 +1,8 @@
-from fractions import Fraction
 import hashlib
+import json
 import math
 import os
+from fractions import Fraction
 
 import comfy.utils
 import folder_paths
@@ -147,6 +148,12 @@ class DuffyLoadImageResize(io.ComfyNode):
                     step=1,
                     tooltip="Dimensions will be snapped to multiples of this value.",
                 ),
+                io.String.Input(
+                    "crop_data",
+                    default="{}",
+                    socketless=True,
+                    tooltip="JSON crop coordinates set by the interactive crop editor.",
+                ),
             ],
             outputs=[
                 io.Image.Output(
@@ -205,6 +212,7 @@ class DuffyLoadImageResize(io.ComfyNode):
         aspect_ratio: str,
         method: str,
         divisible_by: int = 8,
+        crop_data: str = "{}",
         **kwargs,
     ) -> io.NodeOutput:
         # ── Load the image from disk ──────────────────────────────────
@@ -260,6 +268,34 @@ class DuffyLoadImageResize(io.ComfyNode):
             torch.cat(output_masks, dim=0) if len(output_masks) > 1 else output_masks[0]
         )
 
+        # ── Interactive crop ──────────────────────────────────────────
+        try:
+            crop = json.loads(crop_data) if crop_data else {}
+        except (json.JSONDecodeError, TypeError):
+            crop = {}
+
+        crop_x = int(crop.get("x", 0))
+        crop_y = int(crop.get("y", 0))
+        crop_w = int(crop.get("w", 0))
+        crop_h = int(crop.get("h", 0))
+
+        if crop_w > 0 and crop_h > 0:
+            max_h = loaded_image.shape[1]
+            max_w = loaded_image.shape[2]
+
+            start_x = min(max(crop_x, 0), max_w)
+            start_y = min(max(crop_y, 0), max_h)
+            end_x = min(start_x + crop_w, max_w)
+            end_y = min(start_y + crop_h, max_h)
+
+            if end_x > start_x and end_y > start_y:
+                loaded_image = loaded_image[:, start_y:end_y, start_x:end_x, :].clone()
+
+                # Crop the mask if it's not the 64×64 placeholder
+                _, mh, mw = loaded_mask.shape
+                if not (mh == 64 and mw == 64 and (orig_h != 64 or orig_w != 64)):
+                    loaded_mask = loaded_mask[:, start_y:end_y, start_x:end_x].clone()
+
         # ── Aspect-ratio handling ─────────────────────────────────────
         if aspect_ratio == "original":
             target_ar = orig_w / orig_h
@@ -309,11 +345,12 @@ class DuffyLoadImageResize(io.ComfyNode):
         )
 
     @classmethod
-    def fingerprint_inputs(cls, image, **kwargs):
+    def fingerprint_inputs(cls, image, crop_data="{}", **kwargs):
         image_path = folder_paths.get_annotated_filepath(image)
         m = hashlib.sha256()
         with open(image_path, "rb") as f:
             m.update(f.read())
+        m.update(crop_data.encode("utf-8"))
         return m.digest().hex()
 
     @classmethod
