@@ -6,6 +6,29 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.29.0] — 2026-04-19
+
+### Added
+
+- **Interactive Image Cropping** for the Load Image & Resize node (`Duffy_LoadImageResize`).
+  - New "✂ Crop Image" button opens a fullscreen modal overlay powered by **Cropper.js** for precise visual cropping.
+  - Aspect ratio presets in the crop editor: Free, 1:1, 4:3, 3:4, 3:2, 2:3, 16:9, 9:16, 21:9, 9:21.
+  - Live dimension readout showing crop width, height, and position in real-time.
+  - Crop coordinates are stored as JSON in a hidden `crop_data` widget and persisted in workflow metadata.
+  - Keyboard shortcuts: Enter to apply, Escape to cancel.
+  - Automatic crop reset when the selected image changes, preventing stale coordinates from being applied to a new image.
+  - Backend applies crop after EXIF normalization but before center-crop-to-ratio and megapixel resize.
+  - Tensor bounds clamping prevents out-of-bounds errors for any coordinate values.
+  - Both RGB image and alpha mask tensors are cropped identically (64×64 placeholder masks are skipped).
+  - `fingerprint_inputs` updated to include `crop_data` for correct cache invalidation.
+  - Fully backwards compatible: empty crop data (`"{}"`) means no crop is applied.
+  - Companion Vue 3 component (`LoadImageResizeCrop.vue`) with scoped CSS using ComfyUI theme variables.
+  - Extension entrypoint (`load_image_resize.ts`) registered as `"Duffy.LoadImageResize.Vue"`.
+  - Vite build entry added; output compiled to `web/js/load_image_resize.js`.
+  - New dependency: `cropperjs@^1.6` (bundled, no user action required).
+
+---
+
 ## [0.28.0] — 2026-04-12
 
 ### Added
