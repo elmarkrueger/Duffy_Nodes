@@ -5,7 +5,7 @@
 The **Duffy_GemmaGGUFAnalyzer** node provides powerful multimodal analysis capabilities using Google's **Gemma-4-E4B-it** model (GGUF format) via llama.cpp. This node supports text, image, video, and audio inputs for comprehensive AI-powered analysis.
 
 > **⚠️ Critical Version Requirement:**  
-> **llama-cpp-python version 0.3.35 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required for Gemma-4-E4B model support. Earlier versions will not work with this node.
+> **llama-cpp-python version 0.3.36 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required for Gemma-4-E4B model support. Earlier versions will not work with this node.
 >
 > The current official release on PyPI is **v0.3.20-cu123**, which **does not include** the Gemma 4 chat template. You **must** install a pre-built wheel manually (see below).
 

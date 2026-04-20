@@ -10,7 +10,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 > [!WARNING]
 > **Manual Installation Required for GGUF Multimodal Analyzer Node**
 >
-> The **Gemma-4 GGUF Multimodal Analyzer** node requires **llama-cpp-python v0.3.35 or higher**, because the Gemma 4 chat template was not integrated until that version. The current official release on PyPI is only **v0.3.20-cu123**, which **will not work**.
+> The **Gemma-4 GGUF Multimodal Analyzer** node requires **llama-cpp-python v0.3.36 or higher**, because the Gemma 4 chat template was not integrated until that version. The current official release on PyPI is only **v0.3.20-cu123**, which **will not work**.
 >
 > You must manually install a pre-built wheel from the community repository:
 > **https://github.com/JamePeng/llama-cpp-python/releases** (v0.3.36 for various CUDA versions is available).
