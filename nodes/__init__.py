@@ -46,6 +46,7 @@ from .primitive_integer import DuffyPrimitiveInteger
 from .primitive_string import DuffyPrimitiveString
 from .primitive_string_multiline import DuffyPrimitiveStringMultiline
 from .prompt_box import DuffyPromptBox
+from .qwen3_vl_gguf_analyzer import DuffyQwen3VLGGUFAnalyzer
 from .qwen_gguf_analyzer import DuffyQwenGGUFAnalyzer
 # Image processing nodes (migrated from legacy V1)
 from .rgba_to_rgb import DuffyRGBAtoRGB
@@ -121,4 +122,5 @@ NODE_LIST = [
     # LLM nodes
     DuffyGemmaGGUFAnalyzer,
     DuffyQwenGGUFAnalyzer,
+    DuffyQwen3VLGGUFAnalyzer,
 ]
