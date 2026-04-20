@@ -7,8 +7,20 @@
 
 A comprehensive collection of custom nodes for ComfyUI, built with the modern **Nodes 2.0 V3 Schema** architecture. This pack provides essential utilities, advanced image processing, flexible primitives, and powerful workflow helpers designed for professional AI art generation pipelines.
 
-[!TIP]
-**Modern UI Integration:** Several nodes in this pack feature advanced **Vue 3** interactive interfaces for a superior user experience. These frontend components are **precompiled** into the `web/js` directory. Users do not need to install Node.js, Vite, or any build tools to use this pack; it works immediately upon installation like any other ComfyUI extension.
+> [!WARNING]
+> **Manual Installation Required for GGUF Multimodal Analyzer Node**
+>
+> The **Gemma-4 GGUF Multimodal Analyzer** node requires **llama-cpp-python v0.3.35 or higher**, because the Gemma 4 chat template was not integrated until that version. The current official release on PyPI is only **v0.3.20-cu123**, which **will not work**.
+>
+> You must manually install a pre-built wheel from the community repository:
+> **https://github.com/JamePeng/llama-cpp-python/releases** (v0.3.36 for various CUDA versions is available).
+>
+> `llama-cpp-python` is **not** included in `requirements.txt` and will not be installed automatically.
+>
+> See **[docs/llm_node_setup.md](docs/llm_node_setup.md)** for detailed installation instructions, including how to install the wheel into ComfyUI's `python_embedded` environment.
+
+> [!TIP]
+> **Modern UI Integration:** Several nodes in this pack feature advanced **Vue 3** interactive interfaces for a superior user experience. These frontend components are **precompiled** into the `web/js` directory. Users do not need to install Node.js, Vite, or any build tools to use this pack; it works immediately upon installation like any other ComfyUI extension.
 
 ---
 
@@ -725,14 +737,11 @@ Powerful multimodal AI analysis using local GGUF models.
 A professional-grade multimodal AI analysis node powered by Google's **Gemma-4-E4B-it** model (GGUF format) via llama.cpp. Perform text, image, video, and audio analysis locally with full GPU acceleration support.
 
 > **⚠️ Important Version Requirement:**  
-> **llama-cpp-python version 0.3.35 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required by this node. Earlier versions will not work.
+> **llama-cpp-python version 0.3.35 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required by this node. The official PyPI release (v0.3.20-cu123) **does not work**.
 >
-> Install the correct version with:
-> ```bash
-> pip install llama-cpp-python>=0.3.35
-> ```
+> You must manually install a pre-built wheel from **https://github.com/JamePeng/llama-cpp-python/releases** (v0.3.36 available for various CUDA versions).
 >
-> **llama-cpp-python must be compiled with GPU support for CUDA acceleration.** See [llama-cpp-python installation](https://github.com/abetlen/llama-cpp-python#installation) for build instructions.
+> See **[docs/llm_node_setup.md](docs/llm_node_setup.md)** for step-by-step installation instructions.
 
 **Inputs:** `gguf_model` (dropdown), `mmproj_model` (dropdown), `system_prompt` (multiline string), `user_prompt` (multiline string), `image` (IMAGE, optional), `reference_image` (IMAGE, optional), `video` (IMAGE batch, optional), `audio` (AUDIO, optional), plus 20+ inference parameters
 **Outputs:** `analysis_text` (STRING)
@@ -780,7 +789,7 @@ A professional-grade multimodal AI analysis node powered by Google's **Gemma-4-E
 **Requirements:**
 - GGUF model file (e.g., `gemma-2-27b-it-Q4_K_M.gguf`) in `ComfyUI/models/LLM/`
 - Multimodal projector (e.g., `mmproj-gemma-4-e4b-it-f16.gguf`) in `ComfyUI/models/LLM/`
-- `llama-cpp-python>=0.3.0` with CUDA support (for GPU acceleration)
+- `llama-cpp-python>=0.3.35` — **must be installed manually** from a [pre-built wheel](https://github.com/JamePeng/llama-cpp-python/releases) (PyPI v0.3.20-cu123 does not work)
 - `numpy>=1.24.0`, `torchaudio>=2.0.0`, `soundfile>=0.12.0`
 
 **Setup Guide:** See [docs/llm_node_setup.md](docs/llm_node_setup.md) for detailed installation instructions, model downloads, VRAM requirements, performance optimization tips, and troubleshooting.

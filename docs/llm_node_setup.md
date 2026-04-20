@@ -6,33 +6,78 @@ The **Duffy_GemmaGGUFAnalyzer** node provides powerful multimodal analysis capab
 
 > **⚠️ Critical Version Requirement:**  
 > **llama-cpp-python version 0.3.35 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required for Gemma-4-E4B model support. Earlier versions will not work with this node.
+>
+> The current official release on PyPI is **v0.3.20-cu123**, which **does not include** the Gemma 4 chat template. You **must** install a pre-built wheel manually (see below).
 
 ---
 
 ## Prerequisites
 
-### 1. Install Dependencies
+### 1. Install llama-cpp-python (Pre-Built Wheel — Required)
 
-The following Python packages are required and can be installed via pip:
+Because the official PyPI version of llama-cpp-python (v0.3.20-cu123) does not yet include the Gemma 4 chat template, you must install a pre-built wheel from the community repository:
+
+**Pre-built wheels:** https://github.com/JamePeng/llama-cpp-python/releases
+
+Version **0.3.36** is available for the following CUDA versions:
+- CUDA 11.8
+- CUDA 12.1
+- CUDA 12.4
+- CUDA 12.8
+- CUDA 13.0
+
+#### Standard Python Environment (pip / venv)
+
+1. Go to https://github.com/JamePeng/llama-cpp-python/releases
+2. Download the `.whl` file matching your **Python version** and **CUDA version** (e.g., `llama_cpp_python-0.3.36+cu124-cp311-cp311-win_amd64.whl` for Python 3.11 + CUDA 12.4)
+3. Install the wheel:
 
 ```bash
-pip install llama-cpp-python>=0.3.35 numpy>=1.24.0 torchaudio>=2.0.0 soundfile>=0.12.0
+pip install /path/to/llama_cpp_python-0.3.36+cu124-cp311-cp311-win_amd64.whl --force-reinstall --no-deps
 ```
 
-**Important:** For GPU acceleration (highly recommended), install `llama-cpp-python` with CUDA support:
->=0.3.35 --upgrade --force-reinstall --no-cache-dir
-```
+> **Tip:** Use `--force-reinstall --no-deps` to ensure a clean installation that replaces any existing version without pulling in unwanted dependencies.
 
-On Windows with NVIDIA GPU:
+#### ComfyUI Portable / python_embedded
+
+ComfyUI portable installations bundle their own Python interpreter under `python_embedded/`. You must install the wheel into that specific environment:
+
+1. Download the correct `.whl` file from https://github.com/JamePeng/llama-cpp-python/releases matching the Python version inside `python_embedded/` (check with `python_embedded\python.exe --version`)
+2. Open a terminal and navigate to your ComfyUI root folder
+3. Install using the embedded Python directly:
+
 ```powershell
-$env:CMAKE_ARGS="-DLLAMA_CUBLAS=on"
-pip install llama-cpp-python>=0.3.35
-```powershell
-$env:CMAKE_ARGS="-DLLAMA_CUBLAS=on"
-pip install llama-cpp-python --upgrade --force-reinstall --no-cache-dir
+.\python_embedded\python.exe -m pip install "X:\path\to\llama_cpp_python-0.3.36+cu124-cp311-cp311-win_amd64.whl" --force-reinstall --no-deps
 ```
 
-For other platforms or acceleration methods (Metal, OpenCL, Vulkan), see the [llama-cpp-python installation guide](https://github.com/abetlen/llama-cpp-python#installation).
+4. Verify the installation:
+
+```powershell
+.\python_embedded\python.exe -c "import llama_cpp; print(llama_cpp.__version__)"
+```
+
+This should print `0.3.36` (or the version you installed).
+
+> **Important:** Do **not** use the system `pip` or a different Python — you must target `python_embedded\python.exe` explicitly, otherwise the package will be installed into the wrong environment and ComfyUI will not find it.
+
+#### Verifying CUDA Support
+
+After installation, verify that GPU acceleration is available:
+
+```python
+from llama_cpp import Llama
+# If this loads without errors, CUDA support is active
+```
+
+If you see errors about missing CUDA libraries, ensure your NVIDIA driver and CUDA toolkit version match the wheel you downloaded.
+
+### 2. Install Remaining Dependencies
+
+The following Python packages are also required and are included in `requirements.txt`:
+
+```bash
+pip install numpy>=1.24.0 torchaudio>=2.0.0 soundfile>=0.12.0
+```
 
 ### 2. Download Model Files
 
@@ -187,7 +232,8 @@ Add ~2-4 GB for the multimodal projector and context buffer.
 
 ### "llama-cpp-python not found" or Import Errors
 
-- Reinstall with proper CUDA support (see Prerequisites)
+- You must manually install a pre-built wheel from https://github.com/JamePeng/llama-cpp-python/releases (the official PyPI version v0.3.20-cu123 does not include the Gemma 4 chat template)
+- For ComfyUI portable installs, make sure you install into `python_embedded\` (see Prerequisites above)
 - Verify your virtual environment is activated
 - On Windows, ensure Visual C++ Build Tools are installed
 
@@ -218,7 +264,7 @@ Add ~2-4 GB for the multimodal projector and context buffer.
 ## Known Limitations
 
 - **Model compatibility**: This node is specifically designed for **Gemma-4-E4B** models in GGUF format. Other models may not work correctly or may require fallback handlers.
-- **Version requirement**: Requires `llama-cpp-python>=0.3.35` with Gemma4ChatHandler support (earlier versions do not include the required handler).
+- **Version requirement**: Requires `llama-cpp-python>=0.3.35` with Gemma4ChatHandler support. The official PyPI release (v0.3.20-cu123) does not work — a pre-built wheel must be installed manually from [JamePeng/llama-cpp-python](https://github.com/JamePeng/llama-cpp-python/releases).
 - **Video**: Only supports batch image tensors `[F, H, W, 3]` (not native video files)
 - **Audio**: Maximum 60-second duration
 - **Model format**: Only GGUF models are supported (not PyTorch `.safetensors`)
