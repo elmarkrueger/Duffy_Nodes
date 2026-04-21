@@ -18,7 +18,8 @@ export default defineConfig({
         advanced_connected_image_stitch: "./src/advanced_connected_image_stitch.ts",
         lora_loader: "./src/lora_loader.ts",
         prompt_box: "./src/prompt_box.ts",
-        load_image_resize: "./src/load_image_resize.ts"
+        load_image_resize: "./src/load_image_resize.ts",
+        show_anything: "./src/show_anything.ts"
       },
       formats: ["es"]
     },
