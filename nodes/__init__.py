@@ -55,6 +55,7 @@ from .seed import DuffySeed
 from .seven_float_sliders import DuffySevenFloatSliders
 from .seven_int_sliders import DuffySevenIntSliders
 from .seven_wide_float_sliders import DuffySevenWideFloatSliders
+from .show_anything import DuffyShowAnything
 from .signal_selector import DuffySignalSelector
 from .toggle_switch import DuffyToggleSwitch
 from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
@@ -112,6 +113,7 @@ NODE_LIST = [
     # Utility nodes
     DuffySeed,
     DuffyJsonFormatString,
+    DuffyShowAnything,
     DuffyImageTextOverlay,
     DuffyAdvancedTextOverlay,
     DuffyAdvancedLayerControl,
