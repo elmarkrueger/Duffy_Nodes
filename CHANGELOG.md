@@ -6,6 +6,21 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.30.0] — 2026-04-21
+
+### Added
+
+- **Show Anything** node (`Duffy_ShowAnything`, category `Duffy/Utils`).
+  - Displays connected values as text directly onto the node interface in real-time.
+  - Accommodates any data type (strings, integers, floats, booleans, and complex structures).
+  - Automatically formats arrays and serializes complex standard dictionaries into formatted JSON.
+  - Integrates a responsive, scrollable Vue 3-powered frontend component (`ShowAnything.vue`) for clear legibility and automatic height scaling.
+  - Passes the value through as an output (`AnyType`) for seamless workflow continuation.
+  - Extension entrypoint (`show_anything.ts`) registered as `"Duffy.ShowAnything.Vue"`.
+  - Full V3 Schema implementation constraint compliance.
+
+---
+
 ## [0.29.0] — 2026-04-19
 
 ### Added

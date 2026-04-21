@@ -568,7 +568,25 @@ Execute multiple sampling passes with different parameters in sequence. Enables 
 ### 🔧 Selectors & Utilities
 Workflow helpers for routing and dynamic selection.
 
-#### 📡 Signal Selector
+#### �️ Show Anything
+![Show Anything](images/show_Anything.jpg)
+*Category: `Duffy/Utils`*
+
+Displays connected values as text directly onto the node interface in real-time. Accommodates any data type (strings, integers, floats, booleans, and complex structures).
+
+**Inputs:** `value` (AnyType)  
+**Outputs:** `value` (AnyType)
+
+**Features:**
+- 🖥️ **Vue 3 UI** — Responsive, scrollable frontend component for clear legibility and automatic height scaling.
+- 🧱 **Data Formatting** — Automatically formats arrays and serializes complex standard dictionaries into aesthetically pleasing, formatted JSON.
+- ⚡ **Pass-through** — Passes the value through as an output for seamless workflow continuation.
+
+**Use Cases:** Inspecting prompts, debugging complex JSON states, checking numerical math outputs, and workflow documentation.
+
+---
+
+#### �📡 Signal Selector
 ![Signal Selector](images/signal_selector.jpg)
 *Category: `Duffy/Selectors`*
 
