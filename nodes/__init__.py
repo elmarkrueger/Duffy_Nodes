@@ -39,6 +39,10 @@ from .math_expression import DuffyMathExpression
 from .megapixel_resize import DuffyMegapixelResize
 from .model_selector import DuffyModelSelector
 from .multi_pass_node import DuffyMultiPassSampling
+from .native_group_controller import (DuffyNativeGroupBypasser,
+                                      DuffyNativeGroupMuter,
+                                      DuffyNativeSingleGroupBypasser,
+                                      DuffyNativeSingleGroupMuter)
 # Primitive nodes
 from .primitive_boolean import DuffyPrimitiveBoolean
 from .primitive_float import DuffyPrimitiveFloat
@@ -125,4 +129,9 @@ NODE_LIST = [
     DuffyGemmaGGUFAnalyzer,
     DuffyQwenGGUFAnalyzer,
     DuffyQwen3VLGGUFAnalyzer,
+    # Group Control
+    DuffyNativeGroupBypasser,
+    DuffyNativeGroupMuter,
+    DuffyNativeSingleGroupBypasser,
+    DuffyNativeSingleGroupMuter,
 ]

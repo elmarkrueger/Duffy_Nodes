@@ -745,6 +745,75 @@ Intelligently combine base prompts with LoRA tags and weights. Supports advanced
 
 ---
 
+### ⚙️ Workflow
+Nodes designed to manage and optimize your ComfyUI canvas execution flow.
+
+#### 🔕 Native Group Muter
+![Native Group Muter](images/native_group_muter.jpg)
+*Category: `Duffy/Workflow`*
+
+Instantly toggle the mute state of all nodes inside multiple groups on your canvas. Features a clean, auto-updating list of all groups sorted alphabetically.
+
+**Inputs:** `Any` (AnyType, pass-through)  
+**Outputs:** `Any` (pass-through)
+
+**Features:**
+- 🚫 **Multi-Mute Toggle** — Instantly mute/unmute groups without hunting them down
+- 🔄 **Auto-Updating** — Polled widget list automatically stays in sync with your canvas
+- 🎯 **Exclusive Mode** — Mutes all other listed groups when one is activated
+- 🔤 **Alphanumeric Sort** — Organizes your groups cleanly for easy navigation
+
+---
+
+#### ⏭️ Native Group Bypasser
+![Native Group Bypasser](images/native_group_bypasser.jpg)
+*Category: `Duffy/Workflow`*
+
+Bypass execution for entire groups of nodes using an interactive multi-toggle UI. Execution skips without clearing memory caches of unaffected nodes.
+
+**Inputs:** `Any` (AnyType, pass-through)  
+**Outputs:** `Any` (pass-through)
+
+**Features:**
+- ⏭️ **Multi-Bypass Toggle** — Skip entire processing chains with a click
+- 🔄 **Auto-Updating** — Polled widget list responds to canvas changes natively
+- 🎯 **Exclusive Mode** — Bypasses all other listed groups when one is activated
+- 🔤 **Alphanumeric Sort** — Keeps UI organized
+
+---
+
+#### 🔕 Native Single Group Muter
+![Native Single Group Muter](images/native_single_group_muter.jpg)
+*Category: `Duffy/Workflow`*
+
+Target a single group to mute or unmute using a clean dropdown interface. Perfect for precise, uncluttered workflow control.
+
+**Inputs:** `Any` (AnyType, pass-through)  
+**Outputs:** `Any` (pass-through)
+
+**Features:**
+- 🔽 **Dropdown Selection** — Pick exactly one group from a sorted list
+- 🔘 **Master Toggle** — Clean unified Active/Inactive switch
+- 🔄 **Auto-Hydration** — Recreates dropdown automatically when canvas groups change
+
+---
+
+#### ⏭️ Native Single Group Bypasser
+![Native Single Group Bypasser](images/native_single_group_bypasser.jpg)
+*Category: `Duffy/Workflow`*
+
+Target a single group to bypass using a responsive dropdown interface. Ideal for A/B testing execution branches efficiently.
+
+**Inputs:** `Any` (AnyType, pass-through)  
+**Outputs:** `Any` (pass-through)
+
+**Features:**
+- 🔽 **Dropdown Selection** — Pick exactly one group from a sorted list
+- 🔘 **Master Toggle** — Clean unified Active/Inactive switch
+- 🔄 **Auto-Hydration** — Recreates dropdown automatically to circumvent Vue render bugs
+
+---
+
 ### 🤖 LLM & AI Analysis
 Powerful multimodal AI analysis using local GGUF models.
 

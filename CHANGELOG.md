@@ -6,6 +6,20 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.31.0] — 2026-04-22
+
+### Added
+
+- **Native Group Controllers** (`Duffy_NativeGroupBypasser`, `Duffy_NativeGroupMuter`, `Duffy_NativeSingleGroupBypasser`, `Duffy_NativeSingleGroupMuter`, category `Duffy/Workflow`).
+  - Allows bypassing or muting entire groups of nodes natively within the ComfyUI UI.
+  - Automatically identifies, alphabetically sorts, and tracks groups on the canvas.
+  - Supports Exclusive Mode for Multi-Group variants (only one group active at a time).
+  - Single-Group variants utilize a responsive dropdown for targeted control.
+  - Written in Native Javascript on top of `LiteGraph`, avoiding pure Vue 3 limitations for rapid Canvas DOM updates.
+  - Full V3 Schema implementation constraints compliance.
+
+---
+
 ## [0.30.0] — 2026-04-21
 
 ### Added
