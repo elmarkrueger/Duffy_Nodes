@@ -9,7 +9,7 @@ class DuffyShowAnything(io.ComfyNode):
         return io.Schema(
             node_id="Duffy_ShowAnything",
             display_name="Show Anything",
-            category="Duffy/Utils",
+            category="Duffy/utilities",
             description="Displays connected values as text and outputs the displayed value(s).",
             is_input_list=True,
             is_output_node=True,

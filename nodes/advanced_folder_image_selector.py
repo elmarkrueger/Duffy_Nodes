@@ -132,7 +132,7 @@ class DuffyAdvancedFolderImageSelector(io.ComfyNode):
         return io.Schema(
             node_id="DuffyAdvancedFolderImageSelector",
             display_name="Duffy Advanced Folder Image Selector",
-            category="Duffy/image/selection",
+            category="Duffy/Image",
             inputs=[
                 io.String.Input(
                     "folder_path",
