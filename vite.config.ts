@@ -19,7 +19,8 @@ export default defineConfig({
         lora_loader: "./src/lora_loader.ts",
         prompt_box: "./src/prompt_box.ts",
         load_image_resize: "./src/load_image_resize.ts",
-        show_anything: "./src/show_anything.ts"
+        show_anything: "./src/show_anything.ts",
+        native_group_controller: "./src/native_group_controller.ts"
       },
       formats: ["es"]
     },
