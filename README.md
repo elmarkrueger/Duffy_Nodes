@@ -814,6 +814,21 @@ Target a single group to bypass using a responsive dropdown interface. Ideal for
 
 ---
 
+### 📐 Layout
+Frontend utilities for organizing the ComfyUI workspace.
+
+#### 📏 Spatial Alignment Matrix
+![Spatial Alignment Matrix](images/spatial_alignment_matrix.jpg)
+*Category: `Duffy/Layout`*
+
+A fully frontend utility node for aligning and distributing selected nodes across the canvas. Operates natively or as a Vue component overlay via Nodes 2.0 Selection context menus.
+
+- Supports Top, Bottom, Left, Right, Center-Horizontal, and Center-Vertical alignments based on the bounding box extrema of the selected objects.
+- Supports Horizontal and Vertical spacing distributions, pushing nodes intelligently with 20px padding loops.
+- Operates totally independently of the graph execution stack (auto-bypassed during backend prompts).
+
+---
+
 ### 🤖 LLM & AI Analysis
 Powerful multimodal AI analysis using local GGUF models.
 
