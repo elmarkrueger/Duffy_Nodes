@@ -20,7 +20,8 @@ export default defineConfig({
         prompt_box: "./src/prompt_box.ts",
         load_image_resize: "./src/load_image_resize.ts",
         show_anything: "./src/show_anything.ts",
-        native_group_controller: "./src/native_group_controller.ts"
+        native_group_controller: "./src/native_group_controller.ts",
+        node_alignment_tool: "./src/node_alignment_tool.ts"
       },
       formats: ["es"]
     },

@@ -43,6 +43,7 @@ from .native_group_controller import (DuffyNativeGroupBypasser,
                                       DuffyNativeGroupMuter,
                                       DuffyNativeSingleGroupBypasser,
                                       DuffyNativeSingleGroupMuter)
+from .node_alignment_tool import DuffyNodeAlignmentTool
 # Primitive nodes
 from .primitive_boolean import DuffyPrimitiveBoolean
 from .primitive_float import DuffyPrimitiveFloat
@@ -116,6 +117,7 @@ NODE_LIST = [
     DuffyFluxMaxShift,
     # Utility nodes
     DuffySeed,
+    DuffyNodeAlignmentTool,
     DuffyJsonFormatString,
     DuffyShowAnything,
     DuffyImageTextOverlay,

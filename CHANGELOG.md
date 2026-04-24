@@ -6,6 +6,20 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.32.0] — 2026-04-24
+
+### Added
+
+- **Spatial Alignment Matrix** (`Duffy_NodeAlignmentTool`, category `Duffy/Layout`).
+  - Frontend utility node for aligning and distributing selected nodes on the canvas.
+  - Operates entirely in the UI layer and is completely bypassed during backend graph execution.
+  - Supports Left, Center-Horizontal, Right, Top, Center-Vertical, and Bottom alignments.
+  - Includes Horizontal and Vertical equidistant distribution algorithms for cleanly spacing 3 or more nodes.
+  - Compatible with both the legacy LiteGraph V1 canvas and the modern V2 Vue Nodes architecture.
+  - Accessible either as a standalone floating matrix node or directly injected into the Nodes 2.0 Selection Toolbox via extension hooks.
+
+---
+
 ## [0.31.0] — 2026-04-22
 
 ### Added
