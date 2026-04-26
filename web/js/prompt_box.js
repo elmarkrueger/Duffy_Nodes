@@ -212,7 +212,10 @@ app.registerExtension({
     });
     const instance = vueApp.mount(container);
     const domWidget = node.addDOMWidget("vue_ui", "custom", container, { serialize: false });
-    domWidget.computeSize = () => [300, 200];
+    domWidget.computeSize = () => [
+      node.size[0],
+      Math.max(200, (node.size[1] || 200) - 44)
+    ];
     const origOnResize = node.onResize;
     node.onResize = function(size) {
       size[0] = Math.max(300, size[0]);
