@@ -1,6 +1,7 @@
 # V3 Schema node definitions for Duffy_Nodes.
 # Import each node class here and add it to NODE_LIST.
 
+from .adaptive_resolution_latent import DuffyAdaptiveResolutionLatent
 from .advanced_connected_image_stitch import DuffyAdvancedConnectedImageStitch
 from .advanced_folder_image_selector import DuffyAdvancedFolderImageSelector
 from .advanced_image_adjuster import DuffyAdvancedImageAdjuster
@@ -96,6 +97,7 @@ NODE_LIST = [
     DuffyImageStitch,
     DuffyConnectedImageStitch,
     # Latent nodes
+    DuffyAdaptiveResolutionLatent,
     DuffyEmptyQwenLatent,
     DuffyLatentNoiseBlender,
     DuffyFlux2KleinNoise,

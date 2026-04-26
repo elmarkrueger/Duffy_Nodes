@@ -21,7 +21,8 @@ export default defineConfig({
         load_image_resize: "./src/load_image_resize.ts",
         show_anything: "./src/show_anything.ts",
         native_group_controller: "./src/native_group_controller.ts",
-        node_alignment_tool: "./src/node_alignment_tool.ts"
+        node_alignment_tool: "./src/node_alignment_tool.ts",
+        adaptive_resolution_latent: "./src/adaptive_resolution_latent.ts"
       },
       formats: ["es"]
     },
