@@ -502,6 +502,23 @@ Pause your workflow to interactively compose up to five distinct object layers o
 ### 🎲 Latent Operations
 Specialized nodes for latent space manipulation and noise generation.
 
+#### 🎛️ Adaptive Resolution & Latent Heatsink
+![Adaptive Resolution Node](images/adaptive_resolution_node.jpg)
+*Category: `Duffy/Latent`*
+
+Advanced interactive resolution calculator mapping directly to architectural divisibility constraints for SD 1.5, SDXL, Qwen, Z-Image, and Flux series models. Offers both preset aspect ratios and custom draggable bounding boxes.
+
+**Inputs:** `batch_size` (int), `state_json` (hidden JSON state)  
+**Outputs:** `WIDTH` (INT), `HEIGHT` (INT), `LATENT` (LATENT)
+
+**Features:**
+- 📐 **Algorithmic Megapixel Generation** — Automatically calculates optimal Width/Height pairs for your chosen Aspect Ratio and Model Architecture.
+- 🖱️ **Interactive Canvas** — Drag-and-scale visual preview box with mathematically constrained 1:12 scale mapping.
+- ⚙️ **Divisibility Enforcement** — Automatically snaps values to `8`, `16`, `32`, or `64` modular constraints.
+- 🔄 **Orientation Swapping** — One-click toggle between landscape and portrait.
+
+---
+
 #### 📦 Empty Qwen 2512 Latent
 ![Empty Qwen Latent](images/empty_qwen_2512_latent_image.jpg)
 *Category: `Duffy/Latent`*

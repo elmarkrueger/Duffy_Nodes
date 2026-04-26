@@ -6,6 +6,18 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.33.0] — 2026-04-26
+
+### Added
+
+- **Adaptive Resolution & Latent Heatsink** (`Duffy_AdaptiveResolutionLatent`, category `Duffy/Latent`).
+  - Interactive Vue 3 based custom node for precisely generating optimal empty latents.
+  - Automatically handles tensor sizing constraints (divisibility by 8, 16, 32, 64) depending on the target architecture (SDXL, Qwen, Z-Image, Flux).
+  - Includes a visual resizing bounding box, preset aspect ratios, algorithmic megapixel calculation, and strict 1:12 scale dragging.
+  - Integrates direct event-bubbling stops for seamless keyboard and pointer usage inside ComfyUI.
+
+---
+
 ## [0.32.0] — 2026-04-24
 
 ### Added
