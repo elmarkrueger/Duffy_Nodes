@@ -56,7 +56,10 @@ comfyApp.registerExtension({
         const instance = vueApp.mount(container) as any;
 
         const domWidget = node.addDOMWidget("vue_ui", "custom", container, { serialize: false });
-        domWidget.computeSize = () => [300, 200];
+        domWidget.computeSize = () => [
+            node.size[0],
+            Math.max(200, (node.size[1] || 200) - 44)
+        ];
 
         // Ensure minimum size for the node to accommodate the UI
         const origOnResize = node.onResize;
