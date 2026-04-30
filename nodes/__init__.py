@@ -45,6 +45,7 @@ from .native_group_controller import (DuffyNativeGroupBypasser,
                                       DuffyNativeSingleGroupBypasser,
                                       DuffyNativeSingleGroupMuter)
 from .node_alignment_tool import DuffyNodeAlignmentTool
+from .power_lora_loader import DuffyPowerLoraLoader
 # Primitive nodes
 from .primitive_boolean import DuffyPrimitiveBoolean
 from .primitive_float import DuffyPrimitiveFloat
@@ -114,6 +115,7 @@ NODE_LIST = [
     DuffyModelSelector,
     # Loaders
     DuffyLoraLoader,
+    DuffyPowerLoraLoader,
     # Sampling nodes
     DuffyTripleSamplerScheduler,
     DuffyFluxMaxShift,

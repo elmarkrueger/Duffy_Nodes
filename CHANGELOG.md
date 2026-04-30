@@ -6,6 +6,21 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.34.0] — 2026-04-30
+
+### Added
+
+- **Power LoRA Loader** (`Duffy_PowerLoraLoader`, category `Duffy/Model`).
+  - Next-generation dynamic multi-LoRA loader built entirely in Vue 3 and headless PrimeVue for the ComfyUI Nodes 2.0 (Schema V3) architecture.
+  - Supports infinite, dynamic LoRA lists without fragile `Autogrow` pins.
+  - Native ContextMenu dropdowns with nested folder traversal exactly matching base ComfyUI behavior.
+  - Individual sliders for both `Strength Model` and `Strength Clip` bound dynamically correctly without memory leaks.
+  - Generates deterministic caching fingerprints to avoid redundant model reloads.
+  - Missing LoRAs gracefully skip execution instead of crashing the DAG execution queue.
+  - Intercepts graph configuration logic to completely restore preset slider states on workflow reload.
+
+---
+
 ## [0.33.0] — 2026-04-26
 
 ### Added
