@@ -104,7 +104,28 @@ Simple boolean toggle input (True/False). Perfect for enabling/disabling workflo
 
 ---
 
-### 🧮 Math Operations
+### � Models & LoRAs
+Advanced tools for routing, patching, and applying machine-learning models.
+
+#### 🔌 Power LoRA Loader
+![Power LoRA Loader](images/power_lora_loader.jpg)
+*Category: `Duffy/Model`*
+
+A fully stateless, deterministic, native Vue 3 implementation of dynamic multi-LoRA loading. Bypasses the limitations of legacy LiteGraph canvas rendering, providing Drag-and-Drop capabilities, integrated PrimeVue nested context menus, and strict persistence across workflow reloads. Automatically extracts, aggregates, and passes trigger words to text encoders.
+
+**Inputs:** `model` (MODEL), `clip` (CLIP)  
+**Outputs:** `MODEL`, `CLIP`, `TRIGGER_STR`
+
+**Features:**
+- Native ComfyUI Vue 3 / Schema V3 Component implementation
+- Add, adjust, and reorder an infinite number of LoRAs cleanly
+- Deterministic payload caching ensures optimal memory re-use
+- Missing LoRAs are handled and bypassed gracefully without crashing the graph
+- Automatic extraction and concatenation of Trigger Words
+
+---
+
+### �🧮 Math Operations
 Powerful mathematical nodes for precise numerical control.
 
 #### ➗ Float Math
