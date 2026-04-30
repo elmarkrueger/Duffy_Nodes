@@ -37,7 +37,7 @@ class DuffyPowerLoraLoader(io.ComfyNode):
         return io.Schema(
             node_id="Duffy_PowerLoraLoader",
             display_name="Power LoRA Loader",
-            category="Duffy/Model",
+            category="Duffy/Loaders",
             description="Advanced dynamic multi-LoRA loader with seamless preset integration.",
             inputs=[
                 io.Model.Input("model"),
@@ -48,8 +48,7 @@ class DuffyPowerLoraLoader(io.ComfyNode):
             ],
             outputs=[
                 io.Model.Output("MODEL"),
-                io.Clip.Output("CLIP"),
-                io.String.Output("TRIGGER_STR", display_name="Trigger Words")
+                io.Clip.Output("CLIP")
             ]
         )
     
@@ -102,4 +101,4 @@ class DuffyPowerLoraLoader(io.ComfyNode):
                 })
 
         trigger_str = ", ".join(active_triggers)
-        return io.NodeOutput(current_model, current_clip, trigger_str)
+        return io.NodeOutput(current_model, current_clip)
