@@ -67,7 +67,7 @@ class DuffyPowerLoraLoader(io.ComfyNode):
             if not lora.get("is_active", True):
                 continue
             
-            lora_name = lora.get("lora_name")
+            lora_name = lora.get("lora_name") or lora.get("name")
             strength_model = lora.get("strength_model", 1.0)
             strength_clip = lora.get("strength_clip", 1.0)
             trigger_words = lora.get("trigger_words", "").strip()
