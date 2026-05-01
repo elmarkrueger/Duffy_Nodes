@@ -303,6 +303,11 @@ app.registerExtension({
     if (dataWidget == null ? void 0 : dataWidget.value) {
       instance.deserialise(dataWidget.value);
     }
+    const origConfigure = node.configure;
+    node.configure = function(info) {
+      origConfigure == null ? void 0 : origConfigure.call(this, info);
+      if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    };
     const origRemoved = node.onRemoved;
     node.onRemoved = function() {
       var _a2;

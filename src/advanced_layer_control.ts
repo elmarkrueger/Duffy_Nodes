@@ -53,6 +53,12 @@ comfyApp.registerExtension({
             instance.deserialise(dataWidget.value);
         }
 
+        const origConfigure = node.configure;
+        node.configure = function (info: any) {
+            origConfigure?.call(this, info);
+            if (dataWidget?.value) instance.deserialise(dataWidget.value);
+        };
+
         const origOnResize = node.onResize;
         node.onResize = function(size: number[]) {
             size[0] = Math.max(MIN_W, size[0]);

@@ -87,6 +87,11 @@ app.registerExtension({
       origOnResize == null ? void 0 : origOnResize.apply(this, arguments);
     };
     if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    const origConfigure = node.configure;
+    node.configure = function(info) {
+      origConfigure == null ? void 0 : origConfigure.call(this, info);
+      if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    };
     const origCallback = dataWidget.callback;
     dataWidget.callback = function(val) {
       instance.deserialise(val);
