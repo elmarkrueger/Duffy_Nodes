@@ -24714,6 +24714,11 @@ app.registerExtension({
     if (dataWidget == null ? void 0 : dataWidget.value) {
       instance.deserialise(dataWidget.value);
     }
+    const origConfigure = node.configure;
+    node.configure = function(info) {
+      origConfigure == null ? void 0 : origConfigure.call(this, info);
+      if (dataWidget == null ? void 0 : dataWidget.value) instance.deserialise(dataWidget.value);
+    };
     const origOnResize = node.onResize;
     node.onResize = function(size) {
       size[0] = Math.max(MIN_W, size[0]);

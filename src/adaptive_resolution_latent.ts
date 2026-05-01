@@ -66,6 +66,13 @@ comfyApp.registerExtension({
             dataWidget.value = instance.serialise();
         }
 
+        // Re-sync Vue state after LiteGraph restores widget values from a saved workflow.
+        const origConfigure = node.configure;
+        node.configure = function (info: any) {
+            origConfigure?.call(this, info);
+            if (dataWidget?.value) instance.deserialise(dataWidget.value);
+        };
+
         // Clean up Vue app correctly when node is removed
         const origRemoved = node.onRemoved;
         node.onRemoved = function () {

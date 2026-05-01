@@ -55,6 +55,12 @@ comfyApp.registerExtension({
 
         if (dataWidget?.value) instance.deserialise(dataWidget.value);
 
+        const origConfigure = node.configure;
+        node.configure = function (info: any) {
+            origConfigure?.call(this, info);
+            if (dataWidget?.value) instance.deserialise(dataWidget.value);
+        };
+
         const origCallback = dataWidget.callback;
         dataWidget.callback = function(val: string) {
             instance.deserialise(val);
