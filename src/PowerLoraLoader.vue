@@ -5,13 +5,16 @@
     </div>
     
     <div class="lora-list">
-      <div v-for="(lora, index) in loras" :key="index" class="lora-item glass-panel">
+      <div v-for="(lora, index) in loras" :key="index" class="lora-item glass-panel" :class="{ 'bypassed': lora.is_active === false }">
         <div class="lora-controls">
           <label>LoRA File</label>
-          <button class="lora-file-btn" @click="openLoraMenu($event, lora)">
-            <span>📂 </span>
-            <span class="lora-name-text">{{ lora.name || 'Select LoRA...' }}</span>
-          </button>
+          <div class="lora-input-row">
+            <input type="checkbox" v-model="lora.is_active" @change="emitChange" class="bypass-toggle" title="Toggle Bypass" />
+            <button class="lora-file-btn" @click="openLoraMenu($event, lora)">
+              <span>📂 </span>
+              <span class="lora-name-text">{{ lora.name || 'Select LoRA...' }}</span>
+            </button>
+          </div>
         </div>
         
         <div class="lora-weights">
@@ -33,6 +36,10 @@
 
     <div class="actions">
       <button class="add-btn glass-btn" @click="addLora">+ Add LoRA</button>
+      <div class="global-toggles">
+        <button class="global-btn glass-btn" @click="enableAll" title="Enable All">🟢</button>
+        <button class="global-btn glass-btn" @click="bypassAll" title="Bypass All">🔴</button>
+      </div>
     </div>
   </div>
 </template>
@@ -47,6 +54,7 @@ interface LoraEntry {
   name: string;
   strength_model: number;
   strength_clip: number;
+  is_active?: boolean;
 }
 
 const loras = ref<LoraEntry[]>([]);
@@ -72,7 +80,10 @@ function deserialise(json: string) {
     try {
         const data = JSON.parse(json);
         if (Array.isArray(data)) {
-            loras.value = data;
+            loras.value = data.map(l => ({
+                ...l,
+                is_active: l.is_active !== false
+            }));
         }
     } catch (e) {
         /* ignore */
@@ -102,12 +113,22 @@ function emitChange() {
 }
 
 function addLora() {
-    loras.value.push({ name: "", strength_model: 1.0, strength_clip: 1.0 });
+    loras.value.push({ name: "", strength_model: 1.0, strength_clip: 1.0, is_active: true });
     emitChange();
 }
 
 function removeLora(index: number) {
     loras.value.splice(index, 1);
+    emitChange();
+}
+
+function enableAll() {
+    loras.value.forEach(l => l.is_active = true);
+    emitChange();
+}
+
+function bypassAll() {
+    loras.value.forEach(l => l.is_active = false);
     emitChange();
 }
 
@@ -151,6 +172,28 @@ defineExpose({ serialise, deserialise, cleanup });
   flex-direction: column;
   gap: 8px;
   flex-grow: 1;
+}
+
+.lora-item {
+  transition: opacity 0.2s ease;
+}
+
+.lora-item.bypassed {
+  opacity: 0.4;
+  filter: grayscale(80%);
+}
+
+.lora-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bypass-toggle {
+  cursor: pointer;
+  margin: 0;
+  transform: scale(1.2);
+  accent-color: var(--primary-color, #10b981);
 }
 
 .glass-panel {
@@ -219,6 +262,17 @@ defineExpose({ serialise, deserialise, cleanup });
 }
 .glass-btn:hover {
   background: rgba(255, 255, 255, 0.15);
+}
+
+.global-toggles {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.global-btn {
+  flex: 1;
+  font-size: 16px;
 }
 
 .lora-file-btn {
