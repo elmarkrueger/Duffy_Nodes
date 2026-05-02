@@ -23,7 +23,8 @@ export default defineConfig({
         native_group_controller: "./src/native_group_controller.ts",
         node_alignment_tool: "./src/node_alignment_tool.ts",
         adaptive_resolution_latent: "./src/adaptive_resolution_latent.ts",
-        power_lora_loader: "./src/power_lora_loader.ts"
+        power_lora_loader: "./src/power_lora_loader.ts",
+        image_compare: "./src/image_compare.ts"
       },
       formats: ["es"]
     },
