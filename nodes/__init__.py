@@ -12,6 +12,7 @@ from .audio_slicer import DuffyAudioSlicer
 from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
+from .rich_text_note import DuffyRichTextNote
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
 from .find_and_replace_text import DuffyFindAndReplaceText
@@ -108,6 +109,7 @@ NODE_LIST = [
     DuffyPrimitiveFloat,
     DuffyPrimitiveString,
     DuffyPrimitiveStringMultiline,
+    DuffyRichTextNote,
     DuffyPromptBox,
     # Logic nodes
     DuffyLogicGate,

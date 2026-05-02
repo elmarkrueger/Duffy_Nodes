@@ -10,7 +10,16 @@
     "fabric": "^5.3.0",
     "fabric-eraser-brush": "^1.0.1",
     "primevue": "^3.53.1",
-    "vue": "^3.4.0"
+    "vue": "^3.4.0",
+    "@tiptap/vue-3": "^2.11.0",
+    "@tiptap/starter-kit": "^2.11.0",
+    "@tiptap/extension-link": "^2.11.0",
+    "@tiptap/extension-text-align": "^2.11.0",
+    "@tiptap/extension-underline": "^2.11.0",
+    "@tiptap/extension-placeholder": "^2.11.0",
+    "@tiptap/extension-text-style": "^2.11.0",
+    "@tiptap/extension-color": "^2.11.0",
+    "dompurify": "^3.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.0",
