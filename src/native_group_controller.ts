@@ -2,6 +2,8 @@
 // Handles native Bypassing and Muting of groups in ComfyUI Nodes 2.0 without Legacy Canvas bugs.
 
 import { app } from "COMFY_APP";
+import { createApp } from "vue";
+import NativeGroupControllerVue from "./NativeGroupController.vue";
 
 interface LGraphNode {
   id: number;
@@ -46,18 +48,45 @@ app.registerExtension({
         this.properties.group_states = this.properties.group_states || {};
         this.properties.exclusive_mode = this.properties.exclusive_mode || false;
         this.properties.sort_by = this.properties.sort_by || "None";
-        
-        // Add exclusive mode toggle
-        this.addWidget("toggle", "Exclusive Mode", this.properties.exclusive_mode, (v: boolean) => {
-          this.properties.exclusive_mode = v;
+
+        const container = document.createElement("div");
+        container.style.cssText = "width:100%; box-sizing:border-box; overflow:hidden;";
+        container.addEventListener("pointerdown", (e) => e.stopPropagation());
+        container.addEventListener("wheel", (e) => e.stopPropagation());
+
+        this.vueApp = createApp(NativeGroupControllerVue, {
+          onToggleGroup: (group: string, isActive: boolean) => {
+            this.properties.group_states[group] = isActive;
+            if (this.properties.exclusive_mode && isActive) {
+              Object.keys(this.properties.group_states).forEach(k => {
+                if (k !== group) {
+                  this.properties.group_states[k] = false;
+                  this.mutateGroupState(k, false);
+                }
+              });
+            }
+            this.mutateGroupState(group, isActive);
+            this.setDirtyCanvas(true, true);
+          },
+          onSetSort: (mode: string) => {
+            this.properties.sort_by = mode;
+            this.setDirtyCanvas(true, true);
+          },
+          onToggleExclusive: (isActive: boolean) => {
+            this.properties.exclusive_mode = isActive;
+            this.setDirtyCanvas(true, true);
+          }
         });
 
-        // Add sorting combo
-        this.addWidget("combo", "Sort By", this.properties.sort_by, (v: string) => {
-          this.properties.sort_by = v;
-          this._last_group_hash = ""; // Force hash mismatch to rebuild widgets
-          this.pollGroups();
-        }, { values: ["None", "Alphanumeric (A-Z)", "Alphanumeric (Z-A)"] });
+        this.vueInstance = this.vueApp.mount(container) as any;
+        
+        // Initial state sync
+        this.vueInstance.setSortBy(this.properties.sort_by);
+        this.vueInstance.setExclusiveMode(this.properties.exclusive_mode);
+        this.vueInstance.setGroupStates(this.properties.group_states);
+
+        const domWidget = this.addDOMWidget("vue_ui", "custom", container, { serialize: false });
+        domWidget.computeSize = () => [MIN_WIDTH, Math.max(300, HEADER_HEIGHT + (Object.keys(this.properties.group_states).length * SLOT_HEIGHT) + 120)];
 
         this._last_group_hash = "";
 
@@ -71,6 +100,9 @@ app.registerExtension({
       nodeType.prototype.onRemoved = function () {
         if (this._pollInterval) {
           clearInterval(this._pollInterval);
+        }
+        if (this.vueApp) {
+          this.vueApp.unmount();
         }
         if (origOnRemoved) {
           origOnRemoved.apply(this, arguments);
@@ -95,50 +127,31 @@ app.registerExtension({
         }
       };
 
-      // Reconstruct toggles explicitly
       nodeType.prototype.refreshWidgets = function (validGroups: LGraphGroup[]) {
-        // Destroy existing group toggles safely (leave standard UI components untouched)
-        for (let i = this.widgets.length - 1; i >= 0; i--) {
-          const w = this.widgets[i];
-          if (w.name !== "Exclusive Mode" && w.name !== "Sort By") {
-            this.removeWidget(w);
+        if (!this.vueInstance) return;
+
+        // Extract raw group names
+        const groupNames = validGroups.map(g => g.title);
+        
+        // Ensure state exists for new groups
+        groupNames.forEach((g) => {
+          if (this.properties.group_states[g] === undefined) {
+            this.properties.group_states[g] = false;
           }
-        }
-
-        // Apply chosen sort order
-        let sortedGroups = [...validGroups];
-        if (this.properties.sort_by === "Alphanumeric (A-Z)") {
-          sortedGroups.sort((a, b) => a.title.localeCompare(b.title, undefined, { numeric: true, sensitivity: 'base' }));
-        } else if (this.properties.sort_by === "Alphanumeric (Z-A)") {
-          sortedGroups.sort((a, b) => b.title.localeCompare(a.title, undefined, { numeric: true, sensitivity: 'base' }));
-        }
-
-        // Recreate toggles
-        sortedGroups.forEach((g) => {
-          const state = this.properties.group_states[g.title] || false;
-          
-          this.addWidget("toggle", g.title, state, (isActive: boolean) => {
-            this.properties.group_states[g.title] = isActive;
-
-            if (this.properties.exclusive_mode && isActive) {
-              // Turn off all other groups
-              this.widgets.forEach((w: any) => {
-                if (w.name !== "Exclusive Mode" && w.name !== "Sort By" && w.name !== g.title && w.type === "toggle") {
-                  w.value = false;
-                  this.properties.group_states[w.name] = false;
-                  this.mutateGroupState(w.name, false);
-                }
-              });
-            }
-
-            this.mutateGroupState(g.title, isActive);
-          });
         });
 
-        // Deterministic size calculation
-        const toggleCount = sortedGroups.length + 2; // +2 for Exclusive Mode and Sort By
-        this.size[0] = Math.max(this.size[0], MIN_WIDTH);
-        this.size[1] = HEADER_HEIGHT + (toggleCount * SLOT_HEIGHT) + PADDING_BOTTOM;
+        // Sync to Vue
+        this.vueInstance.setGroups(groupNames);
+        this.vueInstance.setGroupStates(this.properties.group_states);
+
+        // Adjust widget height to content bounds (roughly)
+        const toggleCount = groupNames.length;
+        this.size[0] = Math.max(this.size[0] || MIN_WIDTH, MIN_WIDTH);
+        this.size[1] = Math.max(300, HEADER_HEIGHT + (toggleCount * 40) + 120);
+        
+        if (app.graph) {
+          app.graph.setDirtyCanvas(true, true);
+        }
       };
 
       // Perform AABB checks and Mode mutation
@@ -212,14 +225,19 @@ app.registerExtension({
         if (origOnPropertyChanged) origOnPropertyChanged.apply(this, arguments);
 
         if (prop === "group_states") {
-          // Sync widgets visually with loaded properties
+          if (this.vueInstance) {
+            this.vueInstance.setGroupStates(value);
+          }
+          // Sync visual node modes with loaded properties
           Object.keys(value).forEach((groupName) => {
-            const widget = this.widgets.find((w: any) => w.name === groupName);
-            if (widget) {
-              widget.value = value[groupName];
-              this.mutateGroupState(groupName, value[groupName]);
-            }
+            this.mutateGroupState(groupName, value[groupName]);
           });
+        }
+        else if (prop === "sort_by") {
+          if (this.vueInstance) this.vueInstance.setSortBy(value);
+        }
+        else if (prop === "exclusive_mode") {
+          if (this.vueInstance) this.vueInstance.setExclusiveMode(value);
         }
       };
     } else if (nodeData.name === "Duffy_NativeSingleGroupBypasser" || nodeData.name === "Duffy_NativeSingleGroupMuter") {
