@@ -15,17 +15,18 @@ class DuffyImageCompare(io.ComfyNode):
             node_id="Duffy_ImageCompare",
             display_name="Image Compare",
             category="Duffy/Image",
-            description="Interactively compare two images with a vertical slider.",
+            description="Interactively compare two images with a vertical or horizontal slider.",
             is_output_node=True,
             inputs=[
-                io.Image.Input("image_a", display_name="image_a", tooltip="Left image"),
-                io.Image.Input("image_b", display_name="image_b", tooltip="Right image"),
+                io.String.Input("compare_state", default="{}", socketless=True),
+                io.Image.Input("image_a", display_name="image_a", tooltip="Left/Top image"),
+                io.Image.Input("image_b", display_name="image_b", tooltip="Right/Bottom image"),
             ],
             outputs=[],
         )
 
     @classmethod
-    def execute(cls, image_a: torch.Tensor, image_b: torch.Tensor, **kwargs) -> io.NodeOutput:
+    def execute(cls, image_a: torch.Tensor, image_b: torch.Tensor, compare_state: str = "{}", **kwargs) -> io.NodeOutput:
         temp_dir = folder_paths.get_temp_directory()
         rand_prefix = f"compare_{random.randint(0, 999999)}"
 
