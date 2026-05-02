@@ -2108,6 +2108,106 @@ h4[data-v-e0c93561] {\r
   margin-top: 20px;
 }\r
 
+.native-group-controller-root[data-v-42a2e17a] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  height: 100%;\r
+  padding: 8px;\r
+  background: rgba(30, 30, 30, 0.4);\r
+  backdrop-filter: blur(10px);\r
+  -webkit-backdrop-filter: blur(10px);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: #ddd;\r
+  border-radius: 8px;\r
+  font-family: sans-serif;\r
+  overflow-y: auto;
+}
+.header[data-v-42a2e17a] {\r
+  margin-bottom: 8px;
+}
+.header h4[data-v-42a2e17a] {\r
+  margin: 0;\r
+  font-size: 14px;\r
+  color: #aaa;
+}
+.actions-bar[data-v-42a2e17a] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  gap: 8px;\r
+  margin-bottom: 12px;
+}
+.sort-buttons[data-v-42a2e17a] {\r
+  display: flex;\r
+  gap: 4px;
+}
+.glass-btn[data-v-42a2e17a] {\r
+  flex: 1;\r
+  background: rgba(255, 255, 255, 0.05);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: #bbb;\r
+  padding: 6px;\r
+  border-radius: 4px;\r
+  font-size: 12px;\r
+  cursor: pointer;\r
+  transition: all 0.2s;
+}
+.glass-btn[data-v-42a2e17a]:hover {\r
+  background: rgba(255, 255, 255, 0.15);\r
+  color: white;
+}
+.glass-btn.active[data-v-42a2e17a] {\r
+  background: rgba(16, 185, 129, 0.2);\r
+  border-color: rgba(16, 185, 129, 0.5);\r
+  color: #10b981;
+}
+.glass-panel[data-v-42a2e17a] {\r
+  background: rgba(40, 40, 40, 0.5);\r
+  border: 1px solid rgba(255, 255, 255, 0.05);\r
+  border-radius: 6px;\r
+  padding: 8px;
+}
+.exclusive-toggle[data-v-42a2e17a] {\r
+  display: flex;\r
+  align-items: center;\r
+  justify-content: space-between;\r
+  padding: 6px 8px;
+}
+.exclusive-toggle label[data-v-42a2e17a] {\r
+  font-size: 12px;\r
+  color: #ccc;
+}
+.group-list[data-v-42a2e17a] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  gap: 6px;\r
+  flex-grow: 1;
+}
+.group-item[data-v-42a2e17a] {\r
+  transition: opacity 0.2s ease;
+}
+.group-item.inactive[data-v-42a2e17a] {\r
+  opacity: 0.6;
+}
+.group-row[data-v-42a2e17a] {\r
+  display: flex;\r
+  align-items: center;\r
+  gap: 8px;
+}
+.group-name[data-v-42a2e17a] {\r
+  font-size: 13px;\r
+  white-space: nowrap;\r
+  overflow: hidden;\r
+  text-overflow: ellipsis;\r
+  flex: 1;
+}
+.switch-toggle[data-v-42a2e17a] {\r
+  cursor: pointer;\r
+  margin: 0;\r
+  width: 14px;\r
+  height: 14px;\r
+  accent-color: #10b981;
+}\r
+
 .alignment-tool-root[data-v-55067d46] {\r
   display: flex;\r
   flex-direction: column;\r

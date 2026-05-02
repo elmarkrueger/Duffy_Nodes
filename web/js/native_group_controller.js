@@ -1,4 +1,123 @@
 import { app } from "../../../scripts/app.js";
+import { d as defineComponent, b as openBlock, c as createElementBlock, e as createBaseVNode, k as normalizeClass, F as Fragment, r as renderList, t as toDisplayString, h as ref, j as computed, _ as _export_sfc, i as createApp } from "./_plugin-vue_export-helper-CRnbZd-0.js";
+const _hoisted_1 = { class: "native-group-controller-root" };
+const _hoisted_2 = { class: "actions-bar" };
+const _hoisted_3 = { class: "sort-buttons" };
+const _hoisted_4 = { class: "exclusive-toggle glass-panel" };
+const _hoisted_5 = ["checked"];
+const _hoisted_6 = { class: "group-list" };
+const _hoisted_7 = { class: "group-row" };
+const _hoisted_8 = ["checked", "onChange"];
+const _hoisted_9 = { class: "group-name" };
+const _sfc_main = /* @__PURE__ */ defineComponent({
+  __name: "NativeGroupController",
+  props: {
+    onToggleGroup: { type: Function },
+    onSetSort: { type: Function },
+    onToggleExclusive: { type: Function }
+  },
+  setup(__props, { expose: __expose }) {
+    const props = __props;
+    const groups = ref([]);
+    const groupStates = ref({});
+    const exclusiveMode = ref(false);
+    const sortBy = ref("None");
+    const sortedGroups = computed(() => {
+      let sorted = [...groups.value];
+      if (sortBy.value === "Alphanumeric (A-Z)") {
+        sorted.sort((a, b) => a.localeCompare(b, void 0, { numeric: true, sensitivity: "base" }));
+      } else if (sortBy.value === "Alphanumeric (Z-A)") {
+        sorted.sort((a, b) => b.localeCompare(a, void 0, { numeric: true, sensitivity: "base" }));
+      }
+      return sorted;
+    });
+    function setGroups(newGroups) {
+      groups.value = newGroups;
+    }
+    function setGroupStates(newStates) {
+      groupStates.value = { ...newStates };
+    }
+    function setExclusiveMode(val) {
+      exclusiveMode.value = val;
+    }
+    function setSortBy(val) {
+      sortBy.value = val;
+    }
+    function toggleGroup(group) {
+      var _a;
+      const newVal = !groupStates.value[group];
+      if (exclusiveMode.value && newVal) {
+        Object.keys(groupStates.value).forEach((k) => {
+          if (k !== group) groupStates.value[k] = false;
+        });
+      }
+      groupStates.value[group] = newVal;
+      (_a = props.onToggleGroup) == null ? void 0 : _a.call(props, group, newVal);
+    }
+    function toggleExclusive() {
+      var _a;
+      exclusiveMode.value = !exclusiveMode.value;
+      (_a = props.onToggleExclusive) == null ? void 0 : _a.call(props, exclusiveMode.value);
+    }
+    function setSort(mode) {
+      var _a;
+      sortBy.value = mode;
+      (_a = props.onSetSort) == null ? void 0 : _a.call(props, mode);
+    }
+    __expose({ setGroups, setGroupStates, setExclusiveMode, setSortBy });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", _hoisted_1, [
+        _cache[4] || (_cache[4] = createBaseVNode("div", { class: "header" }, [
+          createBaseVNode("h4", null, "Native Group Controller")
+        ], -1)),
+        createBaseVNode("div", _hoisted_2, [
+          createBaseVNode("div", _hoisted_3, [
+            createBaseVNode("button", {
+              class: normalizeClass(["glass-btn", { active: sortBy.value === "None" }]),
+              onClick: _cache[0] || (_cache[0] = ($event) => setSort("None"))
+            }, "None", 2),
+            createBaseVNode("button", {
+              class: normalizeClass(["glass-btn", { active: sortBy.value === "Alphanumeric (A-Z)" }]),
+              onClick: _cache[1] || (_cache[1] = ($event) => setSort("Alphanumeric (A-Z)"))
+            }, "A-Z", 2),
+            createBaseVNode("button", {
+              class: normalizeClass(["glass-btn", { active: sortBy.value === "Alphanumeric (Z-A)" }]),
+              onClick: _cache[2] || (_cache[2] = ($event) => setSort("Alphanumeric (Z-A)"))
+            }, "Z-A", 2)
+          ]),
+          createBaseVNode("div", _hoisted_4, [
+            _cache[3] || (_cache[3] = createBaseVNode("label", null, "Exclusive Mode", -1)),
+            createBaseVNode("input", {
+              type: "checkbox",
+              class: "switch-toggle",
+              checked: exclusiveMode.value,
+              onChange: toggleExclusive
+            }, null, 40, _hoisted_5)
+          ])
+        ]),
+        createBaseVNode("div", _hoisted_6, [
+          (openBlock(true), createElementBlock(Fragment, null, renderList(sortedGroups.value, (group) => {
+            return openBlock(), createElementBlock("div", {
+              key: group,
+              class: normalizeClass(["group-item glass-panel", { "inactive": !groupStates.value[group] }])
+            }, [
+              createBaseVNode("div", _hoisted_7, [
+                createBaseVNode("input", {
+                  type: "checkbox",
+                  class: "switch-toggle",
+                  checked: groupStates.value[group] || false,
+                  onChange: ($event) => toggleGroup(group)
+                }, null, 40, _hoisted_8),
+                createBaseVNode("span", _hoisted_9, toDisplayString(group), 1)
+              ])
+            ], 2);
+          }), 128))
+        ])
+      ]);
+    };
+  }
+});
+const NativeGroupControllerVue = /* @__PURE__ */ _export_sfc(_sfc_main, [["__scopeId", "data-v-42a2e17a"]]);
 const MIN_WIDTH = 250;
 const HEADER_HEIGHT = 40;
 const SLOT_HEIGHT = 26;
@@ -17,14 +136,39 @@ app.registerExtension({
         this.properties.group_states = this.properties.group_states || {};
         this.properties.exclusive_mode = this.properties.exclusive_mode || false;
         this.properties.sort_by = this.properties.sort_by || "None";
-        this.addWidget("toggle", "Exclusive Mode", this.properties.exclusive_mode, (v) => {
-          this.properties.exclusive_mode = v;
+        const container = document.createElement("div");
+        container.style.cssText = "width:100%; box-sizing:border-box; overflow:hidden;";
+        container.addEventListener("pointerdown", (e) => e.stopPropagation());
+        container.addEventListener("wheel", (e) => e.stopPropagation());
+        this.vueApp = createApp(NativeGroupControllerVue, {
+          onToggleGroup: (group, isActive) => {
+            this.properties.group_states[group] = isActive;
+            if (this.properties.exclusive_mode && isActive) {
+              Object.keys(this.properties.group_states).forEach((k) => {
+                if (k !== group) {
+                  this.properties.group_states[k] = false;
+                  this.mutateGroupState(k, false);
+                }
+              });
+            }
+            this.mutateGroupState(group, isActive);
+            this.setDirtyCanvas(true, true);
+          },
+          onSetSort: (mode) => {
+            this.properties.sort_by = mode;
+            this.setDirtyCanvas(true, true);
+          },
+          onToggleExclusive: (isActive) => {
+            this.properties.exclusive_mode = isActive;
+            this.setDirtyCanvas(true, true);
+          }
         });
-        this.addWidget("combo", "Sort By", this.properties.sort_by, (v) => {
-          this.properties.sort_by = v;
-          this._last_group_hash = "";
-          this.pollGroups();
-        }, { values: ["None", "Alphanumeric (A-Z)", "Alphanumeric (Z-A)"] });
+        this.vueInstance = this.vueApp.mount(container);
+        this.vueInstance.setSortBy(this.properties.sort_by);
+        this.vueInstance.setExclusiveMode(this.properties.exclusive_mode);
+        this.vueInstance.setGroupStates(this.properties.group_states);
+        const domWidget = this.addDOMWidget("vue_ui", "custom", container, { serialize: false });
+        domWidget.computeSize = () => [MIN_WIDTH, Math.max(300, HEADER_HEIGHT + Object.keys(this.properties.group_states).length * SLOT_HEIGHT + 120)];
         this._last_group_hash = "";
         this._pollInterval = setInterval(() => {
           this.pollGroups();
@@ -34,6 +178,9 @@ app.registerExtension({
       nodeType.prototype.onRemoved = function() {
         if (this._pollInterval) {
           clearInterval(this._pollInterval);
+        }
+        if (this.vueApp) {
+          this.vueApp.unmount();
         }
         if (origOnRemoved) {
           origOnRemoved.apply(this, arguments);
@@ -53,37 +200,21 @@ app.registerExtension({
         }
       };
       nodeType.prototype.refreshWidgets = function(validGroups) {
-        for (let i = this.widgets.length - 1; i >= 0; i--) {
-          const w = this.widgets[i];
-          if (w.name !== "Exclusive Mode" && w.name !== "Sort By") {
-            this.removeWidget(w);
+        if (!this.vueInstance) return;
+        const groupNames = validGroups.map((g) => g.title);
+        groupNames.forEach((g) => {
+          if (this.properties.group_states[g] === void 0) {
+            this.properties.group_states[g] = false;
           }
-        }
-        let sortedGroups = [...validGroups];
-        if (this.properties.sort_by === "Alphanumeric (A-Z)") {
-          sortedGroups.sort((a, b) => a.title.localeCompare(b.title, void 0, { numeric: true, sensitivity: "base" }));
-        } else if (this.properties.sort_by === "Alphanumeric (Z-A)") {
-          sortedGroups.sort((a, b) => b.title.localeCompare(a.title, void 0, { numeric: true, sensitivity: "base" }));
-        }
-        sortedGroups.forEach((g) => {
-          const state = this.properties.group_states[g.title] || false;
-          this.addWidget("toggle", g.title, state, (isActive) => {
-            this.properties.group_states[g.title] = isActive;
-            if (this.properties.exclusive_mode && isActive) {
-              this.widgets.forEach((w) => {
-                if (w.name !== "Exclusive Mode" && w.name !== "Sort By" && w.name !== g.title && w.type === "toggle") {
-                  w.value = false;
-                  this.properties.group_states[w.name] = false;
-                  this.mutateGroupState(w.name, false);
-                }
-              });
-            }
-            this.mutateGroupState(g.title, isActive);
-          });
         });
-        const toggleCount = sortedGroups.length + 2;
-        this.size[0] = Math.max(this.size[0], MIN_WIDTH);
-        this.size[1] = HEADER_HEIGHT + toggleCount * SLOT_HEIGHT + PADDING_BOTTOM;
+        this.vueInstance.setGroups(groupNames);
+        this.vueInstance.setGroupStates(this.properties.group_states);
+        const toggleCount = groupNames.length;
+        this.size[0] = Math.max(this.size[0] || MIN_WIDTH, MIN_WIDTH);
+        this.size[1] = Math.max(300, HEADER_HEIGHT + toggleCount * 40 + 120);
+        if (app.graph) {
+          app.graph.setDirtyCanvas(true, true);
+        }
       };
       nodeType.prototype.mutateGroupState = function(groupName, isActive) {
         const canvas = app.canvas;
@@ -134,13 +265,16 @@ app.registerExtension({
       nodeType.prototype.onPropertyChanged = function(prop, value) {
         if (origOnPropertyChanged) origOnPropertyChanged.apply(this, arguments);
         if (prop === "group_states") {
+          if (this.vueInstance) {
+            this.vueInstance.setGroupStates(value);
+          }
           Object.keys(value).forEach((groupName) => {
-            const widget = this.widgets.find((w) => w.name === groupName);
-            if (widget) {
-              widget.value = value[groupName];
-              this.mutateGroupState(groupName, value[groupName]);
-            }
+            this.mutateGroupState(groupName, value[groupName]);
           });
+        } else if (prop === "sort_by") {
+          if (this.vueInstance) this.vueInstance.setSortBy(value);
+        } else if (prop === "exclusive_mode") {
+          if (this.vueInstance) this.vueInstance.setExclusiveMode(value);
         }
       };
     } else if (nodeData.name === "Duffy_NativeSingleGroupBypasser" || nodeData.name === "Duffy_NativeSingleGroupMuter") {
