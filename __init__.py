@@ -26,11 +26,14 @@ async def comfy_entrypoint() -> DuffyNodesExtension:
     The initialization hook probed by the ComfyUI backend loader.
     Must return an object inheriting from ComfyExtension.
     """
-    logging.info("")
-    logging.info("*** Duffy_Nodes extension detected...")
-    logging.info("*** Initializing Duffy_Nodes extension (Nodes 2.0 V3 Schema).")
-    logging.info("*** 35+ Nodes 2.0 compatible utility nodes have been registered.")
-    logging.info("")
+    from .nodes import NODE_LIST
+    node_count = len(NODE_LIST)
+    
+    logging.info("=" * 60)
+    logging.info("[ Duffy_Nodes ] Extension Detected")
+    logging.info(f" -> Initializing Duffy_Nodes extension (Nodes 2.0 V3 Schema)")
+    logging.info(f" -> Successfully registered {node_count} utility nodes")
+    logging.info("=" * 60)
     return DuffyNodesExtension()
 
 __all__ = ["comfy_entrypoint", "WEB_DIRECTORY"]
