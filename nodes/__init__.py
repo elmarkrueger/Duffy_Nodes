@@ -12,7 +12,8 @@ from .audio_slicer import DuffyAudioSlicer
 from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
-from .rich_text_note import DuffyRichTextNote
+# Primitive nodes
+from .dynamic_integer import DuffyDynamicInteger
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
 from .find_and_replace_text import DuffyFindAndReplaceText
@@ -47,7 +48,6 @@ from .native_group_controller import (DuffyNativeGroupBypasser,
                                       DuffyNativeSingleGroupMuter)
 from .node_alignment_tool import DuffyNodeAlignmentTool
 from .power_lora_loader import DuffyPowerLoraLoader
-# Primitive nodes
 from .primitive_boolean import DuffyPrimitiveBoolean
 from .primitive_float import DuffyPrimitiveFloat
 from .primitive_integer import DuffyPrimitiveInteger
@@ -58,6 +58,7 @@ from .qwen3_vl_gguf_analyzer import DuffyQwen3VLGGUFAnalyzer
 from .qwen_gguf_analyzer import DuffyQwenGGUFAnalyzer
 # Image processing nodes (migrated from legacy V1)
 from .rgba_to_rgb import DuffyRGBAtoRGB
+from .rich_text_note import DuffyRichTextNote
 from .save_image_sidecar import DuffySaveImageWithSidecar
 from .seed import DuffySeed
 from .seven_float_sliders import DuffySevenFloatSliders
@@ -104,6 +105,7 @@ NODE_LIST = [
     DuffyLatentNoiseBlender,
     DuffyFlux2KleinNoise,
     # Primitive nodes
+    DuffyDynamicInteger,
     DuffyPrimitiveBoolean,
     DuffyPrimitiveInteger,
     DuffyPrimitiveFloat,

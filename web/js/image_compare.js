@@ -1,5 +1,5 @@
 import { app } from "../../../scripts/app.js";
-import { d as defineComponent, o as onMounted, b as openBlock, c as createElementBlock, e as createBaseVNode, k as normalizeClass, w as withDirectives, v as vModelText, g as createCommentVNode, m as normalizeStyle, h as ref, j as computed, _ as _export_sfc, i as createApp } from "./_plugin-vue_export-helper-Db8uvN6Q.js";
+import { d as defineComponent, f as onMounted, o as openBlock, c as createElementBlock, a as createBaseVNode, j as normalizeClass, w as withDirectives, v as vModelText, i as createCommentVNode, m as normalizeStyle, b as ref, l as computed, _ as _export_sfc, e as createApp } from "./_plugin-vue_export-helper-CVynLnP5.js";
 const _hoisted_1 = { class: "controls-panel" };
 const _hoisted_2 = { class: "btn-group" };
 const _hoisted_3 = { class: "btn-group" };
@@ -281,7 +281,112 @@ app.registerExtension({
   try {
     if (typeof document != "undefined") {
       var elementStyle = document.createElement("style");
-      elementStyle.appendChild(document.createTextNode(`.interactive-relight-root[data-v-3aa67706] {\r
+      elementStyle.appendChild(document.createTextNode(`.dynamic-integer-root[data-v-a3be626d] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  height: 100%;\r
+  padding: 8px;\r
+  background: rgba(30, 30, 30, 0.4);\r
+  backdrop-filter: blur(10px);\r
+  -webkit-backdrop-filter: blur(10px);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: var(--fg-color, #ddd);\r
+  border-radius: 8px;\r
+  font-family: var(--font-family, sans-serif);\r
+  overflow-y: auto;
+}
+.header[data-v-a3be626d] {\r
+  margin-bottom: 8px;
+}
+.header h4[data-v-a3be626d] {\r
+  margin: 0;\r
+  font-size: 14px;\r
+  color: var(--primary-color, #aaa);
+}
+.int-list[data-v-a3be626d] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  gap: 8px;\r
+  flex-grow: 1;
+}
+.int-item[data-v-a3be626d] {\r
+  display: flex;\r
+  align-items: center;\r
+  gap: 8px;\r
+  padding: 6px;\r
+  border-radius: 4px;\r
+  position: relative;\r
+  transition: opacity 0.2s ease;
+}
+.int-controls[data-v-a3be626d], .int-weights[data-v-a3be626d] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  flex-grow: 1;\r
+  gap: 2px;
+}
+.int-controls label[data-v-a3be626d], .weight-control label[data-v-a3be626d] {\r
+  font-size: 10px;\r
+  color: #888;
+}
+.weight-control[data-v-a3be626d] {\r
+  display: flex;\r
+  flex-direction: column;
+}
+.native-text-input[data-v-a3be626d], .native-num-input[data-v-a3be626d] {\r
+  background: rgba(0, 0, 0, 0.3);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: #fff;\r
+  border-radius: 4px;\r
+  padding: 4px;\r
+  min-width: 0;
+}
+.int-actions[data-v-a3be626d] {\r
+  display: flex;\r
+  align-items: center;\r
+  justify-content: center;
+}
+.remove-btn[data-v-a3be626d] {\r
+  background: rgba(255, 50, 50, 0.2);\r
+  border: 1px solid rgba(255, 50, 50, 0.4);\r
+  color: #fff;\r
+  border-radius: 50%;\r
+  width: 24px;\r
+  height: 24px;\r
+  cursor: pointer;\r
+  display: flex;\r
+  align-items: center;\r
+  justify-content: center;
+}
+.remove-btn[data-v-a3be626d]:hover {\r
+  background: rgba(255, 50, 50, 0.4);
+}
+.actions[data-v-a3be626d] {\r
+  display: flex;\r
+  justify-content: space-between;\r
+  margin-top: 8px;
+}
+.add-btn[data-v-a3be626d] {\r
+  width: 100%;\r
+  padding: 8px;\r
+  background: rgba(0, 0, 0, 0.4);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: #ddd;\r
+  border-radius: 4px;\r
+  cursor: pointer;\r
+  transition: background 0.2s;
+}
+.add-btn[data-v-a3be626d]:hover:not(:disabled) {\r
+  background: rgba(255, 255, 255, 0.1);
+}
+.add-btn[data-v-a3be626d]:disabled {\r
+  opacity: 0.5;\r
+  cursor: not-allowed;
+}
+.glass-panel[data-v-a3be626d] {\r
+  background: rgba(40, 40, 40, 0.5);
+}\r
+
+.interactive-relight-root[data-v-3aa67706] {\r
   display: flex;\r
   flex-direction: column;\r
   width: 100%;\r
