@@ -6,6 +6,17 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.35.0] — 2026-05-07
+
+### Added
+
+- **Dynamic Integer Provider** (`Duffy_DynamicInteger`, category `Duffy/Primitive`).
+  - Next-generation dynamic integer provider built natively in Vue 3 following the ComfyUI Nodes 2.0 (Schema V3) architecture.
+  - Dynamically adds, names, and strips up to 10 integer output ports purely from client-side visual interactions.
+  - Leverages Schema V3's statically mapped execution routing to bypass strict list index errors and validate execution seamlessly.
+
+---
+
 ## [0.34.0] — 2026-04-30
 
 ### Added

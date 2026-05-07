@@ -54,6 +54,16 @@ Restart ComfyUI after installation.
 ### 🔢 Primitive Nodes
 Essential input nodes for basic data types with clean, intuitive interfaces.
 
+#### ➕ Dynamic Integer Provider
+![Dynamic Integer Provider](images/dynamic_integer.jpg)
+*Category: `Duffy/Primitives`*
+
+A dynamic, multi-port integer provider built with Vue 3. Generates up to 10 outputs on demand interactively. Users can safely add, remove, and custom-label their integer connection ports entirely from the frontend.
+
+**Outputs:** `INT` (Dynamically Generated)
+
+---
+
 #### ➕ Primitive Integer
 ![Primitive Integer](images/primitive_integer.jpg)
 *Category: `Duffy/Primitives`*
