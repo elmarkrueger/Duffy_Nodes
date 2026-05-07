@@ -12,6 +12,7 @@ from .audio_slicer import DuffyAudioSlicer
 from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
+from .duffy_sam3_mask_editor import DuffySAM3MaskEditor
 # Primitive nodes
 from .dynamic_integer import DuffyDynamicInteger
 # Latent nodes (migrated from legacy V1)
@@ -123,6 +124,8 @@ NODE_LIST = [
     # Sampling nodes
     DuffyTripleSamplerScheduler,
     DuffyFluxMaxShift,
+    # SAM3 nodes
+    DuffySAM3MaskEditor,
     # Utility nodes
     DuffySeed,
     DuffyNodeAlignmentTool,

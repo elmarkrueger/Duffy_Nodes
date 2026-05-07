@@ -135,6 +135,28 @@ A fully stateless, deterministic, native Vue 3 implementation of dynamic multi-L
 
 ---
 
+### 🎯 SAM3 Nodes
+Interactive annotation and prompt-conditioning tools for SAM3-driven mask workflows.
+
+#### 🖌️ SAM3 Mask Editor
+![SAM3 Mask Editor](images/sam3_mask_editor.jpg)
+*Category: `Duffy/SAM3`*
+
+Unified CLIP encoder and interactive SAM3 mask editor with modal image loading, positive/negative point placement, and bounding box annotation for SAM3 Detect pipelines.
+
+**Inputs:** `clip` (CLIP), `image_file` (hidden widget), `prompt_text` (STRING), `internal_bboxes` (hidden JSON), `internal_coords` (hidden JSON), `internal_negative_coords` (hidden JSON), `internal_resize_meta` (hidden JSON)  
+**Outputs:** `CONDITIONING`, `positive_coords` (STRING), `negative_coords` (STRING), `bboxes` (BOUNDING_BOX), `image` (IMAGE)
+
+**Features:**
+- Fullscreen interactive mask editor modal with pan/zoom canvas controls
+- Positive and negative point annotation support for SAM3 prompts
+- Bounding box authoring with resize/translate/select/delete tooling
+- Safe upload flow to ComfyUI input directory via `/duffy/sam3/upload_image`
+- Annotation and resize metadata persistence across workflow save/load
+- Integrated CLIP tokenization and conditioning output in a single node
+
+---
+
 ### �🧮 Math Operations
 Powerful mathematical nodes for precise numerical control.
 

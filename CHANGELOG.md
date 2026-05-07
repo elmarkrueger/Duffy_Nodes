@@ -6,6 +6,17 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.36.0] — 2026-05-07
+
+### Added
+
+- **SAM3 Mask Editor** (`Duffy_SAM3MaskEditor`, category `Duffy/SAM3`).
+  - Unified CLIP conditioning and interactive SAM3 annotation workflow in a single node.
+  - Fullscreen modal editor supports positive/negative points, bounding boxes, and annotation persistence.
+  - Server-backed image upload route (`/duffy/sam3/upload_image`) ensures loaded images are available at execution time.
+
+---
+
 ## [0.35.0] — 2026-05-07
 
 ### Added
