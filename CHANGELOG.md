@@ -6,6 +6,24 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.37.0] — 2026-05-09
+
+### Added
+
+- **Image Styler** (`Duffy_ImageStyler`, category `Duffy/LLM`).
+  - New style-system-prompt generator node for multimodal LLM analyzer workflows.
+  - Loads style definitions from `assets/image_styler` and outputs a dedicated `system_prompt` string.
+  - Includes adaptive Vue UI with style dropdown + thumbnail preview for both Legacy LiteGraph and Nodes 2.0 views.
+
+### Changed
+
+- **Image Styler prompt engine hardening.**
+  - Introduced per-style transformation policies with style-specific required/forbidden cues.
+  - Added strict output contract to force pure prompt-only output (no labels, no metadata, no word-count artifacts, no hidden-thought tags).
+  - Improved cross-view sizing behavior and thumbnail visibility in constrained Legacy LiteGraph layouts.
+
+---
+
 ## [0.36.0] — 2026-05-07
 
 ### Added

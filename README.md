@@ -902,6 +902,29 @@ A fully frontend utility node for aligning and distributing selected nodes acros
 ### 🤖 LLM & AI Analysis
 Powerful multimodal AI analysis using local GGUF models.
 
+#### 🎨 Image Styler
+![Image Styler](images/image_styler.jpg)
+*Category: `Duffy/LLM`*
+
+A dedicated style-system-prompt generator for multimodal LLM analyzers. Select a visual style and feed the generated `system_prompt` directly into your LLM node to enforce consistent stylistic prompt outputs from the same input image.
+
+**Inputs:** `style` (dropdown)
+**Outputs:** `system_prompt` (STRING)
+
+**Features:**
+- 🧠 **Style-Locked Prompt Engine** — Generates a strict system prompt that prioritizes the selected style over conflicting default tendencies.
+- 🎯 **Per-Style Optimization** — Each style uses dedicated transformation rules, required cues, and forbidden cues for improved reliability.
+- 🛡️ **Artifact Suppression** — Enforces pure final-prompt output (no word-count lines, labels, markdown, internal thoughts, or metadata).
+- 🖼️ **Adaptive Vue UI** — Compact dropdown + thumbnail preview designed to work in both Legacy LiteGraph and Nodes 2.0 views.
+- ⚡ **Deterministic Caching** — Input fingerprinting tracks style selections and prompt asset changes for correct cache invalidation.
+
+**Use Cases:**
+- Enforcing one consistent art direction across a batch of different source images.
+- Building style-transfer prompt pipelines without manually rewriting system prompts.
+- Rapidly testing many visual styles with the same analyzer and input image.
+
+---
+
 #### 🧠 Gemma-4 GGUF Multimodal Analyzer
 ![Gemma GGUF Analyzer](images/gguf_analyzer.jpg)
 *Category: `Duffy/LLM`*

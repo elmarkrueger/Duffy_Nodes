@@ -28,6 +28,7 @@ from .image_adjuster import DuffyImageAdjuster
 from .image_compare import DuffyImageCompare
 from .image_preview import DuffyImagePreview
 from .image_stitch import DuffyImageStitch
+from .image_styler import DuffyImageStyler
 from .image_text_overlay import DuffyImageTextOverlay
 from .integer_math import DuffyIntegerMath
 from .interactive_relight import DuffyInteractiveRelight
@@ -139,6 +140,7 @@ NODE_LIST = [
     DuffyAdvancedConnectedImageStitch,
     DuffyImagePreview,
     # LLM nodes
+    DuffyImageStyler,
     DuffyGemmaGGUFAnalyzer,
     DuffyQwenGGUFAnalyzer,
     DuffyQwen3VLGGUFAnalyzer,
