@@ -27,7 +27,8 @@ export default defineConfig({
         node_alignment_tool: "./src/node_alignment_tool.ts",
         adaptive_resolution_latent: "./src/adaptive_resolution_latent.ts",
         power_lora_loader: "./src/power_lora_loader.ts",
-        image_compare: "./src/image_compare.ts"
+        image_compare: "./src/image_compare.ts",
+        image_styler: "./src/image_styler.ts"
       },
       formats: ["es"]
     },
