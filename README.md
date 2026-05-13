@@ -624,6 +624,24 @@ Select three independent sampler + scheduler combinations simultaneously. Perfec
 
 ---
 
+#### 🧠 Dynamic Multi-Architecture Sampler
+![Dynamic Multi-Architecture Sampler](images/dynamic_multi_architecture_sampler.jpg)
+*Category: `Duffy/Sampling`*
+
+Full sampler executor that adapts generation behavior to modern foundation and distilled model families using one architecture profile dropdown.
+
+**Inputs:** `model` (MODEL), `model_selection` (combo), `seed` (int), `steps` (int), `cfg` (float), `sampler_name` (combo), `scheduler` (combo), `positive` (CONDITIONING), `negative` (CONDITIONING), `latent_image` (LATENT), `denoise` (0.0-1.0), `enable_ofd` (boolean)
+**Outputs:** `LATENT`
+
+**Features:**
+- Architecture-specific step boundaries for 7 profiles (Z-Image, Qwen-Image-2512, Flux.2-Klein, Ernie-Image)
+- Frontend callback bridge updates step limits instantly in both Nodes 2.0 and Legacy LiteGraph views
+- Distilled profile safety behavior that keeps CFG numerically stable at 1.0 during execution
+- Strict backend validation for profile/step mismatch with clear error messages
+- Optional minimal OFD prototype toggle for distilled profile diversity experiments
+
+---
+
 #### 🎪 Multi-Pass Sampling
 ![Multi-Pass Sampling](images/multi_pass_sampling.jpg)
 *Category: `Duffy/Sampling`*
