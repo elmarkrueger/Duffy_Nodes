@@ -15,6 +15,8 @@ from .directory_image_iterator import DuffyDirectoryImageIterator
 from .duffy_sam3_mask_editor import DuffySAM3MaskEditor
 # Primitive nodes
 from .dynamic_integer import DuffyDynamicInteger
+from .dynamic_multi_architecture_sampler import \
+    DuffyDynamicMultiArchitectureSampler
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
 from .find_and_replace_text import DuffyFindAndReplaceText
@@ -123,6 +125,7 @@ NODE_LIST = [
     DuffyLoraLoader,
     DuffyPowerLoraLoader,
     # Sampling nodes
+    DuffyDynamicMultiArchitectureSampler,
     DuffyTripleSamplerScheduler,
     DuffyFluxMaxShift,
     # SAM3 nodes

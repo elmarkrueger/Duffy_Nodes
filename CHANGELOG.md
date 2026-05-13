@@ -6,6 +6,23 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.38.0] — 2026-05-13
+
+### Added
+
+- **Dynamic Multi-Architecture Sampler** (`Duffy_DynamicMultiArchitectureSampler`, category `Duffy/Sampling`).
+  - New full LATENT sampler executor with architecture profile routing for Z-Image Base/Turbo, Qwen-Image-2512, Flux.2-Klein-Base/Klein, and Ernie-Image Base/Turbo.
+  - Enforces model-specific step constraints with strict backend validation before execution.
+  - Distilled profiles run with numerically safe CFG mechanics (effective CFG = 1.0) while foundation profiles keep standard guidance behavior.
+  - Includes optional minimal OFD toggle for distilled-profile diversity experiments.
+  - Companion frontend bridge (`dynamic_multi_architecture_sampler.ts`) dynamically updates step widget limits and keeps Nodes 2.0 + Legacy LiteGraph UI in sync.
+
+### Changed
+
+- Build pipeline updated to include `src/dynamic_multi_architecture_sampler.ts` in Vite outputs.
+
+---
+
 ## [0.37.0] — 2026-05-09
 
 ### Added
