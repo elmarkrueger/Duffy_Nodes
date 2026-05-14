@@ -1,3 +1,5 @@
+import math
+
 import comfy.sample
 import comfy.samplers
 import comfy.utils
@@ -8,7 +10,7 @@ from comfy_api.latest import io
 
 class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
     DEFAULT_PROFILE = "Z-Image Base"
-    OFD_STRENGTH = 0.08
+    OFD_STRENGTH = 0.8  # Erhöht, da durch die Hüllkurve jetzt höhere Werte möglich sind
     OFD_BOOST = 1.5
     _EPS = 1e-8
 
@@ -108,15 +110,35 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
                     "ofd_strength",
                     default=cls.OFD_STRENGTH,
                     min=0.0,
-                    max=0.5,
-                    step=0.005,
-                    round=0.001,
+                    max=5.0,  # Range erhöht, da OFD jetzt stabiler ist
+                    step=0.05,
+                    round=0.01,
                     display_mode=io.NumberDisplay.slider,
                     advanced=True,
                     tooltip=(
                         "Strength of orthogonal perturbation when OFD is enabled. "
                         "Higher values increase diversity but can reduce prompt adherence."
                     ),
+                ),
+                io.Float.Input(
+                    "ofd_start_percent",
+                    default=0.15,
+                    min=0.0,
+                    max=1.0,
+                    step=0.01,
+                    display_mode=io.NumberDisplay.slider,
+                    advanced=True,
+                    tooltip="Progress percentage to start applying the OFD perturbation envelope."
+                ),
+                io.Float.Input(
+                    "ofd_end_percent",
+                    default=0.70,
+                    min=0.0,
+                    max=1.0,
+                    step=0.01,
+                    display_mode=io.NumberDisplay.slider,
+                    advanced=True,
+                    tooltip="Progress percentage to stop applying the OFD perturbation envelope."
                 ),
                 io.Float.Input(
                     "ofd_boost",
@@ -128,8 +150,7 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
                     display_mode=io.NumberDisplay.slider,
                     advanced=True,
                     tooltip=(
-                        "Nonlinear gain for OFD strength. Higher values amplify high-end diversity, "
-                        "especially in early denoising steps."
+                        "Nonlinear gain for OFD strength. Higher values amplify high-end diversity."
                     ),
                 ),
                 io.Float.Input(
@@ -142,8 +163,7 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
                     display_mode=io.NumberDisplay.slider,
                     advanced=True,
                     tooltip=(
-                        "Blend in a non-orthogonal random component. Use sparingly to push stronger variation "
-                        "at the cost of stricter prompt adherence."
+                        "Blend in a non-orthogonal random component. Use sparingly to push stronger variation."
                     ),
                 ),
             ],
@@ -172,25 +192,30 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
     def _apply_ofd(
         cls,
         guided_noise: torch.Tensor,
-        cond_noise: torch.Tensor,
-        uncond_noise: torch.Tensor,
+        direction: torch.Tensor, # Point 3: Wir übernehmen die logische Richtung von außen
         seed: int,
         sigma: torch.Tensor | float | int | None,
         ofd_strength: float,
         ofd_boost: float,
         ofd_parallel_mix: float,
         sigma_ratio: float,
+        start_percent: float,
+        end_percent: float
     ) -> torch.Tensor:
-        if guided_noise.ndim < 2:
+        if guided_noise.ndim < 2 or direction.ndim < 2:
             return guided_noise
 
-        direction = cond_noise - uncond_noise
-        if direction.ndim < 2:
+        # Point 1: Parabolische Hüllkurve / Temporal Windowing
+        progress = 1.0 - sigma_ratio
+        if progress < start_percent or progress > end_percent or start_percent >= end_percent:
             return guided_noise
+
+        normalized_pos = (progress - start_percent) / (end_percent - start_percent)
+        envelope = math.sin(normalized_pos * math.pi) * float(ofd_strength)
 
         flat_dir = direction.reshape(direction.shape[0], -1)
         guided_flat = guided_noise.reshape(guided_noise.shape[0], -1)
-        dir_norm = flat_dir.norm(dim=1, keepdim=True)
+        dir_norm = flat_dir.norm(dim=1, keepdim=True).clamp_min(cls._EPS)
         guided_norm = guided_flat.norm(dim=1, keepdim=True).clamp_min(cls._EPS)
 
         sigma_value = 0
@@ -202,34 +227,36 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
 
         mixed_seed = (int(seed) ^ sigma_value ^ 0x9E3779B97F4A7C15) & 0x7FFFFFFFFFFFFFFF
 
-        # Build random source on CPU for broad compatibility, then move to active device/dtype.
         generator = torch.Generator(device="cpu")
         generator.manual_seed(mixed_seed)
         rand = torch.randn(flat_dir.shape, dtype=torch.float32, device="cpu", generator=generator)
         rand = rand.to(device=flat_dir.device, dtype=flat_dir.dtype)
 
-        # Project random vector off the semantic guidance direction.
-        safe_dir_norm = dir_norm.clamp_min(cls._EPS)
-        projection = (rand * flat_dir).sum(dim=1, keepdim=True) / (safe_dir_norm * safe_dir_norm)
-        ortho = rand - projection * flat_dir
-        ortho_norm = ortho.norm(dim=1, keepdim=True).clamp_min(cls._EPS)
-        rand_norm = rand.norm(dim=1, keepdim=True).clamp_min(cls._EPS)
+        # Point 2: Orthogonale Projektion mittels QR-Zerlegung für extreme Stabilität
+        # Stacken der Vektoren: Dimensionen (Batch, Flattened_Size, 2)
+        stacked = torch.stack([flat_dir, rand], dim=-1)
+        
+        # Berechnung in Float32 um Pytorch-Linalg-Fehler bei Float16 zu vermeiden
+        orig_dtype = stacked.dtype
+        stacked_f32 = stacked.to(torch.float32)
+        Q, _ = torch.linalg.qr(stacked_f32)
+        Q = Q.to(orig_dtype)
 
-        ortho_unit = ortho / ortho_norm
-        rand_unit = rand / rand_norm
+        # Spalte 0 ist die normalisierte Richtung (flat_dir), Spalte 1 ist exakt orthogonal dazu
+        ortho_unit = Q[..., 1]
+        
+        rand_unit = rand / rand.norm(dim=1, keepdim=True).clamp_min(cls._EPS)
 
-        # Optional parallel/random mixing to break orthogonal-only saturation at high strengths.
         mix = max(0.0, min(0.5, float(ofd_parallel_mix)))
         basis = ortho_unit * (1.0 - mix) + rand_unit * mix
         basis_norm = basis.norm(dim=1, keepdim=True).clamp_min(cls._EPS)
         basis = basis / basis_norm
 
-        # If cond/uncond are near-identical, fall back to a small normalized random perturbation.
         semantic_scale = torch.where(dir_norm > cls._EPS, dir_norm, guided_norm * 0.25)
 
-        # Nonlinear gain: high ofd_strength values become progressively stronger.
-        strength_gain = 1.0 + max(0.0, float(ofd_boost)) * float(ofd_strength) * max(0.0, min(1.0, float(sigma_ratio)))
-        effective_strength = float(ofd_strength) * strength_gain
+        # Hüllkurve modifiziert die finale Stärke
+        strength_gain = 1.0 + max(0.0, float(ofd_boost))
+        effective_strength = envelope * strength_gain
 
         scaled_perturb = basis * (semantic_scale * effective_strength)
         return guided_noise + scaled_perturb.reshape_as(guided_noise)
@@ -258,6 +285,8 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
         denoise: float,
         enable_ofd: bool = False,
         ofd_strength: float = OFD_STRENGTH,
+        ofd_start_percent: float = 0.15,
+        ofd_end_percent: float = 0.70,
         ofd_boost: float = OFD_BOOST,
         ofd_parallel_mix: float = 0.0,
         **kwargs,
@@ -265,7 +294,7 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
         profile = cls.MODEL_PROFILES[model_selection]
         is_distilled = bool(profile["distilled"])
         effective_cfg = 1.0 if is_distilled else float(cfg)
-        effective_ofd_strength = max(0.0, min(0.5, float(ofd_strength)))
+        effective_ofd_strength = max(0.0, min(5.0, float(ofd_strength)))
         effective_ofd_boost = max(0.0, min(4.0, float(ofd_boost)))
         effective_ofd_parallel_mix = max(0.0, min(0.5, float(ofd_parallel_mix)))
 
@@ -278,7 +307,14 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
             cond_scale = float(args.get("cond_scale", 1.0))
 
             local_scale = 1.0 if is_distilled else cond_scale
-            guided = uncond + (cond - uncond) * local_scale
+            
+            # Point 3: Korrekter Basis-Vektor für CFG 1.0 vs reguläres CFG
+            if local_scale == 1.0:
+                guided = cond
+                direction = cond
+            else:
+                guided = uncond + (cond - uncond) * local_scale
+                direction = cond - uncond
 
             if is_distilled and enable_ofd:
                 sigma_scalar = cls._sigma_scalar(args.get("sigma"))
@@ -290,19 +326,19 @@ class DuffyDynamicMultiArchitectureSampler(io.ComfyNode):
 
                 guided = cls._apply_ofd(
                     guided_noise=guided,
-                    cond_noise=cond,
-                    uncond_noise=uncond,
+                    direction=direction,
                     seed=seed,
                     sigma=args.get("sigma"),
                     ofd_strength=effective_ofd_strength,
                     ofd_boost=effective_ofd_boost,
                     ofd_parallel_mix=effective_ofd_parallel_mix,
                     sigma_ratio=sigma_ratio,
+                    start_percent=float(ofd_start_percent),
+                    end_percent=float(ofd_end_percent)
                 )
 
             return guided
 
-        # OFD requires real cond/uncond predictions; disable CFG=1 optimization when OFD is enabled.
         dynamic_model.set_model_sampler_cfg_function(
             architecture_cfg_hook,
             disable_cfg1_optimization=bool(is_distilled and enable_ofd),
