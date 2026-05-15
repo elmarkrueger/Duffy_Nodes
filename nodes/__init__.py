@@ -58,6 +58,7 @@ from .primitive_integer import DuffyPrimitiveInteger
 from .primitive_string import DuffyPrimitiveString
 from .primitive_string_multiline import DuffyPrimitiveStringMultiline
 from .prompt_box import DuffyPromptBox
+from .prompt_loader import DuffyPromptLoader
 from .qwen3_vl_gguf_analyzer import DuffyQwen3VLGGUFAnalyzer
 from .qwen_gguf_analyzer import DuffyQwenGGUFAnalyzer
 # Image processing nodes (migrated from legacy V1)
@@ -117,6 +118,7 @@ NODE_LIST = [
     DuffyPrimitiveStringMultiline,
     DuffyRichTextNote,
     DuffyPromptBox,
+    DuffyPromptLoader,
     # Logic nodes
     DuffyLogicGate,
     # Selector nodes

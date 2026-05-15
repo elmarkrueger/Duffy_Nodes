@@ -805,6 +805,35 @@ A sophisticated multiline text editor with built-in utility buttons for quick te
 **Use Cases:** Writing and editing complex prompts, preparing multi-paragraph descriptions, documenting workflows, storing reference text, creating reusable prompt templates
 
 ---
+#### 📚 Prompt Loader
+![Prompt Loader](images/prompt_loader_node.jpg)
+*Category: `Duffy/Text`*
+
+Load multiple positive/negative prompt pairs from a text file and emit one pair per execution. With Auto-Queue enabled, the node can continue the workflow automatically until all prompt blocks are processed.
+
+**Inputs:** `file_path` (STRING), `separator` (STRING), `positive_marker` (STRING), `negative_marker` (STRING), `auto_queue` (BOOLEAN), `reset_counter` (INT)
+**Outputs:** `positive_prompt` (STRING), `negative_prompt` (STRING)
+
+**Features:**
+- 📂 **File-Driven Prompt Batches** — Reads prompt blocks from `.txt`, `.csv`, or `.md` files.
+- 🧩 **Custom Parsing Markers** — User-definable separator plus positive and negative markers.
+- 🔁 **Sequential State Tracking** — Maintains current index and total prompt count per node instance.
+- ⚡ **Auto-Queue Execution** — Queues the next workflow run automatically until the final prompt is reached.
+- 🖼️ **Vue 3 Runtime Panel** — Displays status, current/total counters, queue state, and runtime errors directly in-node.
+- 🔄 **Reset Loop Control** — `Reset Loop` increments `reset_counter` to restart processing from the beginning.
+
+**Prompt File Format Example:**
+```text
+(+) positive prompt text
+(-) negative prompt text
+|
+(+) next positive prompt text
+(-) next negative prompt text
+```
+
+**Use Cases:** Batch prompt exploration, style iteration across the same graph, unattended multi-prompt generation runs.
+
+---
 #### �🔎 Find and Replace Text
 ![Find and Replace Text](images/find_and_replace.jpg)
 *Category: `Duffy/Text`*
@@ -1094,7 +1123,7 @@ Special thanks to:
 
 ## 📊 Version
 
-Current Version: **0.29.0** (April 19, 2026)
+Current Version: **0.39.0** (May 15, 2026)
 
 See [CHANGELOG.md](CHANGELOG.md) for complete version history.
 
