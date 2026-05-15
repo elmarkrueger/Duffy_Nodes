@@ -6,6 +6,27 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [0.39.0] — 2026-05-15
+
+### Added
+
+- **Prompt Loader** (`Duffy_PromptLoader`, category `Duffy/Text`).
+  - New text-driven prompt batch node that parses positive/negative prompt pairs from `.txt`, `.csv`, or `.md` files.
+  - Supports custom `separator`, `positive_marker`, and `negative_marker` tokens for flexible prompt file formats.
+  - Emits one prompt pair per run with persisted runtime index tracking (`current` / `total`) and `Reset Loop` control.
+  - Includes optional **Auto-Queue** mode to continue execution until the final prompt block is processed.
+  - Ships with a dedicated Vue 3 node UI panel for status, queue state, counters, and error reporting.
+
+### Changed
+
+- **Prompt Loader Auto-Queue reliability hardening.**
+  - Queue payload propagation now preserves full prompt/workflow context across chained runs.
+  - Added runtime nonce + client routing propagation for stable execution and UI synchronization over multi-hop auto-queue cycles.
+  - Final-run state handling now reports completion cleanly (`Complete (N/N)`) and terminates queueing at the last prompt.
+  - Browse/upload flow now requests overwrite to avoid repeated filename suffixing (`test(1).txt`, etc.).
+
+---
+
 ## [0.38.0] — 2026-05-13
 
 ### Added

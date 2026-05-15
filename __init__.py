@@ -7,7 +7,6 @@ from comfy_api.latest import ComfyExtension, io
 # Instructs ComfyUI to serve the './web' directory to the frontend
 WEB_DIRECTORY = "./web"
 
-
 def _sync_image_styler_thumbnails() -> None:
     """Copy style thumbnail images into web/image_styler for frontend access."""
     extension_root = os.path.dirname(__file__)

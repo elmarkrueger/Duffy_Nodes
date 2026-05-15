@@ -29,7 +29,8 @@ export default defineConfig({
         dynamic_multi_architecture_sampler: "./src/dynamic_multi_architecture_sampler.ts",
         power_lora_loader: "./src/power_lora_loader.ts",
         image_compare: "./src/image_compare.ts",
-        image_styler: "./src/image_styler.ts"
+        image_styler: "./src/image_styler.ts",
+        prompt_loader: "./src/prompt_loader.ts"
       },
       formats: ["es"]
     },
