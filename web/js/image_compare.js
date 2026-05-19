@@ -216,8 +216,6 @@ app.registerExtension({
   async nodeCreated(node) {
     var _a;
     if (node.comfyClass !== "Duffy_ImageCompare") return;
-    node.color = "#2B4E5C";
-    node.bgcolor = "#1A2F38";
     const MIN_W = 512;
     const MIN_H = 512;
     const dataWidget = (_a = node.widgets) == null ? void 0 : _a.find((w) => w.name === "compare_state");

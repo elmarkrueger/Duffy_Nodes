@@ -8,9 +8,7 @@ comfyApp.registerExtension({
     async nodeCreated(node: any) {
         if (node.comfyClass !== "Duffy_ImageCompare") return;
 
-        // Ensure minimum size and standard theme colors
-        node.color = "#2B4E5C";
-        node.bgcolor = "#1A2F38";
+        // Ensure minimum size
 
         const MIN_W = 512;
         const MIN_H = 512;
