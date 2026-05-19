@@ -196,13 +196,10 @@ app.registerExtension({
     },
 
     // ------------------------------------------------------------------
-    // nodeCreated – add buttons and theme colours
+    // nodeCreated – initialize custom button UI
     // ------------------------------------------------------------------
     async nodeCreated(node) {
         if (node.comfyClass !== "Duffy_Seed") return;
-
-        node.color  = "#7a642b";
-        node.bgcolor = "#4c3e1a";
 
         // V3 widgets are ready after a micro-task; use setTimeout for safety
         setTimeout(() => setupSeedNode(node), 100);
