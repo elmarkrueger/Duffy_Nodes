@@ -2,6 +2,7 @@ node_modules/
 __pycache__/
 .gemini
 .github
+.agents
 GEMINI.md
 PRD
 memories

@@ -12,6 +12,7 @@ export default defineConfig({
     lib: { 
       entry: {
         dynamic_integer: "./src/dynamic_integer.ts",
+        dynamic_float: "./src/dynamic_float.ts",
         interactive_relight: "./src/interactive_relight.ts",
         advanced_layer_control: "./src/advanced_layer_control.ts",
         advanced_image_adjuster: "./src/advanced_image_adjuster.ts",

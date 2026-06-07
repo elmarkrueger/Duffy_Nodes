@@ -591,6 +591,108 @@ app.registerExtension({
   background: rgba(40, 40, 40, 0.5);
 }\r
 
+.dynamic-float-root[data-v-362cd26a] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  height: 100%;\r
+  padding: 8px;\r
+  background: rgba(30, 30, 30, 0.4);\r
+  backdrop-filter: blur(10px);\r
+  -webkit-backdrop-filter: blur(10px);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: var(--fg-color, #ddd);\r
+  border-radius: 8px;\r
+  font-family: var(--font-family, sans-serif);\r
+  overflow-y: auto;
+}
+.header[data-v-362cd26a] {\r
+  margin-bottom: 8px;
+}
+.header h4[data-v-362cd26a] {\r
+  margin: 0;\r
+  font-size: 14px;\r
+  color: var(--primary-color, #aaa);
+}
+.float-list[data-v-362cd26a] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  gap: 8px;\r
+  flex-grow: 1;
+}
+.float-item[data-v-362cd26a] {\r
+  display: flex;\r
+  align-items: center;\r
+  gap: 8px;\r
+  padding: 6px;\r
+  border-radius: 4px;\r
+  position: relative;\r
+  transition: opacity 0.2s ease;
+}
+.float-controls[data-v-362cd26a], .float-weights[data-v-362cd26a] {\r
+  display: flex;\r
+  flex-direction: column;\r
+  flex-grow: 1;\r
+  gap: 2px;
+}
+.float-controls label[data-v-362cd26a], .weight-control label[data-v-362cd26a] {\r
+  font-size: 10px;\r
+  color: #888;
+}
+.weight-control[data-v-362cd26a] {\r
+  display: flex;\r
+  flex-direction: column;
+}
+.native-text-input[data-v-362cd26a], .native-num-input[data-v-362cd26a] {\r
+  background: rgba(0, 0, 0, 0.3);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: #fff;\r
+  border-radius: 4px;\r
+  padding: 4px;\r
+  min-width: 0;
+}
+.float-actions[data-v-362cd26a] {\r
+  display: flex;\r
+  align-items: center;\r
+  justify-content: center;
+}
+.remove-btn[data-v-362cd26a] {\r
+  background: rgba(255, 50, 50, 0.2);\r
+  border: 1px solid rgba(255, 50, 50, 0.4);\r
+  color: #fff;\r
+  border-radius: 50%;\r
+  width: 24px;\r
+  height: 24px;\r
+  cursor: pointer;\r
+  display: flex;\r
+  align-items: center;\r
+  justify-content: center;
+}
+.remove-btn[data-v-362cd26a]:hover {\r
+  background: rgba(255, 50, 50, 0.4);
+}
+.actions[data-v-362cd26a] {\r
+  display: flex;\r
+  justify-content: space-between;\r
+  margin-top: 8px;
+}
+.add-btn[data-v-362cd26a] {\r
+  width: 100%;\r
+  padding: 8px;\r
+  background: rgba(0, 0, 0, 0.4);\r
+  border: 1px solid rgba(255, 255, 255, 0.1);\r
+  color: #ddd;\r
+  border-radius: 4px;\r
+  cursor: pointer;\r
+  transition: background 0.2s;
+}
+.add-btn[data-v-362cd26a]:hover:not(:disabled) {\r
+  background: rgba(255, 255, 255, 0.1);
+}
+.add-btn[data-v-362cd26a]:disabled {\r
+  opacity: 0.4;\r
+  cursor: not-allowed;
+}\r
+
 .interactive-relight-root[data-v-3aa67706] {\r
   display: flex;\r
   flex-direction: column;\r

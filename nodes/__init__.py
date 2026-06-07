@@ -13,6 +13,7 @@ from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
 from .duffy_sam3_mask_editor import DuffySAM3MaskEditor
+from .dynamic_float import DuffyDynamicFloat
 # Primitive nodes
 from .dynamic_integer import DuffyDynamicInteger
 from .dynamic_multi_architecture_sampler import \
@@ -111,6 +112,7 @@ NODE_LIST = [
     DuffyFlux2KleinNoise,
     # Primitive nodes
     DuffyDynamicInteger,
+    DuffyDynamicFloat,
     DuffyPrimitiveBoolean,
     DuffyPrimitiveInteger,
     DuffyPrimitiveFloat,
