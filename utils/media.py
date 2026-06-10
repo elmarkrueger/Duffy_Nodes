@@ -86,20 +86,17 @@ def video_tensor_to_frame_list(
     return frames
 
 
-def audio_to_data_uri(audio: dict) -> dict[str, Any]:
-    """Convert a ComfyUI AUDIO dict to an OpenAI-compatible audio_url dict.
-
-    The audio is resampled to 16 kHz mono WAV as required by the Gemma-4 audio
-    projector.
+def _process_audio_to_wav(audio: dict) -> bytes:
+    """Shared audio processing: resample to 16 kHz mono, encode as WAV bytes.
 
     Args:
         audio: {"waveform": torch.Tensor, "sample_rate": int}
 
     Returns:
-        {"type": "audio_url", "audio_url": {"url": "data:audio/wav;base64,..."}}
+        Raw WAV file bytes.
 
     Raises:
-        ValueError: If audio exceeds 60 seconds.
+        ValueError: If audio exceeds MAX_AUDIO_DURATION_SECONDS.
     """
     import soundfile as sf
     import torchaudio
@@ -134,9 +131,53 @@ def audio_to_data_uri(audio: dict) -> dict[str, Any]:
     audio_np = waveform.squeeze(0).cpu().numpy()
     buffer = BytesIO()
     sf.write(buffer, audio_np, 16000, format="WAV")
-    b64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return buffer.getvalue()
+
+
+def audio_to_data_uri(audio: dict) -> dict[str, Any]:
+    """Convert a ComfyUI AUDIO dict to an OpenAI-compatible audio_url dict.
+
+    The audio is resampled to 16 kHz mono WAV as required by the Gemma-4 audio
+    projector.
+
+    Args:
+        audio: {"waveform": torch.Tensor, "sample_rate": int}
+
+    Returns:
+        {"type": "audio_url", "audio_url": {"url": "data:audio/wav;base64,..."}}
+
+    Raises:
+        ValueError: If audio exceeds 60 seconds.
+    """
+    wav_bytes = _process_audio_to_wav(audio)
+    b64 = base64.b64encode(wav_bytes).decode("utf-8")
 
     return {
         "type": "audio_url",
         "audio_url": {"url": f"data:audio/wav;base64,{b64}"},
+    }
+
+
+def audio_to_data_uri_omni(audio: dict) -> dict[str, Any]:
+    """Convert a ComfyUI AUDIO dict to an Omni MultiModal input_audio dict.
+
+    Uses the same processing pipeline as audio_to_data_uri (resample to
+    16 kHz mono WAV), but emits the Omni MultiModal payload format
+    required by the Gemma4ChatHandler for the unified gemma4uv projector.
+
+    Args:
+        audio: {"waveform": torch.Tensor, "sample_rate": int}
+
+    Returns:
+        {"type": "input_audio", "input_audio": {"data": "<base64>", "format": "wav"}}
+
+    Raises:
+        ValueError: If audio exceeds 60 seconds.
+    """
+    wav_bytes = _process_audio_to_wav(audio)
+    b64 = base64.b64encode(wav_bytes).decode("utf-8")
+
+    return {
+        "type": "input_audio",
+        "input_audio": {"data": b64, "format": "wav"},
     }

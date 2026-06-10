@@ -6,6 +6,17 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Gemma-4 12B GGUF Multimodal Analyzer** (`Duffy_Gemma4_12B_Analyzer`, category `Duffy/LLM`).
+  - Supports unified text, image, video, and audio feature analysis utilizing the encoder-free `gemma4uv` architecture.
+  - Requires specific dependencies, including the precompiled wheel `v0.3.40-cu130-win-20260608.7` from JamePeng's compilation repository, due to underlying bugfixes.
+  - Fixes native multimodal handling dynamically preserving `enable_thinking` for `<think>` tag tokenization within extended responses.
+
+---
+
 ## [0.39.0] — 2026-05-15
 
 ### Added

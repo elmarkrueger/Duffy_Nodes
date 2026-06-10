@@ -5,7 +5,7 @@
 The **Duffy_GemmaGGUFAnalyzer** node provides powerful multimodal analysis capabilities using Google's **Gemma-4-E4B-it** model (GGUF format) via llama.cpp. This node supports text, image, video, and audio inputs for comprehensive AI-powered analysis.
 
 > **⚠️ Critical Version Requirement:**  
-> **llama-cpp-python version 0.3.36 or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required for Gemma-4-E4B model support. Earlier versions will not work with this node.
+> **llama-cpp-python version 0.3.36 (or 0.3.40-cu130-win-20260608.7 for 12B) or later is mandatory.** This is the first version that includes the `Gemma4ChatHandler` required for Gemma-4-E4B model support. Earlier versions will not work with this node.
 >
 > The current official release on PyPI is **v0.3.20-cu123**, which **does not include** the Gemma 4 chat template. You **must** install a pre-built wheel manually (see below).
 
@@ -19,7 +19,7 @@ Because the official PyPI version of llama-cpp-python (v0.3.20-cu123) does not y
 
 **Pre-built wheels:** https://github.com/JamePeng/llama-cpp-python/releases
 
-Version **0.3.36** is available for the following CUDA versions:
+Version **0.3.36 (or 0.3.40-cu130-win-20260608.7 for 12B)** is available for the following CUDA versions:
 - CUDA 11.8
 - CUDA 12.1
 - CUDA 12.4
@@ -29,11 +29,11 @@ Version **0.3.36** is available for the following CUDA versions:
 #### Standard Python Environment (pip / venv)
 
 1. Go to https://github.com/JamePeng/llama-cpp-python/releases
-2. Download the `.whl` file matching your **Python version** and **CUDA version** (e.g., `llama_cpp_python-0.3.36+cu124-cp311-cp311-win_amd64.whl` for Python 3.11 + CUDA 12.4)
+2. Download the `.whl` file matching your **Python version** and **CUDA version** (e.g., `llama_cpp_python-0.3.36 (or 0.3.40-cu130-win-20260608.7 for 12B)+cu124-cp311-cp311-win_amd64.whl` for Python 3.11 + CUDA 12.4)
 3. Install the wheel:
 
 ```bash
-pip install /path/to/llama_cpp_python-0.3.36+cu124-cp311-cp311-win_amd64.whl --force-reinstall --no-deps
+pip install /path/to/llama_cpp_python-0.3.36 (or 0.3.40-cu130-win-20260608.7 for 12B)+cu124-cp311-cp311-win_amd64.whl --force-reinstall --no-deps
 ```
 
 > **Tip:** Use `--force-reinstall --no-deps` to ensure a clean installation that replaces any existing version without pulling in unwanted dependencies.
@@ -47,7 +47,7 @@ ComfyUI portable installations bundle their own Python interpreter under `python
 3. Install using the embedded Python directly:
 
 ```powershell
-.\python_embedded\python.exe -m pip install "X:\path\to\llama_cpp_python-0.3.36+cu124-cp311-cp311-win_amd64.whl" --force-reinstall --no-deps
+.\python_embedded\python.exe -m pip install "X:\path\to\llama_cpp_python-0.3.36 (or 0.3.40-cu130-win-20260608.7 for 12B)+cu124-cp311-cp311-win_amd64.whl" --force-reinstall --no-deps
 ```
 
 4. Verify the installation:
@@ -56,7 +56,7 @@ ComfyUI portable installations bundle their own Python interpreter under `python
 .\python_embedded\python.exe -c "import llama_cpp; print(llama_cpp.__version__)"
 ```
 
-This should print `0.3.36` (or the version you installed).
+This should print `0.3.36 (or 0.3.40-cu130-win-20260608.7 for 12B)` (or the version you installed).
 
 > **Important:** Do **not** use the system `pip` or a different Python — you must target `python_embedded\python.exe` explicitly, otherwise the package will be installed into the wrong environment and ComfyUI will not find it.
 
@@ -264,7 +264,7 @@ Add ~2-4 GB for the multimodal projector and context buffer.
 ## Known Limitations
 
 - **Model compatibility**: This node is specifically designed for **Gemma-4-E4B** models in GGUF format. Other models may not work correctly or may require fallback handlers.
-- **Version requirement**: Requires `llama-cpp-python>=0.3.35` with Gemma4ChatHandler support. The official PyPI release (v0.3.20-cu123) does not work — a pre-built wheel must be installed manually from [JamePeng/llama-cpp-python](https://github.com/JamePeng/llama-cpp-python/releases).
+- **Version requirement**: Requires `llama-cpp-python>=0.3.35 (or 0.3.40-cu130-win-20260608.7 for 12B)` with Gemma4ChatHandler support. The official PyPI release (v0.3.20-cu123) does not work — a pre-built wheel must be installed manually from [JamePeng/llama-cpp-python](https://github.com/JamePeng/llama-cpp-python/releases).
 - **Video**: Only supports batch image tensors `[F, H, W, 3]` (not native video files)
 - **Audio**: Maximum 60-second duration
 - **Model format**: Only GGUF models are supported (not PyTorch `.safetensors`)

@@ -10,7 +10,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 > [!WARNING]
 > **Manual Installation Required for GGUF Multimodal Analyzer Node**
 >
-> The **Gemma-4 GGUF Multimodal Analyzer** node requires **llama-cpp-python v0.3.36 or higher**, because the Gemma 4 chat template was not integrated until that version. The current official release on PyPI is only **v0.3.20-cu123**, which **will not work**.
+> The **Gemma-4 GGUF Multimodal Analyzer** nodes require **llama-cpp-python v0.3.36 or higher** (for E4B) or the specifically tested **v0.3.40-cu130-win-20260608.7** wheel (for 12B). The current official release on PyPI is only **v0.3.20-cu123**, which **will not work**.
 >
 > You must manually install a pre-built wheel from the community repository:
 > **https://github.com/JamePeng/llama-cpp-python/releases** (v0.3.36 for various CUDA versions is available).
@@ -969,6 +969,28 @@ A dedicated style-system-prompt generator for multimodal LLM analyzers. Select a
 - Enforcing one consistent art direction across a batch of different source images.
 - Building style-transfer prompt pipelines without manually rewriting system prompts.
 - Rapidly testing many visual styles with the same analyzer and input image.
+
+---
+
+#### 🧠 Gemma-4 12B GGUF Multimodal Analyzer
+![Gemma 4 12B GGUF Analyzer](images/gemma_4_12B_analyzer.jpg)
+*Category: `Duffy/LLM`*
+
+A highly capable 12-billion parameter multimodal AI analysis node powered by Google's **Gemma-4-12B-it** model. Leverages the unified, encoder-free `gemma4uv` architecture allowing for precise local text, image, video, and audio analysis within the same native embedding space.
+
+> **⚠️ Important Version Requirement:**  
+> **llama-cpp-python v0.3.40-cu130-win-20260608.7** (or compatible JamePeng build) is mandatory for the 12B model due to the unified payload integration requirements.  
+>
+> See **[docs/llm_node_setup.md](docs/llm_node_setup.md)** for step-by-step installation instructions.
+
+**Inputs:** `gguf_model` (dropdown), `mmproj_model` (dropdown), `system_prompt` (multiline string), `user_prompt` (multiline string), `image` (IMAGE, optional), `reference_image` (IMAGE, optional), `video` (IMAGE batch, optional), `audio` (AUDIO, optional), plus 20+ inference parameters
+**Outputs:** `analysis_text` (STRING)
+
+**Requirements:**
+- GGUF model file (e.g., `gemma-4-12B-it-Q8_0.gguf`) in `ComfyUI/models/LLM/`
+- Unified BF16 multimodal projector (e.g., `mmproj-gemma-4-12B-it-BF16.gguf`) in `ComfyUI/models/LLM/`
+- Pre-built wheel `llama-cpp-python>=0.3.36` (ideally `0.3.40-cu130-win-20260608.7`) installed via [JamePeng/llama-cpp-python](https://github.com/JamePeng/llama-cpp-python/releases).
+- `numpy>=1.24.0`, `torchaudio>=2.0.0`, `soundfile>=0.12.0`
 
 ---
 

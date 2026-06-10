@@ -26,6 +26,7 @@ from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
 from .flux2_klein_noise import DuffyFlux2KleinNoise
 from .flux_max_shift import DuffyFluxMaxShift
+from .gemma_4_12b_analyzer import DuffyGemma4_12B_Analyzer
 from .gemma_gguf_analyzer import DuffyGemmaGGUFAnalyzer
 from .image_adjuster import DuffyImageAdjuster
 from .image_compare import DuffyImageCompare
@@ -149,6 +150,7 @@ NODE_LIST = [
     # LLM nodes
     DuffyImageStyler,
     DuffyGemmaGGUFAnalyzer,
+    DuffyGemma4_12B_Analyzer,
     DuffyQwenGGUFAnalyzer,
     DuffyQwen3VLGGUFAnalyzer,
     # Group Control
