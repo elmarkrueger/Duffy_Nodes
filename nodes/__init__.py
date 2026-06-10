@@ -13,6 +13,7 @@ from .clip_loader import DuffyClipLoader
 from .connected_image_stitch import DuffyConnectedImageStitch
 from .directory_image_iterator import DuffyDirectoryImageIterator
 from .duffy_sam3_mask_editor import DuffySAM3MaskEditor
+from .dynamic_float import DuffyDynamicFloat
 # Primitive nodes
 from .dynamic_integer import DuffyDynamicInteger
 from .dynamic_multi_architecture_sampler import \
@@ -25,6 +26,7 @@ from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
 from .flux2_klein_noise import DuffyFlux2KleinNoise
 from .flux_max_shift import DuffyFluxMaxShift
+from .gemma_4_12b_analyzer import DuffyGemma4_12B_Analyzer
 from .gemma_gguf_analyzer import DuffyGemmaGGUFAnalyzer
 from .image_adjuster import DuffyImageAdjuster
 from .image_compare import DuffyImageCompare
@@ -111,6 +113,7 @@ NODE_LIST = [
     DuffyFlux2KleinNoise,
     # Primitive nodes
     DuffyDynamicInteger,
+    DuffyDynamicFloat,
     DuffyPrimitiveBoolean,
     DuffyPrimitiveInteger,
     DuffyPrimitiveFloat,
@@ -147,6 +150,7 @@ NODE_LIST = [
     # LLM nodes
     DuffyImageStyler,
     DuffyGemmaGGUFAnalyzer,
+    DuffyGemma4_12B_Analyzer,
     DuffyQwenGGUFAnalyzer,
     DuffyQwen3VLGGUFAnalyzer,
     # Group Control
