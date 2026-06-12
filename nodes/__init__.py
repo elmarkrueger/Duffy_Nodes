@@ -28,6 +28,7 @@ from .flux2_klein_noise import DuffyFlux2KleinNoise
 from .flux_max_shift import DuffyFluxMaxShift
 from .gemma_4_12b_analyzer import DuffyGemma4_12B_Analyzer
 from .gemma_gguf_analyzer import DuffyGemmaGGUFAnalyzer
+from .gemma_ideogram_spatial_architect import DuffyGemmaIdeogramSpatialArchitect
 from .image_adjuster import DuffyImageAdjuster
 from .image_compare import DuffyImageCompare
 from .image_preview import DuffyImagePreview
@@ -151,6 +152,7 @@ NODE_LIST = [
     DuffyImageStyler,
     DuffyGemmaGGUFAnalyzer,
     DuffyGemma4_12B_Analyzer,
+    DuffyGemmaIdeogramSpatialArchitect,
     DuffyQwenGGUFAnalyzer,
     DuffyQwen3VLGGUFAnalyzer,
     # Group Control
