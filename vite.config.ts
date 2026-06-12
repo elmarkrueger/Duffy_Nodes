@@ -31,7 +31,8 @@ export default defineConfig({
         power_lora_loader: "./src/power_lora_loader.ts",
         image_compare: "./src/image_compare.ts",
         image_styler: "./src/image_styler.ts",
-        prompt_loader: "./src/prompt_loader.ts"
+        prompt_loader: "./src/prompt_loader.ts",
+        gemma_ideogram_spatial_architect: "./src/gemma_ideogram_spatial_architect.ts"
       },
       formats: ["es"]
     },
