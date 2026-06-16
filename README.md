@@ -27,7 +27,7 @@ A comprehensive collection of custom nodes for ComfyUI, built with the modern **
 ## ✨ Features
 
 🚀 **Modern Architecture** - Built with ComfyUI Nodes 2.0 and Schema V3 for maximum performance and compatibility  
-🎯 **36+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, LLM analysis, and more  
+🎯 **60+ Professional Nodes** - Carefully crafted tools covering primitives, math, image processing, LLM analysis, and more  
 ⚡ **GPU Accelerated** - Leverages PyTorch and torchvision for blazing-fast image operations  
 🔧 **Stateless Design** - Clean, predictable behavior with proper caching and fingerprinting  
 🎨 **Custom UI Widgets** - Enhanced user experience with specialized Vue-compatible interfaces  
