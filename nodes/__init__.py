@@ -47,6 +47,7 @@ from .lora_loader import DuffyLoraLoader
 from .lora_prompt_combiner import DuffyLoRaPromptCombiner
 from .math_expression import DuffyMathExpression
 from .megapixel_resize import DuffyMegapixelResize
+from .model_loader import DuffyModelLoader
 from .model_selector import DuffyModelSelector
 from .multi_pass_node import DuffyMultiPassSampling
 from .native_group_controller import (DuffyNativeGroupBypasser,
@@ -128,6 +129,7 @@ NODE_LIST = [
     # Selector nodes
     DuffyModelSelector,
     # Loaders
+    DuffyModelLoader,
     DuffyLoraLoader,
     DuffyPowerLoraLoader,
     # Sampling nodes
