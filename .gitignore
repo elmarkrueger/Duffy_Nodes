@@ -3,6 +3,7 @@ __pycache__/
 .gemini
 .github
 .agents
+.venv
 GEMINI.md
 PRD
 memories
