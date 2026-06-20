@@ -233,6 +233,38 @@ def _file_signature(path):
         return (path, stat.st_mtime_ns, stat.st_size)
     except Exception:
         return path
+def get_clip_types():
+    fallback_types = [
+        "stable_diffusion", "stable_cascade", "sd3", "stable_audio", 
+        "mochi", "ltxv", "pixart", "cosmos", "lumina2", "wan", "hidream", 
+        "chroma", "ace", "omnigen2", "qwen_image", "hunyuan_image", "flux2", 
+        "ovis", "longcat_image", "cogvideox", "lens", "pixeldit", "ideogram4"
+    ]
+    try:
+        import nodes
+        if hasattr(nodes, "NODE_CLASS_MAPPINGS"):
+            clip_class = nodes.NODE_CLASS_MAPPINGS.get("CLIPLoader")
+            if clip_class and hasattr(clip_class, "INPUT_TYPES"):
+                input_types = clip_class.INPUT_TYPES()
+                if isinstance(input_types, dict):
+                    required = input_types.get("required")
+                    if isinstance(required, dict):
+                        clip_type_info = required.get("type")
+                        if isinstance(clip_type_info, tuple) and len(clip_type_info) > 0:
+                            type_list = clip_type_info[0]
+                            if isinstance(type_list, list) and len(type_list) > 0:
+                                import copy
+                                resolved = copy.deepcopy(type_list)
+                                if "default" not in resolved:
+                                    resolved.insert(0, "default")
+                                return resolved
+    except Exception:
+        pass
+    import copy
+    resolved = copy.deepcopy(fallback_types)
+    if "default" not in resolved:
+        resolved.insert(0, "default")
+    return resolved
 
 
 class DuffyModelLoader(io.ComfyNode):
@@ -265,12 +297,7 @@ class DuffyModelLoader(io.ComfyNode):
                 ),
                 io.Combo.Input(
                     "clip_type",
-                    options=[
-                        "default", "stable_diffusion", "stable_cascade", "sd3", "stable_audio", 
-                        "mochi", "ltxv", "pixart", "cosmos", "lumina2", "wan", "hidream", 
-                        "chroma", "ace", "omnigen2", "qwen_image", "hunyuan_image", "flux2", 
-                        "ovis", "longcat_image", "cogvideox", "lens", "pixeldit", "ideogram4", "boogu"
-                    ],
+                    options=get_clip_types(),
                     default="default",
                     tooltip="Override structural detection for complex CLIP models, or use 'default' for auto-detection."
                 ),
