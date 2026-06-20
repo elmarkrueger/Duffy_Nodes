@@ -714,6 +714,24 @@ Dynamic model selection interface for Diffusion, CLIP, and VAE models. Scans cus
 
 ---
 
+#### 🧩 Unified Model Loader
+![Unified Model Loader](images/unified_model_loader.jpg)
+*Category: `Duffy/Loaders`*
+
+All-in-one loader that combines Diffusion model, CLIP text encoder, and VAE selection into one node with support for both `.safetensors` and `.gguf` workflows.
+
+**Inputs:** `model_name` (Diffusion/UNet), `clip_name` (Text Encoder), `vae_name` (VAE), `clip_type` (default or explicit architecture), `weight_dtype` (default/fp8_e4m3fn/fp16), `device` (default/cpu, advanced)  
+**Outputs:** `MODEL`, `CLIP`, `VAE`
+
+**Features:**
+- Unified loading of model, text encoder, and VAE in one deterministic Schema V3 node.
+- Auto-detection and loading logic for mixed standard and quantized GGUF stacks.
+- Header-level validation for model/clip/vae files before execution to catch mismatches early.
+- Optional CLIP CPU loading and diffusion weight downcast controls for VRAM-sensitive workflows.
+- File-signature-aware fingerprinting to invalidate cache when underlying model files change.
+
+---
+
 #### � Duffy CLIP Loader
 ![Duffy CLIP Loader](images/duffy_clip_loader.jpg)
 *Category: `Duffy/Loaders`*
@@ -834,6 +852,24 @@ Load multiple positive/negative prompt pairs from a text file and emit one pair 
 **Use Cases:** Batch prompt exploration, style iteration across the same graph, unattended multi-prompt generation runs.
 
 ---
+
+#### ✂️ Prompt Splitter
+![Prompt Splitter](images/prompt_splitter.jpg)
+*Category: `Duffy/Text`*
+
+Split a single combined prompt string into positive and negative outputs using a selectable separator token.
+
+**Inputs:** `text` (STRING, multiline), `separator` (combo: `|`, `,`, `;`, `\\n`, `---`, `__`)  
+**Outputs:** `positive` (STRING), `negative` (STRING)
+
+**Features:**
+- Splits on the first separator occurrence so the remainder stays intact.
+- Supports visual newline separator (`\\n`) and real newline handling.
+- Graceful fallback behavior: if no separator is found, the full text is emitted as positive and negative stays empty.
+- Lightweight, stateless prompt utility ideal for chaining from LLM/analyzer text outputs.
+
+---
+
 #### �🔎 Find and Replace Text
 ![Find and Replace Text](images/find_and_replace.jpg)
 *Category: `Duffy/Text`*
