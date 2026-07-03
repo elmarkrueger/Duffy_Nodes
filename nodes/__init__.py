@@ -21,6 +21,7 @@ from .dynamic_multi_architecture_sampler import \
 # Latent nodes (migrated from legacy V1)
 from .empty_qwen_latent import DuffyEmptyQwenLatent
 from .find_and_replace_text import DuffyFindAndReplaceText
+from .five_dynamic_sliders import DuffyFiveDynamicSliders
 from .five_float_sliders import DuffyFiveFloatSliders
 from .five_int_sliders import DuffyFiveIntSliders
 from .float_math import DuffyFloatMath
@@ -86,6 +87,7 @@ NODE_LIST = [
     DuffySignalSelector,
     DuffyLoRaPromptCombiner,
     DuffyFindAndReplaceText,
+    DuffyFiveDynamicSliders,
     DuffyFiveFloatSliders,
     DuffyFiveIntSliders,
     DuffyFloatMath,
