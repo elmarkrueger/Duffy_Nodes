@@ -11,6 +11,7 @@ export default defineConfig({
     emptyOutDir: false,
     lib: { 
       entry: {
+        five_dynamic_sliders: "./src/five_dynamic_sliders.ts",
         dynamic_integer: "./src/dynamic_integer.ts",
         dynamic_float: "./src/dynamic_float.ts",
         interactive_relight: "./src/interactive_relight.ts",

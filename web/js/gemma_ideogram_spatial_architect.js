@@ -1,5 +1,5 @@
 import { app } from "../../../scripts/app.js";
-import { d as defineComponent, f as onMounted, g as onUnmounted, o as openBlock, c as createElementBlock, a as createBaseVNode, F as Fragment, r as renderList, j as normalizeClass, t as toDisplayString, m as normalizeStyle, i as createCommentVNode, k as withModifiers, w as withDirectives, v as vModelText, p as vModelSelect, h as createTextVNode, b as ref, l as computed, _ as _export_sfc, e as createApp } from "./_plugin-vue_export-helper-CusGlrPr.js";
+import { d as defineComponent, f as onMounted, g as onUnmounted, o as openBlock, c as createElementBlock, a as createBaseVNode, F as Fragment, r as renderList, n as normalizeClass, t as toDisplayString, m as normalizeStyle, i as createCommentVNode, k as withModifiers, w as withDirectives, v as vModelText, p as vModelSelect, h as createTextVNode, b as ref, l as computed, _ as _export_sfc, e as createApp } from "./_plugin-vue_export-helper-CRxIfRw1.js";
 import { api } from "../../../scripts/api.js";
 const _hoisted_1 = { class: "gisa-root" };
 const _hoisted_2 = { class: "gisa-header" };
@@ -923,7 +923,198 @@ app.registerExtension({
   try {
     if (typeof document != "undefined") {
       var elementStyle = document.createElement("style");
-      elementStyle.appendChild(document.createTextNode(`.dynamic-integer-root[data-v-d0e7e6f0] {\r
+      elementStyle.appendChild(document.createTextNode(`.five-sliders-root[data-v-4403a8ab] {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 8px;
+  background: rgba(20, 20, 20, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border-radius: 8px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+.header[data-v-4403a8ab] {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+.header h4[data-v-4403a8ab] {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: #3b82f6;
+  text-transform: uppercase;
+}
+.sliders-list[data-v-4403a8ab] {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-grow: 1;
+}
+.slider-row[data-v-4403a8ab] {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+.glass-panel[data-v-4403a8ab] {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+.glass-panel[data-v-4403a8ab]:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+.main-controls[data-v-4403a8ab] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.label-input[data-v-4403a8ab] {
+  width: 100px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+  color: #f1f5f9;
+  font-size: 11px;
+  padding: 2px 4px;
+  outline: none;
+  transition: border-bottom-color 0.2s, background-color 0.2s;
+  border-radius: 2px;
+}
+.label-input[data-v-4403a8ab]:focus {
+  border-bottom-color: #3b82f6;
+  background: rgba(255, 255, 255, 0.05);
+}
+.slider-container[data-v-4403a8ab] {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+.slider-bar[data-v-4403a8ab] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.slider-bar[data-v-4403a8ab]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  background: transparent;
+}
+.slider-bar[data-v-4403a8ab]::-webkit-slider-thumb {
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  -webkit-appearance: none;
+  margin-top: -4px;
+  transition: background-color 0.2s, transform 0.1s ease;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+.slider-bar[data-v-4403a8ab]::-webkit-slider-thumb:hover {
+  background: #60a5fa;
+  transform: scale(1.15);
+}
+.number-input[data-v-4403a8ab] {
+  width: 60px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 11px;
+  text-align: right;
+  outline: none;
+  transition: border-color 0.2s;
+  -moz-appearance: textfield;
+}
+.number-input[data-v-4403a8ab]::-webkit-outer-spin-button,
+.number-input[data-v-4403a8ab]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.number-input[data-v-4403a8ab]:focus {
+  border-color: #3b82f6;
+}
+.settings-toggle-btn[data-v-4403a8ab] {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.2s, background-color 0.2s;
+}
+.settings-toggle-btn[data-v-4403a8ab]:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.05);
+}
+.settings-panel[data-v-4403a8ab] {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease, padding 0.25s ease, margin-top 0.25s ease;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+.settings-panel.expanded[data-v-4403a8ab] {
+  max-height: 52px;
+  opacity: 1;
+  padding: 6px;
+  margin-top: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+.setting-field[data-v-4403a8ab] {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.setting-field label[data-v-4403a8ab] {
+  font-size: 9px;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.setting-input[data-v-4403a8ab] {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  border-radius: 3px;
+  padding: 2px 4px;
+  font-size: 10px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+.setting-input[data-v-4403a8ab]:focus {
+  border-color: #3b82f6;
+}
+
+.dynamic-integer-root[data-v-d0e7e6f0] {\r
   display: flex;\r
   flex-direction: column;\r
   height: 100%;\r

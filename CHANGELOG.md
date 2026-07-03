@@ -10,6 +10,17 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Unified Model Loader** (`Duffy_ModelLoader`, category `Duffy/Loaders`).
+  - Introduces a consolidated loader that outputs `MODEL`, `CLIP`, and `VAE` from one node.
+  - Supports both standard `.safetensors` and quantized `.gguf` model stacks with automatic routing.
+  - Adds file-header validation and safer path resolution checks for model and text-encoder inputs.
+  - Includes advanced runtime controls for `clip_type` override, `weight_dtype` downcast, and optional CLIP CPU loading.
+
+- **Prompt Splitter** (`Duffy_PromptSplitter`, category `Duffy/Text`).
+  - Adds a compact text utility node to split combined prompt strings into positive and negative outputs.
+  - Supports multiple separator options including literal newline selection (`\\n`).
+  - Uses first-match split behavior and graceful fallback when no separator is present.
+
 - **Gemma-4 12B GGUF Multimodal Analyzer** (`Duffy_Gemma4_12B_Analyzer`, category `Duffy/LLM`).
   - Supports unified text, image, video, and audio feature analysis utilizing the encoder-free `gemma4uv` architecture.
   - Requires specific dependencies, including the precompiled wheel `v0.3.40-cu130-win-20260608.7` from JamePeng's compilation repository, due to underlying bugfixes.
