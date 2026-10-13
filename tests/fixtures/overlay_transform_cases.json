@@ -1,0 +1,269 @@
+{
+  "description": "Golden transform cases shared by Python and TypeScript tests. Corners are TL, TR, BR, BL in background pixels. rotation_deg > 0 is CCW on screen (y down).",
+  "cases": [
+    {
+      "name": "identity_square",
+      "bg_size": [
+        1024,
+        1024
+      ],
+      "overlay_size": [
+        256,
+        256
+      ],
+      "state": {
+        "translation_norm": [
+          0.5,
+          0.5
+        ],
+        "scale_factors": [
+          1,
+          1
+        ],
+        "rotation_deg": 0,
+        "anchor_point": [
+          0.5,
+          0.5
+        ]
+      },
+      "expected_corners_px": [
+        [
+          384.0,
+          384.0
+        ],
+        [
+          640.0,
+          384.0
+        ],
+        [
+          640.0,
+          640.0
+        ],
+        [
+          384.0,
+          640.0
+        ]
+      ]
+    },
+    {
+      "name": "widescreen_rot37",
+      "bg_size": [
+        2560,
+        1080
+      ],
+      "overlay_size": [
+        400,
+        200
+      ],
+      "state": {
+        "translation_norm": [
+          0.3,
+          0.6
+        ],
+        "scale_factors": [
+          1.5,
+          1.5
+        ],
+        "rotation_deg": 37,
+        "anchor_point": [
+          0.5,
+          0.5
+        ]
+      },
+      "expected_corners_px": [
+        [
+          438.137094,
+          708.74918
+        ],
+        [
+          917.3184,
+          347.660167
+        ],
+        [
+          1097.862906,
+          587.25082
+        ],
+        [
+          618.6816,
+          948.339833
+        ]
+      ]
+    },
+    {
+      "name": "rot90_ccw",
+      "bg_size": [
+        1920,
+        800
+      ],
+      "overlay_size": [
+        300,
+        300
+      ],
+      "state": {
+        "translation_norm": [
+          0.5,
+          0.5
+        ],
+        "scale_factors": [
+          1,
+          1
+        ],
+        "rotation_deg": 90,
+        "anchor_point": [
+          0.5,
+          0.5
+        ]
+      },
+      "expected_corners_px": [
+        [
+          810.0,
+          550.0
+        ],
+        [
+          810.0,
+          250.0
+        ],
+        [
+          1110.0,
+          250.0
+        ],
+        [
+          1110.0,
+          550.0
+        ]
+      ]
+    },
+    {
+      "name": "rot180_nonuniform",
+      "bg_size": [
+        2048,
+        2048
+      ],
+      "overlay_size": [
+        512,
+        256
+      ],
+      "state": {
+        "translation_norm": [
+          0.25,
+          0.75
+        ],
+        "scale_factors": [
+          0.5,
+          2.0
+        ],
+        "rotation_deg": 180,
+        "anchor_point": [
+          0.5,
+          0.5
+        ]
+      },
+      "expected_corners_px": [
+        [
+          640.0,
+          1792.0
+        ],
+        [
+          384.0,
+          1792.0
+        ],
+        [
+          384.0,
+          1280.0
+        ],
+        [
+          640.0,
+          1280.0
+        ]
+      ]
+    },
+    {
+      "name": "offcenter_anchor",
+      "bg_size": [
+        1000,
+        600
+      ],
+      "overlay_size": [
+        200,
+        100
+      ],
+      "state": {
+        "translation_norm": [
+          0.1,
+          0.2
+        ],
+        "scale_factors": [
+          2.0,
+          1.0
+        ],
+        "rotation_deg": -30,
+        "anchor_point": [
+          0.0,
+          0.0
+        ]
+      },
+      "expected_corners_px": [
+        [
+          100.0,
+          120.0
+        ],
+        [
+          446.410162,
+          320.0
+        ],
+        [
+          396.410162,
+          406.60254
+        ],
+        [
+          50.0,
+          206.60254
+        ]
+      ]
+    },
+    {
+      "name": "negative_rot_portrait",
+      "bg_size": [
+        720,
+        1280
+      ],
+      "overlay_size": [
+        640,
+        480
+      ],
+      "state": {
+        "translation_norm": [
+          0.5,
+          0.4
+        ],
+        "scale_factors": [
+          0.75,
+          0.6
+        ],
+        "rotation_deg": -125.5,
+        "anchor_point": [
+          0.25,
+          0.9
+        ]
+      },
+      "expected_corners_px": [
+        [
+          640.703097,
+          564.824344
+        ],
+        [
+          361.965678,
+          955.599793
+        ],
+        [
+          127.500409,
+          788.357341
+        ],
+        [
+          406.237828,
+          397.581893
+        ]
+      ]
+    }
+  ]
+}

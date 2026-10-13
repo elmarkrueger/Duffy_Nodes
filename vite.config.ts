@@ -33,6 +33,8 @@ export default defineConfig({
         image_compare: "./src/image_compare.ts",
         image_styler: "./src/image_styler.ts",
         prompt_loader: "./src/prompt_loader.ts",
+        interactive_overlay: "./src/interactive_overlay.ts",
+        // Keep this entry last: vite-plugin-css-injected-by-js injects shared global CSS into the last entry.
         gemma_ideogram_spatial_architect: "./src/gemma_ideogram_spatial_architect.ts"
       },
       formats: ["es"]

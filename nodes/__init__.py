@@ -37,6 +37,7 @@ from .image_stitch import DuffyImageStitch
 from .image_styler import DuffyImageStyler
 from .image_text_overlay import DuffyImageTextOverlay
 from .integer_math import DuffyIntegerMath
+from .interactive_overlay_compositor import DuffyInteractiveOverlayCompositor
 from .interactive_relight import DuffyInteractiveRelight
 from .iterator_current_filename import DuffyIteratorCurrentFilename
 from .json_format_string import DuffyJsonFormatString
@@ -150,6 +151,7 @@ NODE_LIST = [
     DuffyImageTextOverlay,
     DuffyAdvancedTextOverlay,
     DuffyAdvancedLayerControl,
+    DuffyInteractiveOverlayCompositor,
     DuffyInteractiveRelight,
     DuffyAdvancedImageAdjuster,
     DuffyAdvancedConnectedImageStitch,

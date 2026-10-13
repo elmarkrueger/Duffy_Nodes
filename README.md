@@ -552,6 +552,38 @@ Pause your workflow to interactively compose up to five distinct object layers o
 
 ---
 
+#### 🧩 Interactive Overlay Compositor
+*Category: `Duffy/Image/Compositing`*
+
+Pause the workflow and place a single overlay over a background **directly inside the node**: drag, scale and rotate it with a transform gizmo, then click **Continue**. The final composite is rendered on the GPU from the full-resolution tensors (the browser only sees lightweight ≤1280 px previews). Works identically in the classic LiteGraph canvas and in Nodes 2.0.
+
+**Inputs:** `background_image` (IMAGE), `overlay_image` (IMAGE, RGBA supported), `blend_mode` (normal / multiply / screen / overlay / add), `opacity` (0–1), `pause_mode` (always / on_input_change / never), `transform_state` (hidden JSON state)  
+**Outputs:** `IMAGE` (composite, background size), `MASK` (overlay footprint, **1.0 = overlay present**, includes opacity), `TRANSFORM_DATA` (JSON: normalized transform, pixel matrix, corners)
+
+**Controls:**
+
+| Action | Result |
+| :-- | :-- |
+| Drag inside the box | Move (snaps to the center axes; hold **Ctrl/Cmd** to disable snapping) |
+| Drag a corner handle | Uniform scale around the pivot (hold **Shift** for free scaling) |
+| Drag an edge handle | Scale along one axis |
+| Drag the round handle above the box | Rotate around the pivot (hold **Shift** for 15° steps) |
+| Drag the orange crosshair | Move the pivot without moving the overlay |
+| Double-click a handle | Reset that component (scale, rotation or pivot) |
+| **Esc** | Reset the whole transform |
+| **Alt + wheel** / **Alt + drag** | Zoom / pan the view (does not change the transform) |
+
+**Features:**
+- ⏸️ **Interrupt-safe pause** — ComfyUI's *Cancel* releases the paused worker immediately; reloading the browser tab restores the paused session.
+- 🖼️ **Preview-style fitting** — 1 MP, 4 MP and ultra-wide backgrounds are always fully visible with symmetric letterboxing.
+- 🎯 **Pixel-exact parity** — Gizmo and backend share one transform model (verified by shared golden fixtures); bicubic, premultiplied-alpha resampling avoids edge fringing.
+- 🎨 **Live blend preview** — Changing *Blend Mode* or *Opacity* while paused updates the preview instantly.
+- 🔁 **Pause modes** — `on_input_change` only pauses when the input images change; `never` (and API/headless runs) apply the saved transform without stopping the queue.
+
+**Use Cases:** Logo and watermark placement, positioning reference subjects for ControlNet, typography alignment, and quick product/scene composites.
+
+---
+
 ### 🎲 Latent Operations
 Specialized nodes for latent space manipulation and noise generation.
 
