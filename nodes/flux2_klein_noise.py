@@ -9,6 +9,13 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
     while maintaining backward compatibility with SD1.5/SDXL/SD3 workflows.
     """
 
+    _CHANNEL_DOWNSAMPLE_MAP: dict[str, int] = {
+        "4": 8,
+        "16": 8,
+        "64": 16,
+        "128": 16,
+    }
+
     @classmethod
     def define_schema(cls) -> io.Schema:
         return io.Schema(
@@ -17,7 +24,7 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
             category="Duffy/Latent",
             description=(
                 "Generates parameterised noise for injection or as empty latents. "
-                "Supports Flux 2 Klein (128-channel, f16) as well as legacy "
+                "Supports f16 architectures (64/128 channels) as well as legacy "
                 "SD1.5/SDXL/SD3 architectures (4/16-channel, f8)."
             ),
             inputs=[
@@ -92,10 +99,10 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
                 ),
                 io.Combo.Input(
                     "latent_channels",
-                    options=["4", "16", "128"],
+                    options=list(cls._CHANNEL_DOWNSAMPLE_MAP.keys()),
                     display_name="Latent Channels",
                     default="4",
-                    tooltip="4 = SD1.5/SDXL, 16 = SD3, 128 = Flux 2 Klein",
+                    tooltip="4/16 = f8 architectures, 64/128 = f16 architectures",
                 ),
                 io.Combo.Input(
                     "shape",
@@ -115,6 +122,46 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
         )
 
     @classmethod
+    def _resolve_downscale_factor(cls, latent_channels: str) -> int | None:
+        return cls._CHANNEL_DOWNSAMPLE_MAP.get(str(latent_channels))
+
+    @classmethod
+    def validate_inputs(
+        cls,
+        width: int,
+        height: int,
+        latent_channels: str,
+        shape: str,
+        **kwargs,
+    ) -> bool | str:
+        # Comfy may call validation with unresolved (None) values while graph links are still being resolved.
+        # In that phase, defer strict numeric checks to avoid TypeErrors in validator code.
+        if width is None or height is None or latent_channels is None or shape is None:
+            return True
+
+        downscale_factor = cls._resolve_downscale_factor(latent_channels)
+        if downscale_factor is None:
+            valid = ", ".join(cls._CHANNEL_DOWNSAMPLE_MAP.keys())
+            return f"Validation Error: Unsupported latent_channels '{latent_channels}'. Use one of: {valid}."
+
+        try:
+            width_i = int(width)
+            height_i = int(height)
+        except (TypeError, ValueError):
+            return "Validation Error: Width and height must be integer values."
+
+        if width_i % downscale_factor != 0 or height_i % downscale_factor != 0:
+            return (
+                f"Validation Error: Width ({width_i}) and height ({height_i}) must both be divisible "
+                f"by {downscale_factor} for latent_channels={latent_channels}."
+            )
+
+        if shape not in {"BCHW", "BCTHW", "BTCHW"}:
+            return f"Validation Error: Unsupported shape '{shape}'."
+
+        return True
+
+    @classmethod
     def execute(
         cls,
         width: int,
@@ -129,13 +176,32 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
         latent_channels: str = "4",
         shape: str = "BCHW",
     ) -> io.NodeOutput:
-        generator = torch.manual_seed(seed)
-        channels = int(latent_channels)
+        if width is None or height is None:
+            raise ValueError("Width and height are required to generate latent noise.")
 
-        # Flux 2 Klein uses f16 downsampling; legacy architectures use f8
-        downscale_factor = 16 if channels == 128 else 8
-        spatial_h = height // downscale_factor
-        spatial_w = width // downscale_factor
+        try:
+            width_i = int(width)
+            height_i = int(height)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("Width and height must be integer values.") from exc
+
+        generator = torch.manual_seed(seed)
+        downscale_factor = cls._resolve_downscale_factor(latent_channels)
+        if downscale_factor is None:
+            valid = ", ".join(cls._CHANNEL_DOWNSAMPLE_MAP.keys())
+            raise ValueError(
+                f"Unsupported latent_channels '{latent_channels}'. Use one of: {valid}."
+            )
+
+        if width_i % downscale_factor != 0 or height_i % downscale_factor != 0:
+            raise ValueError(
+                f"Width ({width_i}) and height ({height_i}) must both be divisible by {downscale_factor} "
+                f"for latent_channels={latent_channels}."
+            )
+
+        channels = int(latent_channels)
+        spatial_h = height_i // downscale_factor
+        spatial_w = width_i // downscale_factor
 
         if shape == "BCHW":
             noise = torch.randn(
@@ -152,6 +218,8 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
                 [1, batch_size, channels, spatial_h, spatial_w],
                 dtype=torch.float32, generator=generator, device="cpu",
             )
+        else:
+            raise ValueError(f"Unsupported shape '{shape}'.")
 
         # Sigma-based variance scaling
         if sigmas is not None and model is not None:
@@ -162,9 +230,16 @@ class DuffyFlux2KleinNoise(io.ComfyNode):
         noise *= multiplier
 
         if normalize:
-            noise = noise / noise.std()
+            std = float(noise.std().item())
+            if std > 0.0:
+                noise = noise / std
 
         if constant_batch_noise:
-            noise = noise.repeat(batch_size, 1, 1, 1)
+            if shape == "BCHW":
+                noise = noise[:1].repeat(batch_size, 1, 1, 1)
+            elif shape == "BCTHW":
+                noise = noise[:, :, :1, :, :].repeat(1, 1, batch_size, 1, 1)
+            elif shape == "BTCHW":
+                noise = noise[:, :1, :, :, :].repeat(1, batch_size, 1, 1, 1)
 
         return io.NodeOutput({"samples": noise})

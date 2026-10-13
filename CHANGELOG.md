@@ -10,6 +10,18 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Interactive Overlay Compositor** (`Duffy_InteractiveOverlayCompositor`, category `Duffy/Image/Compositing`).
+  - Human-in-the-loop node: pauses the workflow and shows an in-node viewport with a 12-handle transform gizmo (move, uniform/free/edge scale, rotate, movable pivot).
+  - GPU compositing from full-resolution tensors with bicubic, premultiplied-alpha affine resampling and five blend modes (normal, multiply, screen, overlay, add).
+  - Outputs `IMAGE`, an overlay-footprint `MASK` (1.0 = overlay) and `TRANSFORM_DATA` JSON (normalized transform, pixel matrix, corners).
+  - Interrupt-aware wait loop (ComfyUI *Cancel* works while paused), session rehydration after a browser reload, and `pause_mode` (`always` / `on_input_change` / `never`); headless API runs apply the saved transform.
+  - Single `addDOMWidget` mount that works in both the LiteGraph canvas and Nodes 2.0; shared golden fixtures keep the Python and TypeScript transform math in lockstep.
+
+- **Generate Noise (Flux 2 Klein)** (`Duffy_Flux2KleinNoise`, category `Duffy/Latent`).
+  - Adds support for 64-channel latent generation with f16 spatial downsampling.
+  - Keeps existing 4/16-channel f8 and 128-channel f16 behavior while adding stricter divisibility validation.
+  - Fixes constant-batch noise replication for BCHW, BCTHW, and BTCHW tensor layouts.
+
 - **Unified Model Loader** (`Duffy_ModelLoader`, category `Duffy/Loaders`).
   - Introduces a consolidated loader that outputs `MODEL`, `CLIP`, and `VAE` from one node.
   - Supports both standard `.safetensors` and quantized `.gguf` model stacks with automatic routing.
