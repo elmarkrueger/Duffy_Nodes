@@ -1,5 +1,5 @@
 import { app } from "../../../scripts/app.js";
-import { d as defineComponent, o as openBlock, c as createElementBlock, a as createBaseVNode, F as Fragment, r as renderList, w as withDirectives, v as vModelText, n as normalizeClass, b as ref, _ as _export_sfc, e as createApp } from "./_plugin-vue_export-helper-CRxIfRw1.js";
+import { d as defineComponent, o as openBlock, c as createElementBlock, a as createBaseVNode, F as Fragment, r as renderList, w as withDirectives, v as vModelText, n as normalizeClass, b as ref, _ as _export_sfc, e as createApp } from "./_plugin-vue_export-helper-Bcfa1sBX.js";
 const _hoisted_1 = { class: "five-sliders-root" };
 const _hoisted_2 = { class: "sliders-list" };
 const _hoisted_3 = { class: "main-controls" };
