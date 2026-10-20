@@ -36,6 +36,7 @@ from .image_preview import DuffyImagePreview
 from .image_stitch import DuffyImageStitch
 from .image_styler import DuffyImageStyler
 from .image_text_overlay import DuffyImageTextOverlay
+from .integer_compare import DuffyIntegerCompare
 from .integer_math import DuffyIntegerMath
 from .interactive_overlay_compositor import DuffyInteractiveOverlayCompositor
 from .interactive_relight import DuffyInteractiveRelight
@@ -131,6 +132,7 @@ NODE_LIST = [
     DuffyPromptLoader,
     DuffyPromptSplitter,
     # Logic nodes
+    DuffyIntegerCompare,
     DuffyLogicGate,
     # Selector nodes
     DuffyModelSelector,
