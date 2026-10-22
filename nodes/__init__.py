@@ -83,6 +83,8 @@ from .show_anything import DuffyShowAnything
 from .signal_selector import DuffySignalSelector
 from .toggle_switch import DuffyToggleSwitch
 from .triple_sampler_scheduler import DuffyTripleSamplerScheduler
+from .vision_llm_system_prompt_selector import \
+    DuffyVisionLLMSystemPromptSelector
 
 NODE_LIST = [
     DuffyAudioSlicer,
@@ -163,6 +165,7 @@ NODE_LIST = [
     DuffyImagePreview,
     # LLM nodes
     DuffyImageStyler,
+    DuffyVisionLLMSystemPromptSelector,
     DuffyGemmaGGUFAnalyzer,
     DuffyGemma4_12B_Analyzer,
     DuffyGemmaIdeogramSpatialArchitect,
