@@ -58,6 +58,10 @@ from .native_group_controller import (DuffyNativeGroupBypasser,
                                       DuffyNativeSingleGroupBypasser,
                                       DuffyNativeSingleGroupMuter)
 from .node_alignment_tool import DuffyNodeAlignmentTool
+from .nodes_h3_storyboard import (DuffyH3AVStitcher, DuffyH3ClipCard,
+                                  DuffyH3ExecutionEngine,
+                                  DuffyH3GlobalMediaVault,
+                                  DuffyH3SamplerConfig)
 from .omni_model_node import DuffyOmniModelNode
 from .power_lora_loader import DuffyPowerLoraLoader
 from .primitive_boolean import DuffyPrimitiveBoolean
@@ -177,4 +181,10 @@ NODE_LIST = [
     DuffyNativeGroupMuter,
     DuffyNativeSingleGroupBypasser,
     DuffyNativeSingleGroupMuter,
+    # MiniMax-H3 Multi-Clip Storyboard & A/V Stitching
+    DuffyH3GlobalMediaVault,
+    DuffyH3ClipCard,
+    DuffyH3SamplerConfig,
+    DuffyH3ExecutionEngine,
+    DuffyH3AVStitcher,
 ]
