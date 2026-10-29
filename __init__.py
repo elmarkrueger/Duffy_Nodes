@@ -48,6 +48,10 @@ class DuffyNodesExtension(ComfyExtension):
     Formal extension registration container for Duffy_Nodes.
     Inherits from ComfyExtension to interface with the ComfyUI backend loader.
     """
+    async def on_load(self) -> None:
+        from .nodes.node_replacements import register_all_replacements
+        await register_all_replacements()
+
     async def get_node_list(self) -> list[type[io.ComfyNode]]:
         """
         Returns the list of active V3 schema nodes to the application registry.
