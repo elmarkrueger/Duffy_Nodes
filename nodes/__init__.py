@@ -40,6 +40,7 @@ from .integer_compare import DuffyIntegerCompare
 from .integer_math import DuffyIntegerMath
 from .interactive_overlay_compositor import DuffyInteractiveOverlayCompositor
 from .interactive_relight import DuffyInteractiveRelight
+from .interactive_scheduler import DuffyInteractiveScheduler
 from .iterator_current_filename import DuffyIteratorCurrentFilename
 from .json_format_string import DuffyJsonFormatString
 from .latent_noise_blender import DuffyLatentNoiseBlender
@@ -151,6 +152,7 @@ NODE_LIST = [
     DuffyDynamicMultiArchitectureSampler,
     DuffyTripleSamplerScheduler,
     DuffyFluxMaxShift,
+    DuffyInteractiveScheduler,
     # SAM3 nodes
     DuffySAM3MaskEditor,
     # Utility nodes
