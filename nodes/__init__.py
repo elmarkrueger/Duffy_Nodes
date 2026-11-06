@@ -74,6 +74,7 @@ from .prompt_box import DuffyPromptBox
 from .prompt_loader import DuffyPromptLoader
 from .prompt_splitter import DuffyPromptSplitter
 from .qwen3_vl_gguf_analyzer import DuffyQwen3VLGGUFAnalyzer
+from .qwen38_vlm_prompt_generator import DuffyQwen38VLMPromptGenerator
 from .qwen_gguf_analyzer import DuffyQwenGGUFAnalyzer
 from .real_time_grading_processor import DuffyRealTimeGradingProcessor
 # Image processing nodes (migrated from legacy V1)
@@ -177,6 +178,7 @@ NODE_LIST = [
     DuffyGemmaIdeogramSpatialArchitect,
     DuffyQwenGGUFAnalyzer,
     DuffyQwen3VLGGUFAnalyzer,
+    DuffyQwen38VLMPromptGenerator,
     DuffyOmniModelNode,
     # Group Control
     DuffyNativeGroupBypasser,
