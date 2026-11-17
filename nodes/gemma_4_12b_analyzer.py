@@ -1,36 +1,21 @@
 import logging
-import os
-import re
 from typing import Any, Optional
 
-import folder_paths  # type: ignore  — provided by ComfyUI runtime
 import torch
 from comfy_api.latest import io
 
-# ---------------------------------------------------------------------------
-# Import-time validation: verify the JamePeng llama-cpp-python wheel
-# ---------------------------------------------------------------------------
-_IMPORT_ERROR_MSG = (
-    "You have an outdated or incompatible version of the llama-cpp-python library. "
-    "The Gemma 4 12B Unified model requires the JamePeng wheel v0.3.40-cu130 or higher. "
-    "Install it via: pip install https://github.com/TAO71-AI/llama-cpp-python-JamePeng/releases/download/v0.3.40-cu130-win-20260608/llama_cpp_python-0.3.40-cp312-cp312-win_amd64.whl"
+from ..utils.gemma_common import (
+    MMPROJ_NONE,
+    _GemmaModelCache,
+    build_gemma_fingerprint,
+    build_gemma_inputs,
+    execute_gemma_node,
+    get_gguf_models,
+    get_mmproj_models,
+    run_gemma_inference,
+    validate_gemma_inputs,
 )
-
-try:
-    from llama_cpp import Llama  # type: ignore
-    from llama_cpp.llama_chat_format import Gemma4ChatHandler  # type: ignore
-except ImportError:
-    raise ImportError(_IMPORT_ERROR_MSG)
-
-# Fallback Llava16ChatHandler kept for the multi-strategy model loading
-try:
-    from llama_cpp.llama_chat_format import Llava16ChatHandler  # type: ignore
-except ImportError:
-    Llava16ChatHandler = None  # type: ignore
-
-from ..utils.media import (audio_to_data_uri_omni, image_tensor_to_data_uri,
-                           video_tensor_to_frame_list)
-from ..utils.memory import unload_llm
+from ..utils.media import audio_to_data_uri_omni
 
 logger = logging.getLogger(__name__)
 
@@ -135,186 +120,22 @@ PRESET_PROMPTS = {
 }
 
 # ---------------------------------------------------------------------------
-# BF16 projector validation (option 1a: file-name heuristic)
-# ---------------------------------------------------------------------------
-
-_BF16_WARNING = (
-    "The selected mmproj file does not appear to be BF16 format. "
-    "The Gemma 4 12B unified model requires the BF16 multimodal projector "
-    "(mmproj-BF16.gguf). Non-BF16 projectors cause severe audio degradation "
-    "and repetitive generation loops. Download the correct projector from: "
-    "https://huggingface.co/unsloth/gemma-4-12B-it-qat-GGUF/blob/main/mmproj-BF16.gguf"
-)
-
-
-def _check_projector_name(mmproj_filename: str) -> Optional[str]:
-    """Validate that the mmproj filename indicates BF16 format.
-
-    Uses a lightweight file-name heuristic (option 1a): checks for \"BF16\"
-    substring. Does NOT parse GGUF metadata headers, keeping validation simple
-    and dependency-free.
-
-    Returns:
-        None if the projector name suggests BF16 format.
-        A warning string if it does not.
-    """
-    if "bf16" not in mmproj_filename.lower():
-        return _BF16_WARNING
-    return None
-
-
-# ---------------------------------------------------------------------------
-# Helper: filter GGUF file lists for the dropdown menus
+# Projector helpers & shared model cache (exported for spatial architect)
 # ---------------------------------------------------------------------------
 
 def _get_gguf_models() -> list[str]:
-    """Return .gguf filenames from the LLM folder, excluding mmproj files."""
-    try:
-        files = folder_paths.get_filename_list("LLM")
-    except Exception:
-        return []
-    return sorted(
-        f for f in files
-        if f.lower().endswith(".gguf") and "mmproj" not in f.lower()
-    )
+    """Return .gguf filenames from models/LLM, excluding mmproj files."""
+    return get_gguf_models()
 
 
 def _get_mmproj_models() -> list[str]:
-    """Return mmproj .gguf filenames from the LLM folder."""
-    try:
-        files = folder_paths.get_filename_list("LLM")
-    except Exception:
-        return []
-    return sorted(
-        f for f in files
-        if f.lower().endswith(".gguf") and "mmproj" in f.lower()
-    )
+    """Return mmproj .gguf filenames from models/LLM (plus None for text-only)."""
+    return get_mmproj_models(include_none=True)
 
 
-# ---------------------------------------------------------------------------
-# Module-level model cache (replaces instance state for V3 stateless nodes)
-# ---------------------------------------------------------------------------
-
-class _ModelCache:
-    """Holds the loaded llama-cpp model between executions.
-
-    V3 nodes are stateless (@classmethod execute), so model caching
-    lives at module scope rather than on the node instance.
-    """
-
-    def __init__(self):
-        self.model_instance: Optional[Llama] = None
-        self.current_model_path: Optional[str] = None
-        self.current_mmproj_path: Optional[str] = None
-        self.current_n_gpu_layers: Optional[int] = None
-        self.current_n_ctx: Optional[int] = None
-        self.current_enable_thinking: Optional[bool] = None
-        self.current_preserve_thinking: Optional[bool] = None
-
-    def needs_reload(
-        self, model_path: str, mmproj_path: str, n_gpu_layers: int, n_ctx: int,
-        enable_thinking: bool = True,
-        preserve_thinking: bool = False,
-    ) -> bool:
-        if self.model_instance is None:
-            return True
-        return (
-            self.current_model_path != model_path
-            or self.current_mmproj_path != mmproj_path
-            or self.current_n_gpu_layers != n_gpu_layers
-            or self.current_n_ctx != n_ctx
-            or self.current_enable_thinking != enable_thinking
-            or self.current_preserve_thinking != preserve_thinking
-        )
-
-    def load_model(
-        self, model_path: str, mmproj_path: str, n_gpu_layers: int, n_ctx: int,
-        enable_thinking: bool = True,
-        preserve_thinking: bool = False,
-    ) -> None:
-        if self.model_instance is not None:
-            logger.info("Unloading previous model before reload")
-            unload_llm(self.model_instance)
-            self.model_instance = None
-
-        logger.info("Loading model: %s", model_path)
-        logger.info("Loading mmproj: %s", mmproj_path)
-
-        # Strategy 1: Gemma4ChatHandler (native Gemma 4 support)
-        try:
-            chat_handler = Gemma4ChatHandler(
-                clip_model_path=mmproj_path,
-                enable_thinking=enable_thinking,
-                verbose=False,
-            )
-            self.model_instance = Llama(
-                model_path=model_path,
-                chat_handler=chat_handler,
-                n_gpu_layers=n_gpu_layers,
-                n_ctx=n_ctx,
-                verbose=False,
-            )
-            logger.info(
-                "Model loaded with Gemma4ChatHandler (enable_thinking=%s, preserve_thinking=%s)",
-                enable_thinking, preserve_thinking,
-            )
-        except Exception as e1:
-            logger.warning("Gemma4ChatHandler failed: %s — trying Llava16ChatHandler", e1)
-
-            # Strategy 2: Llava16ChatHandler (generic fallback)
-            if Llava16ChatHandler is not None:
-                try:
-                    chat_handler = Llava16ChatHandler(clip_model_path=mmproj_path, verbose=False)
-                    self.model_instance = Llama(
-                        model_path=model_path,
-                        chat_handler=chat_handler,
-                        n_gpu_layers=n_gpu_layers,
-                        n_ctx=n_ctx,
-                        verbose=False,
-                    )
-                    logger.info("Model loaded with Llava16ChatHandler (fallback)")
-                except Exception as e2:
-                    logger.warning("Llava16ChatHandler failed: %s — loading text-only", e2)
-                    self._load_text_only(model_path, n_gpu_layers, n_ctx)
-            else:
-                logger.warning("Llava16ChatHandler not available — loading text-only")
-                self._load_text_only(model_path, n_gpu_layers, n_ctx)
-
-        self.current_model_path = model_path
-        self.current_mmproj_path = mmproj_path
-        self.current_n_gpu_layers = n_gpu_layers
-        self.current_n_ctx = n_ctx
-        self.current_enable_thinking = enable_thinking
-        self.current_preserve_thinking = preserve_thinking
-        logger.info("Model loaded successfully (n_gpu_layers=%d, n_ctx=%d)", n_gpu_layers, n_ctx)
-
-    def _load_text_only(self, model_path: str, n_gpu_layers: int, n_ctx: int) -> None:
-        """Fallback: load model without multimodal projector."""
-        self.model_instance = Llama(
-            model_path=model_path,
-            n_gpu_layers=n_gpu_layers,
-            n_ctx=n_ctx,
-            verbose=False,
-        )
-        logger.warning(
-            "Model loaded WITHOUT multimodal projector. "
-            "Image/video/audio inputs will not work."
-        )
-
-    def unload(self) -> None:
-        if self.model_instance is not None:
-            unload_llm(self.model_instance)
-        self.model_instance = None
-        self.current_model_path = None
-        self.current_mmproj_path = None
-        self.current_n_gpu_layers = None
-        self.current_n_ctx = None
-        self.current_enable_thinking = None
-        self.current_preserve_thinking = None
-
-
-# Separate cache from DuffyGemmaGGUFAnalyzer to avoid collisions
-_model_cache_12b = _ModelCache()
+# Separate cache from DuffyGemmaGGUFAnalyzer to avoid collisions; shared with
+# DuffyGemmaIdeogramSpatialArchitect for instant reuse across nodes.
+_model_cache_12b = _GemmaModelCache("gemma_4_12b")
 
 
 # ---------------------------------------------------------------------------
@@ -325,8 +146,7 @@ class DuffyGemma4_12B_Analyzer(io.ComfyNode):
     """Multimodal analysis using Gemma-4-12B-it via llama.cpp.
 
     Supports text, image, video, and audio inputs using the unified
-    gemma4uv multimodal projector. Requires the JamePeng llama-cpp-python
-    wheel (v0.3.40-cu130) and the BF16-format mmproj file.
+    gemma4uv multimodal projector, or text-only execution when mmproj is None.
     """
 
     @classmethod
@@ -335,52 +155,45 @@ class DuffyGemma4_12B_Analyzer(io.ComfyNode):
             node_id="Duffy_Gemma4_12B_Analyzer",
             display_name="Gemma-4 12B GGUF Multimodal Analyzer",
             category="Duffy/LLM",
-            description="Multimodal analysis using Gemma-4-12B-it via llama.cpp. Supports text, image, video, and audio inputs with unified gemma4uv projector.",
-            inputs=[
-                io.Combo.Input("gguf_model", options=_get_gguf_models(), tooltip="GGUF model file from models/LLM (excludes mmproj files)"),
-                io.Combo.Input("mmproj_model", options=_get_mmproj_models(), tooltip="Multimodal projector file (mmproj-*.gguf). Must be BF16 format for the unified 12B model."),
-                io.Boolean.Input("use_custom_prompt", default=True, tooltip="When enabled, the custom system_prompt text is used. When disabled, the selected preset_prompt is used instead."),
-                io.Combo.Input("preset_prompt", options=list(PRESET_PROMPTS.keys()), default="General Multimodal Analysis", tooltip="Built-in system prompt preset. Only active when use_custom_prompt is disabled."),
-                io.String.Input("system_prompt", multiline=True, default="You are a helpful multimodal analyzer.", tooltip="Custom system prompt. Only active when use_custom_prompt is enabled."),
-                io.String.Input("user_prompt", multiline=True, default="Analyze the provided input."),
-                io.Boolean.Input("enable_thinking", default=True, tooltip="Enable model reasoning / thinking mode"),
-                io.Boolean.Input("preserve_thinking", default=False, tooltip="Keep <think> reasoning blocks in the context history across turns (consumes more tokens)"),
-                io.Boolean.Input("strip_thinking_tags", default=True, tooltip="Remove <think>...</think> blocks from output"),
-                io.Boolean.Input("unload_model", default=False, tooltip="Aggressively free VRAM/RAM after inference"),
-                # --- Inference parameters ---
-                io.Int.Input("max_tokens", default=1024, min=1, max=128000, step=1),
-                io.Float.Input("temperature", default=0.8, min=0.0, max=2.0, step=0.05),
-                io.Int.Input("top_k", default=40, min=0, max=500, step=1),
-                io.Float.Input("top_p", default=0.95, min=0.0, max=1.0, step=0.01),
-                io.Float.Input("min_p", default=0.05, min=0.0, max=1.0, step=0.01),
-                io.Float.Input("repeat_penalty", default=1.1, min=0.0, max=3.0, step=0.05),
-                io.Float.Input("presence_penalty", default=0.0, min=-2.0, max=2.0, step=0.1),
-                io.Float.Input("frequency_penalty", default=0.0, min=-2.0, max=2.0, step=0.1),
-                io.Int.Input("mirostat_mode", default=0, min=0, max=2, step=1),
-                io.Float.Input("mirostat_tau", default=5.0, min=0.0, max=20.0, step=0.1),
-                io.Float.Input("mirostat_eta", default=0.1, min=0.0, max=1.0, step=0.01),
-                io.Int.Input("seed", default=-1, min=-1, max=0x7FFFFFFFFFFFFFFF),
-                io.Int.Input("n_gpu_layers", default=-1, min=-1, max=200, step=1, tooltip="-1 = offload all layers to GPU"),
-                io.Int.Input("n_ctx", default=10240, min=512, max=131072, step=512, tooltip="Context window size (default 10 K for multimodal analysis; model supports up to 256 K)"),
-                io.Float.Input("frame_sample_interval", default=2.0, min=0.5, max=10.0, step=0.5, tooltip="Temporal interval in seconds between sampled video frames"),
-                # --- Optional media inputs ---
-                io.Image.Input("image", optional=True),
-                io.Image.Input("reference_image", optional=True, tooltip="Reference image for style transfer"),
-                io.Image.Input("video", optional=True, tooltip="Video frames as image batch [F, H, W, 3]"),
-                io.Audio.Input("audio", optional=True),
-            ],
+            description="Multimodal analysis using Gemma-4-12B-it via llama.cpp. Supports text, high-resolution images, video, and audio inputs.",
+            inputs=build_gemma_inputs(
+                gguf_options=_get_gguf_models(),
+                mmproj_options=_get_mmproj_models(),
+                preset_options=list(PRESET_PROMPTS.keys()),
+                default_preset="General Multimodal Analysis",
+                default_n_ctx=10240,
+                n_ctx_tooltip="Context window size (default 10 K for multimodal analysis; model supports up to 256 K)",
+                video_timing_input=io.Float.Input(
+                    "frame_sample_interval",
+                    default=2.0,
+                    min=0.5,
+                    max=10.0,
+                    step=0.5,
+                    tooltip="Temporal interval in seconds between sampled video frames",
+                ),
+                include_legacy_preserve_thinking=True,
+            ),
             outputs=[
                 io.String.Output("analysis_text", display_name="Analysis Text"),
             ],
         )
 
     @classmethod
-    def validate_inputs(cls, mmproj_model: str, **kwargs) -> bool | str:
-        """Validate the mmproj filename and other inputs before execution."""
-        bf16_warning = _check_projector_name(mmproj_model)
-        if bf16_warning is not None:
-            return bf16_warning
-        return True
+    def validate_inputs(
+        cls,
+        gguf_model: str = "",
+        mmproj_model: str = MMPROJ_NONE,
+        image_min_tokens: int = 128,
+        image_max_tokens: int = 1120,
+        **kwargs,
+    ) -> bool | str:
+        """Validate path safety and token limits without blocking F16 or None projectors."""
+        return validate_gemma_inputs(
+            gguf_model=gguf_model,
+            mmproj_model=mmproj_model,
+            image_min_tokens=image_min_tokens,
+            image_max_tokens=image_max_tokens,
+        )
 
     @classmethod
     def fingerprint_inputs(
@@ -392,7 +205,6 @@ class DuffyGemma4_12B_Analyzer(io.ComfyNode):
         system_prompt: str,
         user_prompt: str,
         enable_thinking: bool,
-        preserve_thinking: bool,
         strip_thinking_tags: bool,
         unload_model: bool,
         max_tokens: int,
@@ -410,52 +222,41 @@ class DuffyGemma4_12B_Analyzer(io.ComfyNode):
         n_gpu_layers: int,
         n_ctx: int,
         frame_sample_interval: float,
+        preserve_thinking: bool = False,
+        mmproj_offload: bool = True,
+        flash_attn: bool = True,
+        kv_cache_type_k: str = "f16",
+        kv_cache_type_v: str = "f16",
+        n_batch: int = 2048,
+        n_ubatch: int = 2048,
+        image_min_tokens: int = 128,
+        image_max_tokens: int = 1120,
         image: Optional[torch.Tensor] = None,
         reference_image: Optional[torch.Tensor] = None,
         video: Optional[torch.Tensor] = None,
         audio: Optional[dict] = None,
         **kwargs,
-    ) -> tuple:
-        """Cache-bust when model, projector, or key parameters change."""
-        model_path = folder_paths.get_full_path("LLM", gguf_model)
-        mmproj_path = folder_paths.get_full_path("LLM", mmproj_model)
-
-        def _file_sig(path_str) -> tuple[str, int, int]:
-            if path_str and os.path.isfile(path_str):
-                stat = os.stat(path_str)
-                return (path_str, stat.st_mtime_ns, stat.st_size)
-            return (path_str or "", -1, -1)
-
-        return (
-            _file_sig(model_path),
-            _file_sig(mmproj_path),
-            use_custom_prompt,
-            preset_prompt,
-            system_prompt,
-            user_prompt,
-            enable_thinking,
-            preserve_thinking,
-            strip_thinking_tags,
-            unload_model,
-            max_tokens,
-            temperature,
-            top_k,
-            top_p,
-            min_p,
-            repeat_penalty,
-            presence_penalty,
-            frequency_penalty,
-            mirostat_mode,
-            mirostat_tau,
-            mirostat_eta,
-            seed,
-            n_gpu_layers,
-            n_ctx,
-            frame_sample_interval,
-            image is not None,
-            reference_image is not None,
-            video is not None,
-            audio is not None,
+    ) -> tuple | float:
+        """Cache-bust on random seed (-1) or when model files, params, or tensor contents change."""
+        del preserve_thinking
+        return build_gemma_fingerprint(
+            gguf_model=gguf_model,
+            mmproj_model=mmproj_model,
+            seed=seed,
+            scalars=(
+                use_custom_prompt, preset_prompt, system_prompt, user_prompt,
+                enable_thinking, strip_thinking_tags, unload_model,
+                max_tokens, temperature, top_k, top_p, min_p,
+                repeat_penalty, presence_penalty, frequency_penalty,
+                mirostat_mode, mirostat_tau, mirostat_eta, seed,
+                n_gpu_layers, n_ctx, frame_sample_interval,
+                mmproj_offload, flash_attn, kv_cache_type_k, kv_cache_type_v,
+                n_batch, n_ubatch, image_min_tokens, image_max_tokens,
+            ),
+            image=image,
+            reference_image=reference_image,
+            video=video,
+            audio=audio,
         )
 
     @classmethod
@@ -468,7 +269,6 @@ class DuffyGemma4_12B_Analyzer(io.ComfyNode):
         system_prompt: str,
         user_prompt: str,
         enable_thinking: bool,
-        preserve_thinking: bool,
         strip_thinking_tags: bool,
         unload_model: bool,
         max_tokens: int,
@@ -486,65 +286,66 @@ class DuffyGemma4_12B_Analyzer(io.ComfyNode):
         n_gpu_layers: int,
         n_ctx: int,
         frame_sample_interval: float,
+        preserve_thinking: bool = False,
+        mmproj_offload: bool = True,
+        flash_attn: bool = True,
+        kv_cache_type_k: str = "f16",
+        kv_cache_type_v: str = "f16",
+        n_batch: int = 2048,
+        n_ubatch: int = 2048,
+        image_min_tokens: int = 128,
+        image_max_tokens: int = 1120,
         image: Optional[torch.Tensor] = None,
         reference_image: Optional[torch.Tensor] = None,
         video: Optional[torch.Tensor] = None,
         audio: Optional[dict] = None,
         **kwargs,
     ) -> io.NodeOutput:
-        try:
-            result = _run_inference(
-                gguf_model=gguf_model,
-                mmproj_model=mmproj_model,
-                use_custom_prompt=use_custom_prompt,
-                preset_prompt=preset_prompt,
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
-                enable_thinking=enable_thinking,
-                preserve_thinking=preserve_thinking,
-                strip_thinking_tags=strip_thinking_tags,
-                max_tokens=max_tokens,
-                temperature=temperature,
-                top_k=top_k,
-                top_p=top_p,
-                min_p=min_p,
-                repeat_penalty=repeat_penalty,
-                presence_penalty=presence_penalty,
-                frequency_penalty=frequency_penalty,
-                mirostat_mode=mirostat_mode,
-                mirostat_tau=mirostat_tau,
-                mirostat_eta=mirostat_eta,
-                seed=seed,
-                n_gpu_layers=n_gpu_layers,
-                n_ctx=n_ctx,
-                frame_sample_interval=frame_sample_interval,
-                image=image,
-                reference_image=reference_image,
-                video=video,
-                audio=audio,
-            )
-            return io.NodeOutput(result)
-        except FileNotFoundError as e:
-            error_msg = f"[DuffyGemma4_12B_Analyzer] File not found: {e}"
-            logger.error(error_msg)
-            return io.NodeOutput(error_msg)
-        except ValueError as e:
-            error_msg = f"[DuffyGemma4_12B_Analyzer] Validation error: {e}"
-            logger.error(error_msg)
-            return io.NodeOutput(error_msg)
-        except Exception as e:
-            error_msg = f"[DuffyGemma4_12B_Analyzer] Inference failed: {e}"
-            logger.error(error_msg, exc_info=True)
-            return io.NodeOutput(error_msg)
-        finally:
-            if unload_model:
-                logger.info("Unloading model (unload_model=True)")
-                _model_cache_12b.unload()
+        del preserve_thinking
+        target_fps = 1.0 / frame_sample_interval if frame_sample_interval > 0 else 1.0
+        return execute_gemma_node(
+            "DuffyGemma4_12B_Analyzer",
+            _model_cache_12b,
+            unload_model,
+            preset_prompts=PRESET_PROMPTS,
+            audio_encoder=audio_to_data_uri_omni,
+            gguf_model=gguf_model,
+            mmproj_model=mmproj_model,
+            use_custom_prompt=use_custom_prompt,
+            preset_prompt=preset_prompt,
+            system_prompt=system_prompt,
+            user_prompt=user_prompt,
+            enable_thinking=enable_thinking,
+            strip_thinking_tags=strip_thinking_tags,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_k=top_k,
+            top_p=top_p,
+            min_p=min_p,
+            repeat_penalty=repeat_penalty,
+            presence_penalty=presence_penalty,
+            frequency_penalty=frequency_penalty,
+            mirostat_mode=mirostat_mode,
+            mirostat_tau=mirostat_tau,
+            mirostat_eta=mirostat_eta,
+            seed=seed,
+            n_gpu_layers=n_gpu_layers,
+            n_ctx=n_ctx,
+            target_fps=target_fps,
+            mmproj_offload=mmproj_offload,
+            flash_attn=flash_attn,
+            kv_cache_type_k=kv_cache_type_k,
+            kv_cache_type_v=kv_cache_type_v,
+            n_batch=n_batch,
+            n_ubatch=n_ubatch,
+            image_min_tokens=image_min_tokens,
+            image_max_tokens=image_max_tokens,
+            image=image,
+            reference_image=reference_image,
+            video=video,
+            audio=audio,
+        )
 
-
-# ---------------------------------------------------------------------------
-# Inference logic (module-level, stateless)
-# ---------------------------------------------------------------------------
 
 def _run_inference(
     gguf_model: str,
@@ -554,7 +355,6 @@ def _run_inference(
     system_prompt: str,
     user_prompt: str,
     enable_thinking: bool,
-    preserve_thinking: bool,
     strip_thinking_tags: bool,
     max_tokens: int,
     temperature: float,
@@ -571,124 +371,58 @@ def _run_inference(
     n_gpu_layers: int,
     n_ctx: int,
     frame_sample_interval: float,
+    mmproj_offload: bool = True,
+    flash_attn: bool = True,
+    kv_cache_type_k: str = "f16",
+    kv_cache_type_v: str = "f16",
+    n_batch: int = 2048,
+    n_ubatch: int = 2048,
+    image_min_tokens: int = 128,
+    image_max_tokens: int = 1120,
     image: Optional[torch.Tensor] = None,
     reference_image: Optional[torch.Tensor] = None,
     video: Optional[torch.Tensor] = None,
     audio: Optional[dict] = None,
 ) -> str:
-    # ----- Resolve file paths ----- #
-    model_path = folder_paths.get_full_path("LLM", gguf_model)
-    mmproj_path = folder_paths.get_full_path("LLM", mmproj_model)
-
-    if not model_path or not os.path.isfile(model_path):
-        raise FileNotFoundError(
-            f"GGUF model not found: '{gguf_model}'. "
-            "Ensure it is placed in ComfyUI/models/LLM/"
-        )
-    if not mmproj_path or not os.path.isfile(mmproj_path):
-        raise FileNotFoundError(
-            f"Multimodal projector not found: '{mmproj_model}'. "
-            "Both the model .gguf and its mmproj-*.gguf must reside "
-            "together in ComfyUI/models/LLM/"
-        )
-
-    # ----- Resolve effective system prompt ----- #
-    if use_custom_prompt:
-        effective_system_prompt = system_prompt
-        logger.info("Using custom system prompt")
-    else:
-        effective_system_prompt = PRESET_PROMPTS.get(preset_prompt, system_prompt)
-        logger.info("Using preset system prompt: %s", preset_prompt)
-        if preset_prompt == "Style Transfer Prompt" and reference_image is None:
-            logger.warning(
-                "Style Transfer Prompt selected but no reference_image connected. "
-                "The style transfer prompt expects both an input image and a reference image."
-            )
-
-    # ----- Load / cache model ----- #
-    if _model_cache_12b.needs_reload(
-        model_path, mmproj_path, n_gpu_layers, n_ctx, enable_thinking, preserve_thinking,
-    ):
-        _model_cache_12b.load_model(
-            model_path, mmproj_path, n_gpu_layers, n_ctx, enable_thinking, preserve_thinking,
-        )
-
-    # ----- Build user content array ----- #
-    user_content: list[dict[str, Any]] = [
-        {"type": "text", "text": user_prompt},
-    ]
-
-    if image is not None:
-        if reference_image is not None:
-            user_content.append({"type": "text", "text": "Input Image:"})
-        user_content.append(image_tensor_to_data_uri(image))
-
-    if reference_image is not None:
-        user_content.append({"type": "text", "text": "Reference Image:"})
-        user_content.append(image_tensor_to_data_uri(reference_image))
-
-    if video is not None:
-        # Convert frame_sample_interval (seconds between frames) to target_fps
-        target_fps = 1.0 / frame_sample_interval if frame_sample_interval > 0 else 1.0
-        user_content.extend(
-            video_tensor_to_frame_list(
-                video, target_fps=target_fps, n_ctx=n_ctx,
-            )
-        )
-
-    if audio is not None:
-        # Audio fallback: if encoding fails, append a text placeholder
-        # so the model knows audio was intended but couldn't be processed.
-        try:
-            user_content.append(audio_to_data_uri_omni(audio))
-        except Exception as e:
-            logger.warning("Audio encoding failed: %s — adding text fallback", e)
-            user_content.append({
-                "type": "text",
-                "text": "[Attached unsupported audio file — could not be processed. "
-                        f"Error: {e}]",
-            })
-
-    messages: list[dict[str, Any]] = [
-        {"role": "system", "content": effective_system_prompt},
-        {"role": "user", "content": user_content},
-    ]
-
-    # ----- Thinking mode adjustments ----- #
-    if not enable_thinking:
-        if temperature == 0.8:
-            temperature = 0.7
-            logger.info("Thinking disabled: temperature auto-adjusted to 0.7")
-        if presence_penalty == 0.0:
-            presence_penalty = 1.5
-            logger.info("Thinking disabled: presence_penalty auto-adjusted to 1.5")
-
-    # ----- Run inference with deterministic seed ----- #
-    completion = _model_cache_12b.model_instance.create_chat_completion(
-        messages=messages,
+    """Thin delegation wrapper kept for direct callers/tracebacks."""
+    target_fps = 1.0 / frame_sample_interval if frame_sample_interval > 0 else 1.0
+    return run_gemma_inference(
+        cache=_model_cache_12b,
+        preset_prompts=PRESET_PROMPTS,
+        audio_encoder=audio_to_data_uri_omni,
+        gguf_model=gguf_model,
+        mmproj_model=mmproj_model,
+        use_custom_prompt=use_custom_prompt,
+        preset_prompt=preset_prompt,
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
+        enable_thinking=enable_thinking,
+        strip_thinking_tags=strip_thinking_tags,
         max_tokens=max_tokens,
         temperature=temperature,
         top_k=top_k,
         top_p=top_p,
         min_p=min_p,
         repeat_penalty=repeat_penalty,
-        present_penalty=presence_penalty,
+        presence_penalty=presence_penalty,
         frequency_penalty=frequency_penalty,
         mirostat_mode=mirostat_mode,
         mirostat_tau=mirostat_tau,
         mirostat_eta=mirostat_eta,
-        seed=seed if seed >= 0 else None,  # Deterministic: passed directly, no global set_seed()
+        seed=seed,
+        n_gpu_layers=n_gpu_layers,
+        n_ctx=n_ctx,
+        target_fps=target_fps,
+        mmproj_offload=mmproj_offload,
+        flash_attn=flash_attn,
+        kv_cache_type_k=kv_cache_type_k,
+        kv_cache_type_v=kv_cache_type_v,
+        n_batch=n_batch,
+        n_ubatch=n_ubatch,
+        image_min_tokens=image_min_tokens,
+        image_max_tokens=image_max_tokens,
+        image=image,
+        reference_image=reference_image,
+        video=video,
+        audio=audio,
     )
-
-    response_text: str = completion["choices"][0]["message"]["content"] or ""
-
-    # ----- Strip thinking tags if requested (but honor preserve_thinking) ----- #
-    if strip_thinking_tags:
-        response_text = re.sub(
-            r"<\|channel>thought\n.*?<channel\|>", "", response_text, flags=re.DOTALL
-        ).strip()
-        response_text = re.sub(
-            r"<think>.*?</think>", "", response_text, flags=re.DOTALL
-        ).strip()
-
-    return response_text
