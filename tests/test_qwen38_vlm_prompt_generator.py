@@ -48,7 +48,7 @@ tensor_frame_to_png_data_uri = qwen38_mod.tensor_frame_to_png_data_uri
 # ---------------------------------------------------------------------------
 
 def test_schema_contract():
-    """Verify V3 Schema fields, 26 inputs, 3 outputs, and mandatory display_name/tooltip."""
+    """Verify V3 Schema fields, 33 inputs (32 widgets + optional image), 3 outputs, and mandatory display_name/tooltip."""
     schema = DuffyQwen38VLMPromptGenerator.define_schema()
     assert schema.node_id == "Duffy_Qwen38_VLM_PromptGenerator"
     assert schema.display_name == "Qwen3.8-27B Vision Prompt Generator (GGUF)"
@@ -81,6 +81,12 @@ def test_schema_contract():
         "top_k",
         "min_p",
         "presence_penalty",
+        "reasoning_effort",
+        "load_mode",
+        "mtp_draft_ubatch",
+        "adaptive_target",
+        "adaptive_decay",
+        "dynatemp_range",
         "image",
     ]
     input_ids = [inp.id for inp in schema.inputs]
@@ -90,9 +96,21 @@ def test_schema_contract():
         assert getattr(inp, "display_name", None), f"Input '{inp.id}' missing display_name"
         assert getattr(inp, "tooltip", None), f"Input '{inp.id}' missing tooltip"
 
+    # Verify v0.4.8 parameter ranges & options
+    by_id = {inp.id: inp for inp in schema.inputs}
+    assert by_id["n_gpu_layers"].min == -2, "n_gpu_layers must allow -2 ('all') and -1 ('auto')"
+    assert "f8_e4m3" in by_id["kv_cache_type_k"].options
+    assert "f8_e4m3" in by_id["kv_cache_type_v"].options
+    assert by_id["kv_cache_type_k"].default == "f8_e4m3"
+    assert by_id["kv_cache_type_v"].default == "f8_e4m3"
+    assert by_id["mtp_draft_max"].default == 3
+    assert by_id["reasoning_effort"].options == ["low", "medium", "xhigh"]
+    assert by_id["reasoning_effort"].default == "low"
+    assert by_id["load_mode"].default == "direct_io"
+    assert by_id["mtp_draft_ubatch"].default == 128
+
     # Verify image is optional
-    image_inp = next(inp for inp in schema.inputs if inp.id == "image")
-    assert getattr(image_inp, "optional", False) is True, "image input must be optional=True"
+    assert getattr(by_id["image"], "optional", False) is True, "image input must be optional=True"
 
     output_ids = [out.id for out in schema.outputs]
     assert output_ids == ["clean_prompt", "thinking_trace", "raw_response"]
@@ -101,6 +119,29 @@ def test_schema_contract():
         assert getattr(out, "tooltip", None), f"Output '{out.id}' missing tooltip"
 
     print("[PASS] test_schema_contract")
+
+
+def test_node_replacement_alignment():
+    """Verify io.NodeReplace entry in nodes/node_replacements.py covers every input ID cleanly."""
+    rep_file = os.path.join(REPO_ROOT, "nodes", "node_replacements.py")
+    rep_spec = importlib.util.spec_from_file_location("nodes.node_replacements", rep_file)
+    assert rep_spec is not None and rep_spec.loader is not None
+    rep_mod = importlib.util.module_from_spec(rep_spec)
+    rep_spec.loader.exec_module(rep_mod)
+
+    qwen_reps = [r for r in rep_mod.REPLACEMENTS if r.new_node_id == "Duffy_Qwen38_VLM_PromptGenerator"]
+    assert len(qwen_reps) == 1, f"Expected 1 NodeReplace entry for Qwen3.8, found {len(qwen_reps)}"
+    rep = qwen_reps[0]
+
+    schema = DuffyQwen38VLMPromptGenerator.define_schema()
+    schema_ids = {inp.id for inp in schema.inputs}
+    mapped_new_ids = {
+        (m["new_id"] if isinstance(m, dict) else m.new_id) for m in rep.input_mapping
+    }
+    assert mapped_new_ids == schema_ids, f"NodeReplace mismatch: {mapped_new_ids ^ schema_ids}"
+    assert len(rep.output_mapping) == 3
+
+    print("[PASS] test_node_replacement_alignment")
 
 
 def test_model_discovery_and_qwen38_priority():
@@ -329,9 +370,20 @@ def test_mocked_execution_vision_and_text_only():
         init_call_kwargs = mock_llama_cls.call_args.kwargs
         assert init_call_kwargs["flash_attn_type"] == 0
         assert init_call_kwargs["type_v"] == 1  # GGML_TYPE_F16
+        assert init_call_kwargs["ctx_checkpoints"] == 0
+        assert init_call_kwargs["n_seq_max"] == 1
+        assert init_call_kwargs["load_mode"] == 4  # LLAMA_LOAD_MODE_DIRECT_IO
+        assert "use_direct_io" not in init_call_kwargs
+        assert "defrag_thold" not in init_call_kwargs
         assert init_call_kwargs["load_mtp"] is True
         assert init_call_kwargs["speculative"] is not None
+        assert init_call_kwargs["speculative"].draft_n_ubatch == 128
+        assert init_call_kwargs["speculative"].draft_p_min == 0.0
         assert init_call_kwargs["chat_handler_kwargs"]["image_max_tokens"] == 768
+        assert init_call_kwargs["chat_handler_kwargs"]["extra_template_arguments"] == {
+            "enable_thinking": True,
+            "reasoning_effort": "low",
+        }
 
         # Check create_chat_completion messages had 2 image_url blocks + 1 text block
         chat_call_kwargs = mock_llama_instance.create_chat_completion.call_args.kwargs
@@ -396,12 +448,164 @@ def test_mocked_execution_vision_and_text_only():
     print("[PASS] test_mocked_execution_vision_and_text_only")
 
 
-def run_live_smoke_test():
-    """Opt-in live hardware inference test with Qwen3.8-27B + mmproj on GPU."""
-    print("[LIVE] Running live Qwen3.8-27B Vision + Text hardware smoke test...")
+def test_v048_optimizations_and_error_handling():
+    """Verify FP8 KV cache (43), Adaptive-P/Dynatemp forwarding, reasoning_effort sync, and MTMD ValueError trapping."""
     main_models, mmproj_models = get_qwen38_model_lists()
     model_name = main_models[0]
     mmproj_name = mmproj_models[0]
+
+    # Dynamic VRAM preflight threshold check
+    est_bytes = qwen38_mod._compute_vram_preflight_bytes(
+        model_path=resolve_llm_subpath(model_name),
+        mmproj_path=resolve_llm_subpath(mmproj_name),
+        mmproj_offload=True,
+        total_vram_bytes=16 * (1024 ** 3),
+    )
+    assert est_bytes >= int(13.5 * (1024 ** 3))
+    assert est_bytes <= int(16 * (1024 ** 3) * 0.92) + 1
+
+    # Invalid reasoning_effort safely normalizes to 'low' (never 'none' which crashes Qwen3.8 Jinja)
+    assert qwen38_mod._normalize_reasoning_effort("none") == "low"
+    assert qwen38_mod._normalize_reasoning_effort("MEDIUM") == "medium"
+    assert qwen38_mod._normalize_reasoning_effort("xhigh") == "xhigh"
+
+    mock_llama = MagicMock()
+    mock_llama.chat_handler = MagicMock()
+    mock_llama.chat_handler.extra_template_arguments = {"enable_thinking": True, "reasoning_effort": "low"}
+    mock_llama.speculative = MagicMock()
+    mock_llama.last_speculative_stats = {
+        "drafted": 60,
+        "accepted_draft_tokens": 36,
+        "draft_token_acceptance_rate": 0.60,
+        "mean_accepted_length": 2.55,
+        "decode_tokens_per_second": 33.4,
+        "decode_seconds": 1.5,
+    }
+    mock_llama.create_chat_completion.return_value = {
+        "choices": [
+            {
+                "message": {"role": "assistant", "content": "Thought</think>\n\nClean FP8 prompt."},
+                "finish_reason": "stop",
+            }
+        ],
+        "usage": {"prompt_tokens": 120, "completion_tokens": 50, "total_tokens": 170},
+    }
+
+    with patch("llama_cpp.Llama", return_value=mock_llama) as mock_cls:
+        _Qwen38RuntimeCache.unload()
+        out = DuffyQwen38VLMPromptGenerator.execute(
+            model_name=model_name,
+            mmproj_name=mmproj_name,
+            system_prompt="Sys",
+            user_prompt="Describe",
+            thinking_mode="enable",
+            seed=99,
+            n_gpu_layers=-2,
+            mmproj_offload=True,
+            n_ctx=8192,
+            flash_attn=True,
+            kv_cache_type_k="f8_e4m3",
+            kv_cache_type_v="f8_e4m3",
+            n_batch=1024,
+            n_ubatch=512,
+            keep_model_loaded=True,
+            image_min_tokens=256,
+            image_max_tokens=1536,
+            enable_mtp=True,
+            mtp_draft_max=3,
+            reasoning_budget=512,
+            max_new_tokens=512,
+            temperature=0.8,
+            top_p=0.95,
+            top_k=20,
+            min_p=0.05,
+            presence_penalty=1.5,
+            reasoning_effort="medium",
+            load_mode="direct_io",
+            mtp_draft_ubatch=128,
+            adaptive_target=0.5,
+            adaptive_decay=0.85,
+            dynatemp_range=0.2,
+            image=None,
+        )
+        clean_p, think_t, raw_r = out.args
+        assert clean_p == "Clean FP8 prompt."
+        assert think_t == "Thought"
+        assert "decode=33.40 tok/s" in raw_r
+        assert "ctx_checkpoints=0" in raw_r
+        assert "mode=direct_io" in raw_r
+        assert "effort=medium" in raw_r
+
+        init_kw = mock_cls.call_args.kwargs
+        assert init_kw["type_k"] == 43  # GGML_TYPE_F8_E4M3
+        assert init_kw["type_v"] == 43  # GGML_TYPE_F8_E4M3
+        assert init_kw["n_gpu_layers"] == -2
+        assert init_kw["load_mode"] == 4
+        assert init_kw["ctx_checkpoints"] == 0
+        assert init_kw["chat_handler_kwargs"]["extra_template_arguments"]["reasoning_effort"] == "medium"
+
+        comp_kw = mock_llama.create_chat_completion.call_args.kwargs
+        assert comp_kw["adaptive_target"] == 0.5
+        assert comp_kw["adaptive_decay"] == 0.85
+        assert comp_kw["dynatemp_range"] == 0.2
+        assert comp_kw["seed"] == 99
+
+        # Test v0.4.8 MTMD invalid-input ValueError trapping preserves cached model when keep_model_loaded=True
+        mock_llama.create_chat_completion.side_effect = ValueError("invalid media payload")
+        raised_val_err = False
+        try:
+            DuffyQwen38VLMPromptGenerator.execute(
+                model_name=model_name,
+                mmproj_name=mmproj_name,
+                system_prompt="Sys",
+                user_prompt="Bad image",
+                thinking_mode="disable",
+                seed=100,
+                n_gpu_layers=-2,
+                mmproj_offload=True,
+                n_ctx=8192,
+                flash_attn=True,
+                kv_cache_type_k="f8_e4m3",
+                kv_cache_type_v="f8_e4m3",
+                n_batch=1024,
+                n_ubatch=512,
+                keep_model_loaded=True,
+                image_min_tokens=256,
+                image_max_tokens=1536,
+                enable_mtp=True,
+                mtp_draft_max=3,
+                reasoning_budget=512,
+                max_new_tokens=512,
+                temperature=0.8,
+                top_p=0.95,
+                top_k=20,
+                min_p=0.05,
+                presence_penalty=1.5,
+                reasoning_effort="low",
+                load_mode="direct_io",
+                mtp_draft_ubatch=128,
+                image=None,
+            )
+        except ValueError as exc:
+            raised_val_err = "Multimodal input or parameter validation error" in str(exc)
+        assert raised_val_err, "Expected contextual ValueError wrapper"
+        assert _Qwen38RuntimeCache._instance is mock_llama, "Cached model should survive ValueError when keep_model_loaded=True"
+        assert "reasoning_effort" not in mock_llama.chat_handler.extra_template_arguments
+
+        _Qwen38RuntimeCache.unload()
+        assert _Qwen38RuntimeCache._instance is None
+
+    print("[PASS] test_v048_optimizations_and_error_handling")
+
+
+def run_live_smoke_test():
+    """Opt-in live hardware inference test with Qwen3.8-27B-Uncensored-Q3_K_M + mmproj on GPU."""
+    print("[LIVE] Running live Qwen3.8-27B Vision + Text hardware smoke test...")
+    main_models, mmproj_models = get_qwen38_model_lists()
+    preferred_model = "Qwen3.8-27B/Qwen3.8-27B-Uncensored-Q3_K_M.gguf"
+    preferred_mmproj = "Qwen3.8-27B/mmproj-Qwen3.8-27B-Uncensored-f16.gguf"
+    model_name = preferred_model if preferred_model in main_models else main_models[0]
+    mmproj_name = preferred_mmproj if preferred_mmproj in mmproj_models else mmproj_models[0]
 
     # Create a simple synthetic 512x512 RGB gradient test image
     y = torch.linspace(0.0, 1.0, 512).view(512, 1, 1).expand(512, 512, 1)
@@ -418,24 +622,27 @@ def run_live_smoke_test():
         seed=42,
         n_gpu_layers=-1,
         mmproj_offload=True,
-        n_ctx=4096,
+        n_ctx=8192,
         flash_attn=True,
-        kv_cache_type_k="q8_0",
-        kv_cache_type_v="q8_0",
+        kv_cache_type_k="f8_e4m3",
+        kv_cache_type_v="f8_e4m3",
         n_batch=1024,
         n_ubatch=512,
         keep_model_loaded=False,
         image_min_tokens=256,
-        image_max_tokens=512,
+        image_max_tokens=1536,
         enable_mtp=True,
-        mtp_draft_max=4,
+        mtp_draft_max=3,
         reasoning_budget=256,
-        max_new_tokens=384,
+        max_new_tokens=512,
         temperature=0.7,
         top_p=0.95,
         top_k=20,
         min_p=0.05,
         presence_penalty=1.5,
+        reasoning_effort="low",
+        load_mode="direct_io",
+        mtp_draft_ubatch=128,
         image=img_tensor,
     )
     clean_prompt, thinking_trace, raw_response = output.args
@@ -443,6 +650,9 @@ def run_live_smoke_test():
     print("\n--- LIVE THINKING TRACE ---\n", thinking_trace)
     print("\n--- LIVE RAW / TELEMETRY ---\n", raw_response)
     assert len(clean_prompt) > 0, "Expected non-empty clean_prompt from live model"
+    assert "decode=" in raw_response, "Expected separated decode tok/s in telemetry"
+    assert "mode=direct_io" in raw_response
+    assert "ctx_checkpoints=0" in raw_response
     print("[PASS] run_live_smoke_test")
 
 
@@ -452,11 +662,13 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     test_schema_contract()
+    test_node_replacement_alignment()
     test_model_discovery_and_qwen38_priority()
     test_security_and_input_validation()
     test_image_preprocessing_and_lanczos_downscale()
     test_parse_qwen38_response()
     test_mocked_execution_vision_and_text_only()
+    test_v048_optimizations_and_error_handling()
 
     if args.live:
         run_live_smoke_test()
