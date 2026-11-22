@@ -2,16 +2,22 @@
 Duffy_Qwen38_VLM_PromptGenerator — ComfyUI V3 Custom Node for Qwen3.8-27B Vision-Language Prompt Generation.
 
 Integrates Alibaba's dense multimodal Qwen3.8-27B GGUF model and its native vision
-projector (mmproj) via JamePeng/llama-cpp-python (v0.4.5+cu130) with hardware-conscious
-VRAM management tailored for 16 GB consumer GPUs (such as NVIDIA RTX 4060 Ti).
+projector (mmproj) via JamePeng/llama-cpp-python (v0.4.8+cu130 / llama.cpp v1.0.0) with
+hardware-conscious VRAM and I/O management tailored for 16 GB consumer GPUs
+(such as NVIDIA RTX 4060 Ti, Ada Lovelace sm_89) paired with large system RAM.
 
 Supported capabilities:
   - Single-image, multi-frame video batch, and pure text-to-prompt generation
   - Native Multi-Token Prediction (MTP) speculative decoding (SpeculativeType.DRAFT_MTP)
+    with v0.4.7+ device-side hidden-state transfer and configurable draft_n_ubatch
+  - Zero-latency single-turn hybrid fast path (ctx_checkpoints=0, n_seq_max=1)
+    for Qwen3.8-27B's 48 Gated DeltaNet recurrent layers
+  - Windows DirectIO unbuffered model loading (LLAMA_LOAD_MODE_DIRECT_IO) for ~2.4x faster reloads
+  - Quantized KV cache (f16, q8_0, f8_e4m3 OCP FP8, q4_0) with Flash Attention safety guard
   - Dynamic resolution token budgeting (image_min_tokens, image_max_tokens) with
     automatic batch frame scaling and Lanczos 1536px long-edge downscaling
-  - Quantized KV cache (f16, q8_0, q4_0) with Flash Attention safety guard
-  -Controllable <think>...</think> reasoning mode and token budget enforcement
+  - Controllable <think>...</think> reasoning mode, reasoning_effort (low/medium/xhigh),
+    token budget enforcement, and v0.4.8 Adaptive-P / Dynamic Temperature sampling
 """
 
 from __future__ import annotations
@@ -19,6 +25,7 @@ from __future__ import annotations
 import base64
 import gc
 import hashlib
+import inspect
 import io as std_io
 import logging
 import os
@@ -67,15 +74,120 @@ _UNCLOSED_THINK_WARNING = (
 )
 
 
-# Standard ggml_type enum values in llama.cpp (F16=1, Q4_0=2, Q8_0=8)
+# Standard ggml_type enum values in llama.cpp v1.0.0+ (F16=1, Q4_0=2, Q8_0=8, F8_E4M3=43)
 _GGML_TYPE_F16 = 1
 _GGML_TYPE_Q4_0 = 2
 _GGML_TYPE_Q8_0 = 8
+_GGML_TYPE_F8_E4M3 = 43
 _KV_CACHE_TYPE_MAP: dict[str, int] = {
     "f16": _GGML_TYPE_F16,
     "q8_0": _GGML_TYPE_Q8_0,
+    "f8_e4m3": _GGML_TYPE_F8_E4M3,
     "q4_0": _GGML_TYPE_Q4_0,
 }
+
+# llama_load_mode enum fallbacks in llama.cpp v1.0.0+
+_LOAD_MODE_FALLBACK_MAP: dict[str, int] = {
+    "auto": -1,
+    "none": 0,
+    "mmap": 1,
+    "direct_io": 4,
+}
+
+# Qwen3.8 Jinja template strictly validates reasoning_effort in ('xhigh', 'medium', 'low')
+_VALID_REASONING_EFFORTS: tuple[str, ...] = ("low", "medium", "xhigh")
+_VRAM_HEADROOM_BYTES = int(2.0 * (1024 ** 3))  # 2.0 GB for KV + GDN state + compute buffers
+
+
+def _resolve_ggml_kv_map(llama_cpp_mod: Any) -> dict[str, int]:
+    """
+    Resolve ggml_type integers for KV cache quantization.
+    In llama-cpp-python v0.4.8+, GGMLType lives under ``llama_cpp._ggml.GGMLType``.
+    """
+    ggml_enum = None
+    try:
+        from llama_cpp._ggml import GGMLType
+        ggml_enum = GGMLType
+    except Exception:
+        ggml_enum = None
+
+    def _lookup(attr_name: str, fallback: int) -> int:
+        if ggml_enum is not None and hasattr(ggml_enum, attr_name):
+            return int(getattr(ggml_enum, attr_name))
+        if hasattr(llama_cpp_mod, attr_name):
+            return int(getattr(llama_cpp_mod, attr_name))
+        return fallback
+
+    return {
+        "f16": _lookup("GGML_TYPE_F16", _GGML_TYPE_F16),
+        "q8_0": _lookup("GGML_TYPE_Q8_0", _GGML_TYPE_Q8_0),
+        "f8_e4m3": _lookup("GGML_TYPE_F8_E4M3", _GGML_TYPE_F8_E4M3),
+        "q4_0": _lookup("GGML_TYPE_Q4_0", _GGML_TYPE_Q4_0),
+    }
+
+
+def _resolve_load_mode_map(llama_cpp_mod: Any) -> dict[str, int]:
+    """Resolve ``llama_load_mode`` enum values from llama-cpp-python v0.4.8+."""
+    load_enum = getattr(getattr(llama_cpp_mod, "llama_cpp", None), "llama_load_mode", None)
+    if load_enum is None:
+        return dict(_LOAD_MODE_FALLBACK_MAP)
+
+    def _lookup(attr_name: str, fallback: int) -> int:
+        return int(getattr(load_enum, attr_name, fallback))
+
+    return {
+        "auto": _lookup("LLAMA_LOAD_MODE_AUTO", -1),
+        "none": _lookup("LLAMA_LOAD_MODE_NONE", 0),
+        "mmap": _lookup("LLAMA_LOAD_MODE_MMAP", 1),
+        "direct_io": _lookup("LLAMA_LOAD_MODE_DIRECT_IO", 4),
+    }
+
+
+def _callable_accepts_kwarg(fn: Any, kwarg_name: str) -> bool:
+    """Return True if ``fn`` accepts ``kwarg_name`` (or ``**kwargs`` / is a mock)."""
+    try:
+        sig = inspect.signature(fn)
+    except (TypeError, ValueError):
+        return True
+    for param in sig.parameters.values():
+        if param.kind == inspect.Parameter.VAR_KEYWORD:
+            return True
+    return kwarg_name in sig.parameters
+
+
+def _normalize_reasoning_effort(effort: str) -> str:
+    """Validate ``reasoning_effort`` against Qwen3.8's strict Jinja template enum."""
+    val = (effort or "low").strip().lower()
+    return val if val in _VALID_REASONING_EFFORTS else "low"
+
+
+def _compute_vram_preflight_bytes(
+    model_path: Optional[str],
+    mmproj_path: Optional[str],
+    mmproj_offload: bool,
+    total_vram_bytes: Optional[int] = None,
+) -> int:
+    """
+    Estimate minimum free VRAM needed before loading the GGUF model + optional MMProj.
+    Dynamically scales above 13.5 GB for larger quantizations (e.g. Q3_K_M at 12.57 GiB)
+    while staying capped at 92% of total GPU VRAM.
+    """
+    est = _VRAM_HEADROOM_BYTES
+    if model_path and os.path.isfile(model_path):
+        try:
+            est += os.path.getsize(model_path)
+        except OSError:
+            pass
+    if mmproj_offload and mmproj_path and os.path.isfile(mmproj_path):
+        try:
+            est += os.path.getsize(mmproj_path)
+        except OSError:
+            pass
+
+    threshold = max(_VRAM_PREFLIGHT_THRESHOLD_BYTES, est)
+    if total_vram_bytes and total_vram_bytes > 0:
+        threshold = min(threshold, int(total_vram_bytes * 0.92))
+    return threshold
 
 # ---------------------------------------------------------------------------
 # Folder Registration & Discovery Helpers
@@ -333,6 +445,10 @@ class _Qwen38RuntimeCache:
     """
     Process-local, thread-safe cache holding at most one loaded ``Llama`` instance
     for ``Duffy_Qwen38_VLM_PromptGenerator``.
+
+    Conforms to llama-cpp-python v0.4.8's strict single-instance ``MTMDBaseHandler``
+    lifecycle: the ``Llama`` object, its internal ``GenericMTMDChatHandler``, and any
+    MTP speculative context are always created, cached, and closed as one unit.
     """
 
     _lock = threading.Lock()
@@ -341,26 +457,66 @@ class _Qwen38RuntimeCache:
     _mtp_active: bool = False
 
     @classmethod
-    def _preflight_vram_check(cls) -> None:
+    def _preflight_vram_check(
+        cls,
+        model_path: Optional[str] = None,
+        mmproj_path: Optional[str] = None,
+        mmproj_offload: bool = True,
+    ) -> None:
         """
         Check available VRAM via ComfyUI's device-agnostic ``model_management`` API.
-        If free memory is below 13.5 GB, proactively evict cached ComfyUI models.
+        Dynamically computes the required threshold from the actual GGUF + MMProj sizes
+        and proactively evicts cached ComfyUI models when free VRAM is insufficient.
         """
         try:
             device = comfy.model_management.get_torch_device()
             free_bytes = comfy.model_management.get_free_memory(device)
-            if free_bytes < _VRAM_PREFLIGHT_THRESHOLD_BYTES:
+            total_bytes: Optional[int] = None
+            if hasattr(comfy.model_management, "get_total_memory"):
+                try:
+                    total_bytes = int(comfy.model_management.get_total_memory(device))
+                except Exception:
+                    total_bytes = None
+            threshold_bytes = _compute_vram_preflight_bytes(
+                model_path=model_path,
+                mmproj_path=mmproj_path,
+                mmproj_offload=mmproj_offload,
+                total_vram_bytes=total_bytes,
+            )
+            if free_bytes < threshold_bytes:
                 free_gb = free_bytes / (1024 ** 3)
+                req_gb = threshold_bytes / (1024 ** 3)
                 logger.info(
-                    "[Duffy Qwen3.8 VLM] Free VRAM (%.2f GB) is below 13.50 GB threshold; "
+                    "[Duffy Qwen3.8 VLM] Free VRAM (%.2f GB) is below dynamic %.2f GB threshold; "
                     "unloading cached ComfyUI models before GGUF initialization.",
                     free_gb,
+                    req_gb,
                 )
                 comfy.model_management.unload_all_models()
                 gc.collect()
                 comfy.model_management.soft_empty_cache()
         except Exception as exc:
             logger.debug("[Duffy Qwen3.8 VLM] Pre-flight VRAM check skipped: %s", exc)
+
+    @classmethod
+    def _sync_template_arguments(
+        cls,
+        llm_instance: Any,
+        is_thinking: bool,
+        reasoning_effort: str,
+    ) -> None:
+        """Synchronize ``enable_thinking`` and ``reasoning_effort`` on the bound chat handler."""
+        chat_handler = getattr(llm_instance, "chat_handler", None)
+        if chat_handler is None:
+            return
+        extra_args = getattr(chat_handler, "extra_template_arguments", None)
+        if not isinstance(extra_args, dict):
+            return
+        extra_args["enable_thinking"] = bool(is_thinking)
+        if is_thinking:
+            extra_args["reasoning_effort"] = _normalize_reasoning_effort(reasoning_effort)
+        else:
+            extra_args.pop("reasoning_effort", None)
 
     @classmethod
     def get_or_load(
@@ -381,25 +537,27 @@ class _Qwen38RuntimeCache:
         enable_mtp: bool,
         mtp_draft_max: int,
         is_thinking: bool,
-    ) -> tuple[Any, bool, str]:
+        reasoning_effort: str = "low",
+        load_mode: str = "direct_io",
+        mtp_draft_ubatch: int = 128,
+    ) -> tuple[Any, bool, str, float]:
         """
-        Return ``(llm_instance, mtp_active, effective_v_cache_str)``, loading or
-        reloading only when the hardware/context configuration key changes.
+        Return ``(llm_instance, mtp_active, effective_v_cache_str, load_seconds)``,
+        loading or reloading only when the hardware/context configuration key changes.
         """
         try:
             import llama_cpp
             from llama_cpp import Llama
         except ImportError as exc:
             raise RuntimeError(
-                "Duffy_Qwen38_VLM_PromptGenerator requires `llama-cpp-python` (v0.4.5+cu130 or newer) "
+                "Duffy_Qwen38_VLM_PromptGenerator requires `llama-cpp-python` (v0.4.8+cu130 or newer) "
                 "with MTMD and Qwen3.8 support. Install the wheel into the active Python environment."
             ) from exc
 
-        ggml_map = {
-            "f16": int(getattr(llama_cpp, "GGML_TYPE_F16", _GGML_TYPE_F16)),
-            "q8_0": int(getattr(llama_cpp, "GGML_TYPE_Q8_0", _GGML_TYPE_Q8_0)),
-            "q4_0": int(getattr(llama_cpp, "GGML_TYPE_Q4_0", _GGML_TYPE_Q4_0)),
-        }
+        ggml_map = _resolve_ggml_kv_map(llama_cpp)
+        load_mode_map = _resolve_load_mode_map(llama_cpp)
+        resolved_load_mode = load_mode_map.get(load_mode, load_mode_map["auto"])
+        normalized_effort = _normalize_reasoning_effort(reasoning_effort)
 
         # Safety guard: Quantizing V-cache requires Flash Attention enabled in llama.cpp
         effective_kv_v_str = kv_cache_type_v
@@ -411,11 +569,14 @@ class _Qwen38RuntimeCache:
             )
             effective_kv_v_str = "f16"
 
-        type_k = ggml_map.get(kv_cache_type_k, _GGML_TYPE_Q8_0)
-        type_v = ggml_map.get(effective_kv_v_str, _GGML_TYPE_Q8_0)
+        type_k = ggml_map.get(kv_cache_type_k, _GGML_TYPE_F8_E4M3)
+        type_v = ggml_map.get(effective_kv_v_str, _GGML_TYPE_F8_E4M3)
 
         # LLAMA_FLASH_ATTN_TYPE_ENABLED = 1, LLAMA_FLASH_ATTN_TYPE_DISABLED = 0
         flash_attn_type = 1 if flash_attn else 0
+        effective_draft_ubatch = (
+            min(int(mtp_draft_ubatch), int(n_ubatch)) if int(mtp_draft_ubatch) > 0 else 0
+        )
 
         desired_key = (
             model_path,
@@ -432,19 +593,21 @@ class _Qwen38RuntimeCache:
             int(effective_image_max_tokens),
             bool(enable_mtp),
             int(mtp_draft_max) if enable_mtp else 0,
+            int(effective_draft_ubatch) if enable_mtp else 0,
+            str(load_mode),
         )
 
         with cls._lock:
             if cls._instance is not None and cls._config_key == desired_key:
-                # Update dynamic per-call template arguments on the cached handler
-                if getattr(cls._instance, "chat_handler", None) is not None:
-                    extra_args = getattr(cls._instance.chat_handler, "extra_template_arguments", None)
-                    if isinstance(extra_args, dict):
-                        extra_args["enable_thinking"] = bool(is_thinking)
-                return cls._instance, cls._mtp_active, effective_kv_v_str
+                cls._sync_template_arguments(cls._instance, is_thinking, normalized_effort)
+                return cls._instance, cls._mtp_active, effective_kv_v_str, 0.0
 
             cls._unload_locked()
-            cls._preflight_vram_check()
+            cls._preflight_vram_check(
+                model_path=model_path,
+                mmproj_path=mmproj_path,
+                mmproj_offload=bool(mmproj_offload),
+            )
 
             # Configure native Multi-Token Prediction (MTP) speculative decoding if requested
             spec_config = None
@@ -452,10 +615,15 @@ class _Qwen38RuntimeCache:
             if enable_mtp:
                 try:
                     from llama_cpp.llama_speculative import SpecConfig, SpeculativeType
-                    spec_config = SpecConfig(
-                        spec_type=SpeculativeType.DRAFT_MTP,
-                        draft_n_max=int(mtp_draft_max),
-                    )
+
+                    spec_kwargs: dict[str, Any] = {
+                        "spec_type": SpeculativeType.DRAFT_MTP,
+                        "draft_n_max": int(mtp_draft_max),
+                        "draft_p_min": 0.0,
+                    }
+                    if _callable_accepts_kwarg(SpecConfig.__init__, "draft_n_ubatch"):
+                        spec_kwargs["draft_n_ubatch"] = int(effective_draft_ubatch)
+                    spec_config = SpecConfig(**spec_kwargs)
                     load_mtp = True
                 except Exception as exc:
                     logger.warning(
@@ -466,6 +634,10 @@ class _Qwen38RuntimeCache:
                     spec_config = None
                     load_mtp = False
 
+            extra_template_arguments: dict[str, Any] = {"enable_thinking": bool(is_thinking)}
+            if is_thinking:
+                extra_template_arguments["reasoning_effort"] = normalized_effort
+
             chat_handler_kwargs: dict[str, Any] = {}
             if mmproj_path is not None:
                 chat_handler_kwargs = {
@@ -474,7 +646,7 @@ class _Qwen38RuntimeCache:
                     "image_min_tokens": int(image_min_tokens),
                     "image_max_tokens": int(effective_image_max_tokens),
                     "batch_max_tokens": int(n_ubatch),
-                    "extra_template_arguments": {"enable_thinking": bool(is_thinking)},
+                    "extra_template_arguments": extra_template_arguments,
                     "verbose": False,
                 }
 
@@ -485,32 +657,42 @@ class _Qwen38RuntimeCache:
                 "n_ctx": int(n_ctx),
                 "n_batch": int(n_batch),
                 "n_ubatch": int(n_ubatch),
+                "n_seq_max": 1,
                 "flash_attn_type": flash_attn_type,
                 "type_k": type_k,
                 "type_v": type_v,
                 "offload_kqv": True,
-                "swa_full": False,
                 "verbose": False,
             }
+            # Zero-latency single-turn hybrid fast path (v0.4.7+/v0.4.8)
+            if _callable_accepts_kwarg(Llama.__init__, "ctx_checkpoints"):
+                init_kwargs["ctx_checkpoints"] = 0
+            # Windows DirectIO / MMAP load mode (v0.4.8 replaces legacy use_direct_io)
+            if _callable_accepts_kwarg(Llama.__init__, "load_mode"):
+                init_kwargs["load_mode"] = int(resolved_load_mode)
             if mmproj_path is not None:
                 init_kwargs["chat_handler_kwargs"] = chat_handler_kwargs
 
             logger.info(
                 "[Duffy Qwen3.8 VLM] Loading model='%s' mmproj='%s' (n_ctx=%d, ngl=%d, "
-                "fa=%s, kv=%s/%s, mtp=%s, draft_max=%d, img_tokens=%d..%d)",
+                "load_mode=%s, fa=%s, kv=%s/%s, ctx_cp=0, mtp=%s, draft_max=%d, "
+                "draft_ubatch=%d, img_tokens=%d..%d)",
                 os.path.basename(model_path),
                 os.path.basename(mmproj_path) if mmproj_path else "None",
                 n_ctx,
                 n_gpu_layers,
+                load_mode,
                 flash_attn,
                 kv_cache_type_k,
                 effective_kv_v_str,
                 load_mtp,
                 mtp_draft_max if load_mtp else 0,
+                effective_draft_ubatch if load_mtp else 0,
                 image_min_tokens,
                 effective_image_max_tokens,
             )
 
+            t_load_start = time.perf_counter()
             mtp_active = False
             try:
                 if load_mtp and spec_config is not None:
@@ -534,22 +716,23 @@ class _Qwen38RuntimeCache:
                 else:
                     raise
 
+            load_seconds = max(0.0, time.perf_counter() - t_load_start)
             cls._config_key = desired_key
             cls._mtp_active = mtp_active
-            return cls._instance, cls._mtp_active, effective_kv_v_str
+            return cls._instance, cls._mtp_active, effective_kv_v_str, load_seconds
 
     @classmethod
     def _unload_locked(cls) -> None:
         if cls._instance is not None:
-            try:
-                chat_handler = getattr(cls._instance, "chat_handler", None)
-                if chat_handler is not None and hasattr(chat_handler, "close"):
-                    chat_handler.close()
-            except Exception as exc:
-                logger.debug("[Duffy Qwen3.8 VLM] Error closing MTMD chat_handler: %s", exc)
+            # In v0.4.8+, Llama.close() tears down chat_handler, speculative,
+            # _hybrid_cache_mgr, and native context in dependency order via ExitStack.
             try:
                 if hasattr(cls._instance, "close"):
                     cls._instance.close()
+                else:
+                    chat_handler = getattr(cls._instance, "chat_handler", None)
+                    if chat_handler is not None and hasattr(chat_handler, "close"):
+                        chat_handler.close()
             except Exception as exc:
                 logger.debug("[Duffy Qwen3.8 VLM] Error closing Llama instance: %s", exc)
             cls._instance = None
@@ -652,19 +835,23 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 io.Int.Input(
                     "n_gpu_layers",
                     default=-1,
-                    min=-1,
+                    min=-2,
                     max=128,
                     step=1,
                     display_name="GPU Layers (n_gpu_layers)",
-                    tooltip="Number of transformer layers to offload to GPU VRAM (-1 offloads all layers).",
+                    tooltip=(
+                        "Number of transformer layers to offload to GPU VRAM: "
+                        "-1 = auto-fit available VRAM (recommended, spills overflow cleanly to system RAM), "
+                        "-2 = force all layers to GPU, 0..65 = explicit layer count."
+                    ),
                 ),
                 io.Boolean.Input(
                     "mmproj_offload",
                     default=True,
                     display_name="Offload MMProj to GPU",
                     tooltip=(
-                        "Offload the vision encoder projector (~930 MB) to GPU. Disable to keep the "
-                        "vision projector in system RAM if VRAM is constrained."
+                        "Offload the vision encoder projector (~930 MB) to GPU (strongly recommended: "
+                        "CPU vision encoding adds ~20s per image). Disable only if VRAM is exhausted."
                     ),
                 ),
                 io.Int.Input(
@@ -684,18 +871,21 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 ),
                 io.Combo.Input(
                     "kv_cache_type_k",
-                    options=["f16", "q8_0", "q4_0"],
-                    default="q8_0",
+                    options=["f16", "q8_0", "f8_e4m3", "q4_0"],
+                    default="f8_e4m3",
                     display_name="KV Cache Type (K)",
-                    tooltip="Data type quantization for the Key cache (q8_0 halves KV VRAM with negligible quality loss).",
+                    tooltip=(
+                        "Key cache quantization: f8_e4m3 (OCP FP8, default on Ada/Blackwell GPUs) and q8_0 "
+                        "halve KV VRAM with negligible quality loss; q4_0 saves extra VRAM for long contexts."
+                    ),
                 ),
                 io.Combo.Input(
                     "kv_cache_type_v",
-                    options=["f16", "q8_0", "q4_0"],
-                    default="q8_0",
+                    options=["f16", "q8_0", "f8_e4m3", "q4_0"],
+                    default="f8_e4m3",
                     display_name="KV Cache Type (V)",
                     tooltip=(
-                        "Data type quantization for the Value cache (requires Flash Attention enabled; "
+                        "Value cache quantization (requires Flash Attention enabled; "
                         "automatically falls back to f16 if Flash Attention is disabled)."
                     ),
                 ),
@@ -756,16 +946,22 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                     "enable_mtp",
                     default=True,
                     display_name="Enable MTP Speculative Decoding",
-                    tooltip="Activate Qwen3.8's built-in Multi-Token Prediction (DRAFT_MTP) head for faster generation.",
+                    tooltip=(
+                        "Activate Qwen3.8's built-in Multi-Token Prediction (DRAFT_MTP) head with v0.4.7+ "
+                        "device-side hidden-state transfer (+75–85% decode speedup on RTX 4060 Ti)."
+                    ),
                 ),
                 io.Int.Input(
                     "mtp_draft_max",
-                    default=4,
+                    default=3,
                     min=1,
                     max=16,
                     step=1,
                     display_name="MTP Draft Max Tokens",
-                    tooltip="Maximum number of draft tokens proposed per MTP verification step.",
+                    tooltip=(
+                        "Maximum draft tokens proposed per MTP verification step "
+                        "(3 is the benchmarked sweet spot for Qwen3.8-27B Q3_K_M on RTX 4060 Ti 16 GB)."
+                    ),
                 ),
                 # --- Reasoning & Sampling ---
                 io.Int.Input(
@@ -833,6 +1029,79 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                     step=0.1,
                     display_name="Presence Penalty",
                     tooltip="Penalizes repeated concepts (1.5 prevents repetitive thinking loops in Qwen3.8).",
+                ),
+                # --- v0.4.8 Optimization & Advanced Sampling Controls ---
+                io.Combo.Input(
+                    "reasoning_effort",
+                    options=["low", "medium", "xhigh"],
+                    default="low",
+                    display_name="Reasoning Effort",
+                    tooltip=(
+                        "Controls Qwen3.8's Jinja reasoning_effort directive when Thinking Mode is 'enable' "
+                        "('low' gives brief, focused reasoning and prevents Qwen3.8's default 'xhigh' token bloat). "
+                        "Ignored when Thinking Mode is 'disable'."
+                    ),
+                ),
+                io.Combo.Input(
+                    "load_mode",
+                    options=["direct_io", "auto", "mmap", "none"],
+                    default="direct_io",
+                    advanced=True,
+                    display_name="Model Load Mode",
+                    tooltip=(
+                        "llama.cpp v1.0.0 file loading backend: 'direct_io' (default) uses Windows unbuffered I/O "
+                        "(~2.4x faster cold/reload times and avoids OS page-cache duplication); "
+                        "'auto'/'mmap' uses memory-mapped I/O."
+                    ),
+                ),
+                io.Int.Input(
+                    "mtp_draft_ubatch",
+                    default=128,
+                    min=0,
+                    max=1024,
+                    step=64,
+                    advanced=True,
+                    display_name="MTP Draft Micro-Batch",
+                    tooltip=(
+                        "Physical micro-batch size for the MTP draft head (0 inherits n_ubatch). "
+                        "128 minimizes draft VRAM scratch buffer overhead on 16 GB GPUs."
+                    ),
+                ),
+                io.Float.Input(
+                    "adaptive_target",
+                    default=-1.0,
+                    min=-1.0,
+                    max=1.0,
+                    step=0.05,
+                    advanced=True,
+                    display_name="Adaptive-P Target",
+                    tooltip=(
+                        "v0.4.8 EMA-based Adaptive-P target probability (0.0..1.0 enables Adaptive-P sampling; "
+                        "-1.0 disables)."
+                    ),
+                ),
+                io.Float.Input(
+                    "adaptive_decay",
+                    default=0.9,
+                    min=0.0,
+                    max=0.99,
+                    step=0.01,
+                    advanced=True,
+                    display_name="Adaptive-P Decay",
+                    tooltip="Exponential moving-average decay rate for Adaptive-P sampling (used when Adaptive-P Target >= 0).",
+                ),
+                io.Float.Input(
+                    "dynatemp_range",
+                    default=0.0,
+                    min=0.0,
+                    max=2.0,
+                    step=0.05,
+                    advanced=True,
+                    display_name="Dynamic Temp Range",
+                    tooltip=(
+                        "v0.4.8 Dynamic Temperature range around Temperature (0.0 disables; "
+                        "values > 0 dynamically scale temperature based on token entropy)."
+                    ),
                 ),
                 # --- Optional Image / Video Frame Batch Input ---
                 io.Image.Input(
@@ -922,6 +1191,12 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
         top_k: int,
         min_p: float,
         presence_penalty: float,
+        reasoning_effort: str = "low",
+        load_mode: str = "direct_io",
+        mtp_draft_ubatch: int = 128,
+        adaptive_target: float = -1.0,
+        adaptive_decay: float = 0.9,
+        dynatemp_range: float = 0.0,
         image: Optional[torch.Tensor] = None,
         **kwargs,
     ) -> str:
@@ -953,6 +1228,12 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
             int(top_k),
             round(float(min_p), 4),
             round(float(presence_penalty), 4),
+            str(reasoning_effort),
+            str(load_mode),
+            int(mtp_draft_ubatch),
+            round(float(adaptive_target), 4),
+            round(float(adaptive_decay), 4),
+            round(float(dynatemp_range), 4),
         )
         hasher.update(repr(fields).encode("utf-8"))
 
@@ -1005,6 +1286,12 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
         top_k: int,
         min_p: float,
         presence_penalty: float,
+        reasoning_effort: str = "low",
+        load_mode: str = "direct_io",
+        mtp_draft_ubatch: int = 128,
+        adaptive_target: float = -1.0,
+        adaptive_decay: float = 0.9,
+        dynatemp_range: float = 0.0,
         image: Optional[torch.Tensor] = None,
     ) -> io.NodeOutput:
         model_path = resolve_llm_subpath(model_name)
@@ -1022,7 +1309,7 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
             raise ValueError(
                 "[Duffy Qwen3.8 VLM] An input image is connected, but no valid MMProj vision projector "
                 f"is selected (mmproj_name='{mmproj_name}'). Please select an mmproj GGUF file "
-                "(e.g., Qwen3.8-27B/mmproj-Qwen3.8-27B-BF16.gguf)."
+                "(e.g., Qwen3.8-27B/mmproj-Qwen3.8-27B-Uncensored-f16.gguf)."
             )
 
         if int(image_max_tokens) < int(image_min_tokens):
@@ -1039,6 +1326,7 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
         effective_image_min_tokens = min(int(image_min_tokens), effective_image_max_tokens)
 
         is_thinking = thinking_mode == "enable"
+        normalized_effort = _normalize_reasoning_effort(reasoning_effort)
         effective_budget = int(reasoning_budget) if is_thinking else 0
 
         try:
@@ -1078,11 +1366,11 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 messages.append({"role": "system", "content": system_prompt.strip()})
             messages.append({"role": "user", "content": user_content})
 
-            # 2. Load or retrieve cached Llama instance
+            # 2. Load or retrieve cached Llama instance (strict single-instance MTMD lifecycle)
             # Always pass mmproj_path when available so GenericMTMDChatHandler is active
             # for both multimodal and text-only requests (supporting extra_template_arguments
-            # such as enable_thinking without reloading the model when toggling image input).
-            llm, mtp_active, effective_kv_v = _Qwen38RuntimeCache.get_or_load(
+            # such as enable_thinking / reasoning_effort without reloading when toggling image input).
+            llm, mtp_active, effective_kv_v, load_seconds = _Qwen38RuntimeCache.get_or_load(
                 model_path=model_path,
                 mmproj_path=mmproj_path,
                 n_gpu_layers=int(n_gpu_layers),
@@ -1098,16 +1386,16 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 enable_mtp=bool(enable_mtp),
                 mtp_draft_max=int(mtp_draft_max),
                 is_thinking=is_thinking,
+                reasoning_effort=normalized_effort,
+                load_mode=str(load_mode),
+                mtp_draft_ubatch=int(mtp_draft_ubatch),
             )
 
-            # Synchronize Jinja template thinking flag on active chat handler
+            # Synchronize Jinja template thinking & reasoning_effort flags on active chat handler
+            _Qwen38RuntimeCache._sync_template_arguments(llm, is_thinking, normalized_effort)
             chat_handler = getattr(llm, "chat_handler", None)
-            if chat_handler is not None:
-                extra_args = getattr(chat_handler, "extra_template_arguments", None)
-                if isinstance(extra_args, dict):
-                    extra_args["enable_thinking"] = is_thinking
 
-            # 3. Execute multimodal / text chat completion
+            # 3. Execute multimodal / text chat completion with thread-safe per-call seed
             # Qwen3.8's Jinja template injects `<think>\n` at the end of the prompt when
             # `enable_thinking` is True, so `reasoning_start_in_prompt=is_thinking` allows
             # the native reasoning_budget sampler to count tokens from the start of generation.
@@ -1126,13 +1414,30 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 "reasoning_end": "</think>",
                 "reasoning_start_in_prompt": bool(is_thinking),
             }
+            if float(adaptive_target) >= 0.0:
+                completion_kwargs["adaptive_target"] = float(adaptive_target)
+                completion_kwargs["adaptive_decay"] = float(adaptive_decay)
+            if float(dynatemp_range) > 0.0:
+                completion_kwargs["dynatemp_range"] = float(dynatemp_range)
             if not is_thinking and chat_handler is None:
                 # Fallback when no MTMD chat_handler is active (e.g., mmproj_name == 'None')
                 # and the standard Jinja2ChatFormatter renders `<think>\n` by default:
                 # reasoning_budget=0 + reasoning_start_in_prompt=True forces immediate `</think>`.
                 completion_kwargs["reasoning_start_in_prompt"] = True
 
-            response = llm.create_chat_completion(**completion_kwargs)
+            try:
+                response = llm.create_chat_completion(**completion_kwargs)
+            except ValueError as exc:
+                # v0.4.8 maps native MTMD invalid-input status code 2 and invalid schema bounds to ValueError.
+                raise ValueError(
+                    f"[Duffy Qwen3.8 VLM] Multimodal input or parameter validation error: {exc}"
+                ) from exc
+            except RuntimeError as exc:
+                raise RuntimeError(
+                    f"[Duffy Qwen3.8 VLM] Inference runtime error: {exc} "
+                    "(If VRAM was exhausted, try kv_cache=f8_e4m3/q4_0, mtp_draft_ubatch=128, "
+                    "n_gpu_layers=-1 [auto], or reduce image_max_tokens/n_ctx.)"
+                ) from exc
             t_gen_end = time.perf_counter()
 
             # 4. Extract content & parse <think> trace
@@ -1156,24 +1461,61 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 finish_reason=finish_reason,
             )
 
-            # 5. Build Telemetry & Raw Response Output
+            # 5. Build Accurate Telemetry & Raw Response Output
             usage = response.get("usage", {}) if isinstance(response, dict) else {}
             prompt_tokens = int(usage.get("prompt_tokens", 0))
             completion_tokens = int(usage.get("completion_tokens", 0))
             total_tokens = int(usage.get("total_tokens", prompt_tokens + completion_tokens))
             gen_seconds = max(1e-6, t_gen_end - t_gen_start)
             total_seconds = max(1e-6, t_gen_end - t_start)
-            tok_per_sec = completion_tokens / gen_seconds if completion_tokens > 0 else 0.0
+            wall_tok_per_sec = completion_tokens / gen_seconds if completion_tokens > 0 else 0.0
 
+            # Separate true decode tok/s from vision encoding + prefill overhead
             spec_stats = getattr(llm, "last_speculative_stats", None)
+            decode_tok_per_sec = 0.0
+            decode_seconds = 0.0
+            if mtp_active and isinstance(spec_stats, dict):
+                decode_tok_per_sec = float(
+                    spec_stats.get("decode_tokens_per_second")
+                    or spec_stats.get("generation_tokens_per_second")
+                    or 0.0
+                )
+                decode_seconds = float(
+                    spec_stats.get("decode_seconds")
+                    or spec_stats.get("generation_seconds")
+                    or 0.0
+                )
+            if decode_tok_per_sec <= 0.0:
+                try:
+                    import llama_cpp.llama_cpp as _lc
+                    ctx_wrapper = getattr(llm, "_ctx", None)
+                    ctx_ptr = getattr(ctx_wrapper, "ctx", None)
+                    if ctx_ptr is not None and hasattr(_lc, "llama_perf_context"):
+                        perf = _lc.llama_perf_context(ctx_ptr)
+                        t_eval_ms = float(getattr(perf, "t_eval_ms", 0.0))
+                        n_eval = int(getattr(perf, "n_eval", 0))
+                        if t_eval_ms > 0.0 and n_eval > 0:
+                            decode_seconds = t_eval_ms / 1000.0
+                            decode_tok_per_sec = n_eval / decode_seconds
+                except Exception:
+                    pass
+            prefill_vision_seconds = (
+                max(0.0, gen_seconds - decode_seconds) if decode_seconds > 0.0 else 0.0
+            )
+
             mtp_summary = "disabled"
             if mtp_active and isinstance(spec_stats, dict):
                 drafted = int(spec_stats.get("drafted", 0))
                 accepted = int(spec_stats.get("accepted_draft_tokens", spec_stats.get("accepted", 0)))
                 acc_rate = float(spec_stats.get("draft_token_acceptance_rate", 0.0)) * 100.0
-                mtp_summary = f"enabled (draft_max={mtp_draft_max}, accepted={accepted}/{drafted} [{acc_rate:.1f}%])"
+                mean_len = float(spec_stats.get("mean_accepted_length", 0.0))
+                mean_suffix = f", avg_len={mean_len:.2f}" if mean_len > 0.0 else ""
+                mtp_summary = (
+                    f"enabled (draft_max={mtp_draft_max}, draft_ubatch={mtp_draft_ubatch}, "
+                    f"accepted={accepted}/{drafted} [{acc_rate:.1f}%]{mean_suffix})"
+                )
             elif mtp_active:
-                mtp_summary = f"enabled (draft_max={mtp_draft_max})"
+                mtp_summary = f"enabled (draft_max={mtp_draft_max}, draft_ubatch={mtp_draft_ubatch})"
 
             vision_summary = (
                 f"{batch_size} frame(s) [{', '.join(frame_resolutions)}], "
@@ -1183,17 +1525,44 @@ class DuffyQwen38VLMPromptGenerator(io.ComfyNode):
                 else "text-only (no image connected)"
             )
 
+            vram_summary = ""
+            try:
+                dev = comfy.model_management.get_torch_device()
+                free_mib = comfy.model_management.get_free_memory(dev) / (1024 ** 2)
+                if hasattr(comfy.model_management, "get_total_memory"):
+                    total_mib = comfy.model_management.get_total_memory(dev) / (1024 ** 2)
+                    used_mib = max(0.0, total_mib - free_mib)
+                    vram_summary = f"\nVRAM: {used_mib:.0f}/{total_mib:.0f} MiB used ({free_mib:.0f} MiB free)"
+                else:
+                    vram_summary = f"\nVRAM Free: {free_mib:.0f} MiB"
+            except Exception:
+                vram_summary = ""
+
+            load_str = f"{load_seconds:.2f}s" if load_seconds > 0.0 else "cached"
+            thinking_summary = (
+                f"{thinking_mode} (effort={normalized_effort}, budget={effective_budget})"
+                if is_thinking
+                else f"{thinking_mode} (budget=0)"
+            )
+            decode_str = (
+                f"decode={decode_tok_per_sec:.2f} tok/s ({decode_seconds:.2f}s), "
+                f"vision+prefill={prefill_vision_seconds:.2f}s, "
+                if decode_tok_per_sec > 0.0
+                else ""
+            )
+
             telemetry_block = (
                 "\n\n---\n"
                 "[Qwen3.8-27B Telemetry]\n"
-                f"Model: {model_name}\n"
+                f"Model: {model_name} (load={load_str}, mode={load_mode}, ngl={n_gpu_layers})\n"
                 f"MMProj: {mmproj_name if has_image else 'None (text-only)'}\n"
                 f"Vision Input: {vision_summary}\n"
-                f"Thinking Mode: {thinking_mode} (budget={effective_budget})\n"
-                f"KV Cache: K={kv_cache_type_k}, V={effective_kv_v} (flash_attn={flash_attn}, n_ctx={n_ctx})\n"
+                f"Thinking Mode: {thinking_summary}\n"
+                f"KV Cache: K={kv_cache_type_k}, V={effective_kv_v} (flash_attn={flash_attn}, n_ctx={n_ctx}, ctx_checkpoints=0)\n"
                 f"MTP Speculative Decoding: {mtp_summary}\n"
                 f"Tokens: prompt={prompt_tokens}, completion={completion_tokens}, total={total_tokens} (finish={finish_reason})\n"
-                f"Timing: generation={gen_seconds:.2f}s ({tok_per_sec:.2f} tok/s), total={total_seconds:.2f}s"
+                f"Timing: {decode_str}generation={gen_seconds:.2f}s ({wall_tok_per_sec:.2f} wall tok/s), total={total_seconds:.2f}s"
+                f"{vram_summary}"
             )
 
             # Reconstruct full raw representation including <think> if template prefilled it
