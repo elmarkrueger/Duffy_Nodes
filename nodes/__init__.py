@@ -77,6 +77,7 @@ from .qwen3_vl_gguf_analyzer import DuffyQwen3VLGGUFAnalyzer
 from .qwen38_vlm_prompt_generator import DuffyQwen38VLMPromptGenerator
 from .qwen_gguf_analyzer import DuffyQwenGGUFAnalyzer
 from .real_time_grading_processor import DuffyRealTimeGradingProcessor
+from .resolution_selector import DuffyResolutionSelector
 # Image processing nodes (migrated from legacy V1)
 from .rgba_to_rgb import DuffyRGBAtoRGB
 from .rich_text_note import DuffyRichTextNote
@@ -145,6 +146,7 @@ NODE_LIST = [
     DuffyLogicGate,
     # Selector nodes
     DuffyModelSelector,
+    DuffyResolutionSelector,
     # Loaders
     DuffyModelLoader,
     DuffyLoraLoader,
